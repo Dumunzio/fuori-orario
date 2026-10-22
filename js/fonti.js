@@ -15,12 +15,17 @@ const W={
   jacquard:{titolo:'Wikipedia: Joseph-Marie Jacquard',url:'https://it.wikipedia.org/wiki/Joseph-Marie_Jacquard'},
   giardino:{titolo:'Wikipedia: Giardino Jacquard',url:'https://it.wikipedia.org/wiki/Giardino_Jacquard'},
   tessitore:{titolo:'Wikipedia: Monumento al Tessitore',url:'https://it.wikipedia.org/wiki/Monumento_al_Tessitore'},
-  conte:{titolo:'Wikipedia: Lanificio Conte',url:'https://it.wikipedia.org/wiki/Lanificio_Conte'}
+  conte:{titolo:'Wikipedia: Lanificio Conte',url:'https://it.wikipedia.org/wiki/Lanificio_Conte'},
+  villaGodi:{titolo:'Wikipedia: Villa Godi',url:'https://it.wikipedia.org/wiki/Villa_Godi'},
+  palladio:{titolo:'Wikipedia: Andrea Palladio',url:'https://it.wikipedia.org/wiki/Andrea_Palladio'},
+  quattroLibri:{titolo:'Wikipedia: I quattro libri dell\'architettura',url:'https://it.wikipedia.org/wiki/I_quattro_libri_dell%27architettura'},
+  villePalladiane:{titolo:'Wikipedia: Ville palladiane',url:'https://it.wikipedia.org/wiki/Ville_palladiane'}
 };
 
 // Per ogni cartellino o sigillo di contenuti.js (stesse chiavi): i fatti che contiene e se sono confermati.
 // stato: 'verificato' = la fonte lo dice; 'errato' = la fonte dice altro (vedi correzione);
-// 'non confermato' = nessuna fonte trovata, meglio riscriverlo (vedi correzione).
+// 'non confermato' = nessuna fonte trovata, meglio riscriverlo (vedi correzione);
+// 'da precisare' = vero in parte, la fonte è più prudente (vedi correzione). 'nota' = dettaglio utile, non un errore.
 const FONTI={
   lan:[
     {fatto:'Nel 1817 Francesco Rossi avvia a Schio l\'attività laniera',stato:'verificato',fonte:W.lanerossi},
@@ -44,7 +49,25 @@ const FONTI={
     {fatto:'Tra la Fabbrica Alta (1862) e i lavori sul Pasubio (1917) passano 55 anni',stato:'verificato',fonte:W.fabbrica}],
   archive:[
     {fatto:'Telaio di Lione nel 1804',stato:'errato',fonte:W.telaio,correzione:'Il telaio è del 1801.'},
-    {fatto:'1817, 1862, 1917',stato:'verificato',fonte:W.lanerossi}]
+    {fatto:'1817, 1862, 1917',stato:'verificato',fonte:W.lanerossi}],
+  // Sala delle Ville (richiesta di enigmi-storia del 22/10)
+  godi:[
+    {fatto:'Al centro della facciata, arretrata tra due ali, c\'è una loggia con tre arcate',stato:'verificato',fonte:W.villaGodi},
+    {fatto:'La loggia è raggiunta da una scalinata',stato:'verificato',fonte:W.villaGodi,
+      nota:'La scalinata arriva solo all\'arco centrale, e la loggia è al piano nobile (rialzato), non al piano terra.'},
+    {fatto:'Costruita a Lugo di Vicenza a partire dal 1537 per i fratelli Godi',stato:'verificato',fonte:W.villaGodi,
+      nota:'Progetto dal 1537 al 1542, a Lonedo di Lugo di Vicenza. Wikipedia scrive «Gerolamo», non «Girolamo».'},
+    {fatto:'È la prima villa di Palladio',stato:'da precisare',fonte:W.villaGodi,
+      correzione:'È una delle prime opere di Palladio, la prima documentata con sicurezza.'},
+    {fatto:'Dal 1996 patrimonio UNESCO con le altre ville palladiane del Veneto',stato:'verificato',fonte:W.villaGodi}],
+  palladio:[
+    {fatto:'Andrea Palladio è vissuto dal 1508 al 1580',stato:'verificato',fonte:W.palladio},
+    {fatto:'I Quattro Libri dell\'Architettura sono del 1570',stato:'verificato',fonte:W.quattroLibri},
+    {fatto:'Nelle ville di Palladio la simmetria è la regola: quello che sta a sinistra si ripete a destra',stato:'verificato',fonte:W.villePalladiane,
+      nota:'Nel trattato Palladio mostra le ville quasi sempre simmetriche; Villa Godi è «chiaramente simmetrica» (Wikipedia: Villa Godi).'}],
+  facade:[
+    {fatto:'Villa Godi è simmetrica e la loggia ha tre arcate',stato:'verificato',fonte:W.villaGodi},
+    {fatto:'Il sito UNESCO è «Città di Vicenza e le ville palladiane del Veneto» (1994-1996)',stato:'verificato',fonte:W.villePalladiane}]
 };
 
 // Link alle fonti di un cartellino o sigillo, pronti da inserire nel diario o in una finestra.
@@ -85,7 +108,17 @@ const CONOSCENZA=[
   {id:'pasubio',chiavi:['pasubio','dente','denti','mine','mina','guerra','trincee','combattimenti','cima palon'],
     testo:'Sul Pasubio si è combattuto per tre anni e mezzo. Sui due «Denti» le trincee italiane e austriache erano vicinissime, e nell\'inverno 1917-18 si combatté una «guerra delle mine»: ognuno scavava gallerie per far saltare le postazioni nemiche. La cima più alta è Cima Palon, 2.232 metri.',fonte:W.pasubio},
   {id:'oggi',chiavi:['oggi','visitare','bicicletta','bici','camminare','escursione','sentiero','percorrere'],
-    testo:'La Strada delle 52 gallerie oggi si percorre a piedi. In bicicletta è vietato, dopo diversi incidenti mortali, ed è meglio evitarla con temporali e brutto tempo per il rischio di sassi e fango.',fonte:W.gallerie}
+    testo:'La Strada delle 52 gallerie oggi si percorre a piedi. In bicicletta è vietato, dopo diversi incidenti mortali, ed è meglio evitarla con temporali e brutto tempo per il rischio di sassi e fango.',fonte:W.gallerie},
+  {id:'unesco',chiavi:['unesco','patrimonio','umanita','1996','1994','ville palladiane','tutelata'],
+    testo:'Tra il 1994 e il 1996 l\'UNESCO ha inserito Vicenza e le ville di Palladio nel Veneto tra i patrimoni dell\'umanità, nel sito «Città di Vicenza e le ville palladiane del Veneto». Villa Godi ne fa parte dal 1996.',fonte:W.villePalladiane},
+  {id:'villaGodi',chiavi:['villa godi','godi','villa','lonedo','lugo','fratelli','1537','1542','prima villa','costruita'],
+    testo:'Villa Godi è a Lonedo di Lugo di Vicenza. Il progetto, per i fratelli Gerolamo, Pietro e Marcantonio Godi, va dal 1537 al 1542. È una delle prime opere di Andrea Palladio, la prima documentata con sicurezza: la descrive lui stesso nei Quattro Libri dell\'Architettura.',fonte:W.villaGodi},
+  {id:'loggia',chiavi:['loggia','arcate','arcata','archi','arco','scalinata','scala','facciata','simmetria','simmetrica','ali','ala'],
+    testo:'Villa Godi è chiaramente simmetrica. La parte centrale della facciata è arretrata e si apre in una loggia con tre arcate, al piano nobile. La scalinata arriva solo all\'arco centrale: ricorda il ponte levatoio dei castelli, per controllare chi entrava.',fonte:W.villaGodi},
+  {id:'palladio',chiavi:['palladio','andrea','architetto','1508','1580','gondola','chi era palladio','rinascimento'],
+    testo:'Andrea Palladio, vero nome Andrea di Pietro della Gondola, nasce a Padova nel 1508 e muore a Vicenza nel 1580. È uno degli architetti più influenti della storia: nel territorio della Repubblica di Venezia progetta ville, chiese e palazzi, soprattutto a Vicenza.',fonte:W.palladio},
+  {id:'quattroLibri',chiavi:['quattro libri','libri','libro','trattato','1570','regole','venezia'],
+    testo:'I Quattro Libri dell\'Architettura sono il trattato di Palladio, pubblicato a Venezia nel 1570. Le ville che mostra sono quasi sempre simmetriche: quello che sta a sinistra si ripete a destra.',fonte:W.quattroLibri}
 ];
 
 // "chi" non è tra le parole ignorate: segnala che la domanda chiede di una persona.
