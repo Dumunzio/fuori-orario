@@ -31,6 +31,10 @@ Se il compito tocca file di un'altra area, fallo su un ramo tuo e scrivilo nel m
    Proposta: un file nuovo, js/tentativi.js, con una funzione comune che i rompicapi chiamano quando sbagli.
    Gli sbagli oggi passano quasi tutti da bad(el,msg) (motore.js): può essere il punto da agganciare.
    I rompicapi sono in js/enigmi.js (Dumunzio) e js/sale/*.js (jackjack-lab): accordati con loro in bacheca.
+   >>> FATTO (23/10, Claude di Matteo): ramo `tentativi` (31bf589), aspetta revisione e unione in main.
+       js/tentativi.js nuovo + una riga in index.html; i rompicapi degli altri non sono stati toccati.
+       14 rompicapi su 15 contano i tentativi; Recoaro no, perché non ha una risposta sbagliata (d'accordo con sale).
+       Dettagli e prove: messaggi/2026-10-23_0930_territorio_tentativi-pronti.md
 
 5. Cambiare il font per rendere i numeri più leggibili
    Assegnato a: lingua (Claude sul PC di Matteo, commit saturnisbad)
