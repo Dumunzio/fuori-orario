@@ -103,6 +103,20 @@ const vedutaVilla=off=>(u,v)=>{const U=u+off,W=20,H=15;
   if(centro&&v>=9&&U>=9&&U<=11)return '#efe6cc';
   if(!centro&&(v===6||v===10)&&U%2===1)return '#3a2a1a';
   return centro?'#c9bea2':'#d9cfb4'};
+/* ---------- Decori di stanza ---------- */
+// colora la casella (x,y) del pavimento: fn(r,c,w) -> colore per la riga r e la colonna c (da -w a w-1), o null
+function casella(g,x,y,fn){const [cx,cy]=iso(x,y);
+  for(let r=0;r<12;r++){const w=r<6?2*r+2:2*(11-r)+2;for(let c=-w;c<w;c++){const col=fn(r,c,w);if(col){g.fillStyle=col;g.fillRect(cx+c,cy+r,1,1)}}}}
+// tappeto su un rettangolo di caselle, con bordo dorato sul perimetro del rettangolo
+function tappeto(g,x0,y0,x1,y1,fondo,bordo,motivo){
+  for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++)casella(g,x,y,(r,c,w)=>{
+    const lato=(x===x0&&c<0&&r<6&&c<-w+3)||(y===y0&&c>=0&&r<6&&c>w-4)||(x===x1&&c>=0&&r>=6&&c>w-4)||(y===y1&&c<0&&r>=6&&c<-w+3);
+    return lato?bordo:motivo&&(r+Math.abs(c))%6===0?motivo:fondo});
+}
+// applique: lampada da muro con braccio d'ottone e paralume acceso
+function applique(g,side,t){onWall(g,side,t,4,8,46,7,(u,v,W)=>v<3?(u>0&&u<W?'#fff1b8':null):v<4?'#e0b04f':u===2?'#8a6a34':null)}
+const lampada=(side,t)=>{const [cx,cy]=side==='R'?iso(t,0):iso(0,t);return [side==='R'?cx+6:cx-6,cy-42,22,.55]};
+
 /* ---------- Stanze ---------- */
 // Come è fatta ogni stanza: dimensioni, origine del disegno, pavimento, pareti e luci fisse.
 // Gli oggetti di ogni stanza sono in OGGETTI (stanza.js).
@@ -125,9 +139,12 @@ const STANZE={
       onWall(g,'L',8,3,9,36,7,framed((u,v)=>v===3&&u%2?'#3a2a1a':'#c9a65a','#6b5226'));
       pareteVarco(g,'L',4);
       pareteCartellino(g,'R',3);
+      [['R',1],['R',5],['R',9],['L',2],['L',7]].forEach(([s_,t])=>applique(g,s_,t));
     },
-    // lanterna del custode e finestra
-    luci(){const l=[],[wx,wy]=iso(0,6),k=OBJ.find(o=>o.id==='keeper');l.push([wx-6,wy-30,20,.5]);
+    // passatoia rossa nell'ingresso, verso la porta d'uscita
+    decoro(g){tappeto(g,7,6,10,7,'#7a2a24','#c9a65a','#8f3229')},
+    // lanterna del custode, finestra e applique
+    luci(){const l=[['R',1],['R',5],['R',9],['L',2],['L',7]].map(([s_,t])=>lampada(s_,t)),[wx,wy]=iso(0,6),k=OBJ.find(o=>o.id==='keeper');l.push([wx-6,wy-30,20,.5]);
       if(k){const [kx,ky]=base(k);l.push([kx+5,ky-4,22,.7])}return l}},
   // Sala delle Ville: pavimento alla veneziana, intonaco chiaro, veduta di Villa Godi
   villa:{w:8,h:8,ox:160,oy:82,porta:false,
@@ -139,8 +156,14 @@ const STANZE={
       [2,5].forEach(t=>onWall(g,'L',t,3,9,46,22,framed((u,v,W,H)=>(u===Math.floor(W/2)||v===Math.floor(H/2))?'#5a4e3e':(u===1&&v===2?'#f4f0d8':'#24345a'),'#5a4e3e')));
       pareteVarco(g,'L',6);
       pareteCartellino(g,'R',1);pareteCartellino(g,'R',6);
+      // lesene: pilastri chiari tra una casella e l'altra, come nelle facciate di Palladio
+      [0,2,5,7].forEach(t=>onWall(g,'R',t,0,1,WH-3,WH-17,(u,v)=>v<3?'#d6ccb4':u?'#b8ad94':'#cfc4aa'));
+      [0,3,7].forEach(t=>onWall(g,'L',t,10,11,WH-3,WH-17,(u,v)=>v<3?'#d6ccb4':u?'#b8ad94':'#cfc4aa'));
+      applique(g,'R',2);applique(g,'R',5);
     },
-    luci(){return [2,5].map(t=>{const [wx,wy]=iso(0,t);return [wx-6,wy-34,20,.5]})}}
+    decoro(g){tappeto(g,3,2,5,4,'#6b2a2a','#c9a65a','#8a3a32')},
+    // finestre, applique e un lampadario al centro
+    luci(){const [mx,my]=iso(4,4);return [...[2,5].map(t=>{const [wx,wy]=iso(0,t);return [wx-6,wy-34,20,.5]}),lampada('R',2),lampada('R',5),[mx,my-20,46,.45]]}}
 };
 const sfondi={};
 function buildBg(){
@@ -155,6 +178,7 @@ function buildBg(){
       if(r<6){g.fillStyle=p[2];g.fillRect(cx-w,cy+r,1,1);g.fillRect(cx+w-1,cy+r,1,1)}}
     if(p[3]&&(x+y)%2===0){g.fillStyle=p[3];g.fillRect(cx-1,cy+5,2,2)}
   }
+  st.decoro&&st.decoro(g);
   st.pareti(g);
   sfondi[S.room]=c;
 }
