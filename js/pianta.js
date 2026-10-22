@@ -93,20 +93,24 @@ function apriPianta(){
   const corridoi=PIANTA.collegamenti.map(([a,b])=>{if(riga[a]>riga[b])[a,b]=[b,a];const ym=(cy(a)-H/2+cy(b)+H/2)/2;
     return `<path d="M${cx(a)} ${cy(a)-H/2}V${ym}H${cx(b)}V${cy(b)+H/2}"/>`}).join('');
   const stanze=ids.map(id=>{const c=completata(id),qui=S.room===id,nr=righeNome(id);
-    return `<g data-stanza="${id}" tabindex="0" role="button" aria-label="${nomePianta(id)}${c?', completata':''}${qui?', sei qui':''}">`+
+    return `<g data-stanza="${id}" tabindex="0" role="button" aria-label="${nomePianta(id)}${c?', completata':''}${qui?', sei qui':''}"><title>${nomePianta(id)}</title>`+
       (qui?`<rect class="qui" x="${cx(id)-W/2-4}" y="${cy(id)-H/2-4}" width="${W+8}" height="${H+8}"/>`:'')+
       `<rect class="stanza${c?' fatta':''}" x="${cx(id)-W/2}" y="${cy(id)-H/2}" width="${W}" height="${H}" style="--c:${bordo(id)}"/>`+
       nr.map((t,i)=>`<text x="${cx(id)}" y="${cy(id)+3+(i-(nr.length-1)/2)*9}" text-anchor="middle">${t}</text>`).join('')+
       (c&&id!=='ingresso'?`<text class="spunta" x="${cx(id)+W/2-5}" y="${cy(id)-H/2+8}" text-anchor="middle">✓</text>`:'')+
       (qui?`<text class="sei-qui" x="${cx(id)}" y="${cy(id)+H/2+9}" text-anchor="middle">sei qui</text>`:'')+'</g>'}).join('');
   openModal(`<div class="eyebrow">Ingresso · ${fatte} ${fatte===1?'stanza':'stanze'} su ${ids.length} completat${fatte===1?'a':'e'}</div><h2>Pianta del museo</h2>
-    <svg class="pianta" viewBox="0 0 ${vw} ${vh}" role="group" aria-label="Pianta del museo">${zone}<g class="corridoi">${corridoi}</g>${stanze}</svg>
+    <div class="pianta-scorri"><svg class="pianta" viewBox="0 0 ${vw} ${vh}" role="group" aria-label="Pianta del museo">${zone}<g class="corridoi">${corridoi}</g>${stanze}</svg></div>
     <p class="clue" id="pDettaglio">Tocca una stanza. Si entra dall'ingresso, in basso, e si sale di porta in porta. Le stanze dorate sono completate; la cornice tratteggiata è dove sei.</p>
     <div class="pianta-rami">${Object.entries(PIANTA.rami).map(([r,nome])=>`<div><b>${nome}</b> ${ids.filter(id=>P_[id].ramo===r).map(id=>`<span class="${completata(id)?'fatta':''}">${completata(id)?'✓ ':''}${nomePianta(id)}</span>`).join(' · ')}</div>`).join('')}</div>
     <div class="row end">${closeBtn}</div>`);
   const mostra=id=>{const c=completata(id),s=SIGILLI_STANZA[id];
     $('pDettaglio').textContent=`${nomePianta(id)} · ${PIANTA.rami[P_[id].ramo]}. `+(c?'Completata.':s?`Sigilli: ${s.filter(k=>S.seals[k]).length} su ${s.length}.`:id==='uscita'?'Qui c\'è la porta d\'uscita.':'Sigillo ancora da trovare.')};
   $('card').querySelectorAll('[data-stanza]').forEach(el=>{el.onclick=()=>mostra(el.dataset.stanza);el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();mostra(el.dataset.stanza)}}});
+  // sul telefono la pianta è più larga dello schermo: si apre centrata sulla stanza dove sei
+  const sc=$('card').querySelector('.pianta-scorri'),q=sc&&sc.querySelector('rect.qui');
+  if(q&&sc.scrollWidth>sc.clientWidth){const a=sc.getBoundingClientRect(),r=q.getBoundingClientRect();sc.scrollLeft+=r.left+r.width/2-(a.left+a.width/2)}
+  $('card').scrollTop=0;  // il fuoco va su «Chiudi», in fondo: la finestra si apre comunque dall'inizio
 }
 
 // Sigilli che si trovano in ogni stanza del museo.

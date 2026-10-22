@@ -149,7 +149,7 @@ function svegliaMusica(){
 document.addEventListener('visibilitychange',()=>{if(!MUSICA.ac)return;document.hidden?MUSICA.ac.suspend():MUSICA.ac.resume()});
 // Volume generale: pieno mentre si gioca, più basso con un dialogo o una finestra aperta (per leggere in pace),
 // zero se la musica è spenta, prima di «Entra nel museo» e a partita finita.
-function volumeMusica(){if(!MUSICA.on||!S.started||S.done)return 0;return $('dialog').hidden&&$('modal').hidden?.5:.22}
+function volumeMusica(){if(!MUSICA.on||!S.started||S.done)return 0;return ($('dialog').hidden&&$('modal').hidden?.5:.22)*(MUSICA.volume??1)}  // MUSICA.volume: slider di js/impostazioni.js
 // Ogni 50 ms programma i passi dei prossimi 0,2 s.
 setInterval(()=>{
   const ac=MUSICA.ac;if(!ac||!MUSICA.bus||ac.state!=='running')return;
