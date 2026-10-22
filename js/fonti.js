@@ -128,12 +128,19 @@ const _radice=w=>w.length>5?w.slice(0,5):w;
 const _parole=s=>_norm(s).split(/\s+/).filter(w=>w&&!_stop.has(w)).map(_radice);
 
 // Peso di ogni parola: più è rara tra le schede, più conta ("progettato" pesa più di "gallerie").
-const _peso={};
-CONOSCENZA.forEach(s=>new Set(s.chiavi.flatMap(_parole)).forEach(w=>_peso[w]=(_peso[w]||0)+1));
-Object.keys(_peso).forEach(w=>_peso[w]=1/_peso[w]);
+// Si ricalcola quando cambia il numero di schede, perché le sale (js/sale/) ne aggiungono dopo il caricamento.
+const _peso={};let _pesoN=-1;
+function _aggiornaPesi(){
+  if(_pesoN===CONOSCENZA.length)return;
+  Object.keys(_peso).forEach(w=>delete _peso[w]);
+  CONOSCENZA.forEach(s=>new Set(s.chiavi.flatMap(_parole)).forEach(w=>_peso[w]=(_peso[w]||0)+1));
+  Object.keys(_peso).forEach(w=>_peso[w]=1/_peso[w]);
+  _pesoN=CONOSCENZA.length;
+}
 
 // Trova la scheda che risponde meglio. Restituisce {testo, fonte, id} oppure {testo, fonte:null} se non sa rispondere.
 function chiediAlCustode(domanda){
+  _aggiornaPesi();
   const q=new Set(_parole(domanda||''));
   if(!q.size)return {testo:'Fammi una domanda sul museo: il lanificio, la Fabbrica Alta, il telaio, le 52 gallerie…',fonte:null};
   let migliore=null,punti=0;

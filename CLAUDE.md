@@ -19,6 +19,7 @@ Il team è diviso in **4 aree**. Ogni persona lavora con il suo Claude su **un r
 | `enigmi-storia` | Le sale, gli oggetti, i rompicapi, i testi dei cartellini, il custode, il diario, il finale | `js/contenuti.js`, `js/stanza.js`, `js/enigmi.js` |
 | `dati-ai` | Verifica dei fatti sulle fonti aperte (Wikidata, Europeana, Catalogo MiC, Rete Museale), fonti citate in gioco, custode che risponde con l'AI | `js/fonti.js` e i nuovi file `js/ai-*.js`, cartella `dati/` |
 | `territorio` | Portare i luoghi veri dell'Alto Vicentino dentro il gioco: quali luoghi, con foto, coordinate e storia; sale ispirate a luoghi reali; una mappa del territorio da consultare in gioco | `js/territorio.js` e i nuovi file `js/luoghi-*.js` |
+| `sale` | Le sale a tema del territorio: l'atrio, una sala per file con il suo rompicapo, le tessere da collezionare | `js/sale/*.js`, `img/sale/` |
 
 **Regola d'oro: modifica solo i file della tua area.** Se ti serve un cambiamento in un file di un'altra area, scrivi un messaggio in bacheca a quell'area e aspetta. Se è una correzione minuscola e urgente (un errore che blocca il gioco), falla, ma scrivilo subito in bacheca.
 
@@ -30,7 +31,8 @@ Il team è diviso in **4 aree**. Ogni persona lavora con il suo Claude su **un r
 
 ## Come è fatto il codice
 - Niente librerie e niente build: si apre `index.html` nel browser e funziona, anche da file locale.
-- Gli script sono normali `<script>` (non moduli) e condividono le variabili globali. **L'ordine in `index.html` conta**: `contenuti`, `motore`, `enigmi`, `stanza`, `fonti`, `territorio`, `avvio` (sempre ultimo).
+- Gli script sono normali `<script>` (non moduli) e condividono le variabili globali. **L'ordine in `index.html` conta**: `contenuti`, `motore`, `enigmi`, `stanza`, `fonti`, `territorio`, poi `sale/registro.js` e una riga per ogni sala, e `avvio` sempre ultimo.
+- **Aggiungere una sala a tema**: copia `js/sale/tessitore.js`, cambia contenuti, rompicapo e tessera, e aggiungi la sua riga in `index.html` dopo le altre sale. `registraSala()` la mette nell'atrio, aggiunge cartellini, fonti e schede del custode. Ogni fatto va in `fonti` con la sua fonte, ogni foto con autore e licenza. L'atrio ha 11 posti: per altre sale serve un secondo atrio.
 - Un file può usare a caricamento solo ciò che è definito nei file prima di lui. Dentro le funzioni invece puoi usare tutto, perché vengono chiamate quando la pagina è già caricata. Per questo in `stanza.js` le azioni sono scritte come `act:()=>openLoom()`.
 
 ### Interfacce comuni (cambiarle rompe il lavoro degli altri)
