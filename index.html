@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fuori Orario</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=VT323&display=swap">
+<style>
+/* Layout: one-screen game cabinet. HUD strip on top, integer-scaled pixel canvas in the middle, dialogue docked to the bottom of the stage. */
+:root{
+  --night:#15111f;   /* museum after closing */
+  --panel:#211a34;   /* dialogue and modal ground */
+  --line:#4b3f6e;    /* pixel borders */
+  --ink:#f0e6cf;     /* cream text, like old labels */
+  --muted:#a99cc4;
+  --brass:#e0b04f;   /* plaque brass, the one accent */
+  --wool:#c2493c;    /* Schio wool red, for errors and the hero */
+  --ok:#86c98f;
+  --display:"Pixelify Sans","Courier New",monospace;
+  --body:"VT323","Courier New",monospace;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body);font-size:22px;line-height:1.15;overflow:hidden;box-sizing:border-box;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+*,*::before,*::after{box-sizing:inherit}
+button{font-family:var(--display);font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:var(--panel);border:2px solid var(--line);padding:6px 12px;cursor:pointer;box-shadow:3px 3px 0 #000}
+button:hover{border-color:var(--brass)}
+button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+button.primary{background:var(--brass);color:#1a1424;border-color:#1a1424}
+
+#app{height:100%;display:flex;flex-direction:column;gap:8px;padding-block:10px}
+.hud{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.08em;color:var(--brass);display:flex;flex-direction:column;line-height:1}
+.brand small{font-family:var(--body);font-weight:400;font-size:17px;letter-spacing:.02em;color:var(--muted);margin-top:3px}
+.seals{display:flex;gap:6px;align-items:center;margin-left:auto}
+.seals i{width:18px;height:18px;border:2px solid var(--line);background:#120e1c;display:block;transform:rotate(45deg) scale(.8)}
+.seals i.on{background:var(--brass);border-color:#fff3c4;box-shadow:0 0 8px var(--brass)}
+.seals span{font-family:var(--display);font-size:14px;color:var(--muted);margin-right:4px}
+.time{font-family:var(--display);font-size:16px;font-variant-numeric:tabular-nums;color:var(--ink);min-width:52px}
+
+#stage{flex:1;min-height:0;position:relative;display:grid;place-items:center}
+#cv{image-rendering:pixelated;image-rendering:crisp-edges;display:block;box-shadow:0 0 0 2px var(--line),6px 6px 0 2px #000}
+#prompt{position:absolute;left:8px;top:8px;font-family:var(--display);font-size:13px;letter-spacing:.06em;background:rgba(21,17,31,.85);border:2px solid var(--line);padding:4px 8px;text-transform:uppercase}
+#prompt b{color:var(--brass)}
+#toast{position:absolute;top:8px;right:8px;font-family:var(--display);font-size:14px;background:var(--brass);color:#1a1424;padding:6px 10px;box-shadow:3px 3px 0 #000}
+
+#dialog{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);width:min(640px,100%);background:var(--panel);border:2px solid var(--brass);box-shadow:5px 5px 0 #000;padding:10px 14px 12px;cursor:pointer}
+#dWho{font-family:var(--display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);margin-bottom:4px}
+#dText{margin:0;min-height:2.3em;max-width:60ch}
+#dialog .next{position:absolute;right:12px;bottom:6px;color:var(--brass);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+
+#modal{position:fixed;inset:0;background:rgba(10,8,18,.78);display:grid;place-items:center;padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));z-index:20}
+.card{width:min(580px,100%);max-height:100%;overflow:auto;background:var(--panel);border:2px solid var(--line);box-shadow:6px 6px 0 #000;padding:18px 20px 20px;display:flex;flex-direction:column;gap:12px}
+.eyebrow{font-family:var(--display);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.card h2{font-family:var(--display);font-weight:700;font-size:26px;margin:0;color:var(--brass);text-wrap:balance}
+.card p{margin:0;max-width:62ch}
+.clue{border-left:4px solid var(--brass);padding:4px 0 4px 12px;color:var(--ink)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row.end{justify-content:flex-end}
+.slots{display:flex;gap:5px;flex-wrap:wrap}
+.slot{width:34px;height:42px;border:2px solid var(--line);background:#120e1c;display:grid;place-items:center;font-family:var(--display);font-size:22px;color:var(--brass)}
+.keys button{min-width:42px;font-size:20px;padding:6px 8px}
+.display{font-family:var(--display);font-size:34px;letter-spacing:.35em;background:#0f1a12;color:#9fe0a6;border:2px solid var(--line);padding:6px 14px;font-variant-numeric:tabular-nums;width:max-content}
+.keypad{display:grid;grid-template-columns:repeat(3,56px);gap:6px}
+.keypad button{font-size:20px;padding:8px 0}
+.tl{display:grid;gap:8px}
+.tl button{text-transform:none;font-family:var(--body);font-size:20px;letter-spacing:0;text-align:left;padding:8px 10px;display:flex;gap:10px;align-items:baseline}
+.tl button[disabled]{opacity:.35;cursor:default}
+.tl .n{font-family:var(--display);font-size:14px;color:var(--brass);min-width:1.4em}
+.tl .yr{margin-left:auto;font-family:var(--display);font-size:14px;color:var(--ok)}
+.placed{display:grid;gap:6px;counter-reset:s}
+.placed div{border:2px dashed var(--line);min-height:36px;padding:6px 10px;display:flex;gap:10px;align-items:baseline}
+.placed div.f{border-style:solid;border-color:var(--brass)}
+.msg{min-height:1.2em;color:var(--muted)}
+.msg.bad{color:var(--wool)}
+.msg.good{color:var(--ok)}
+.shake{animation:shake .35s steps(4)}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.journal{display:grid;gap:12px}
+.journal article{border:2px solid var(--line);padding:10px 12px;display:grid;gap:4px}
+.journal h3{margin:0;font-family:var(--display);font-size:16px;color:var(--brass)}
+.journal .tag{font-family:var(--display);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.journal article.seal{border-color:var(--brass)}
+ul.src{margin:0;padding-left:1.1em;display:grid;gap:2px}
+ul.src li::marker{color:var(--brass)}
+a{color:var(--brass)}
+
+#title{position:fixed;inset:0;z-index:30;background:var(--night);display:grid;place-items:center;padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));overflow:auto}
+.tcard{width:min(620px,100%);display:flex;flex-direction:column;gap:14px}
+.tcard h1{font-family:var(--display);font-weight:700;font-size:clamp(44px,11vw,84px);line-height:.9;margin:0;color:var(--brass);letter-spacing:.04em;text-shadow:4px 4px 0 var(--wool),8px 8px 0 #000}
+.tcard .sub{font-family:var(--display);font-size:16px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tcard p{margin:0;max-width:60ch}
+.controls{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;color:var(--muted)}
+.controls b{font-family:var(--display);font-size:13px;font-weight:600;color:var(--ink);letter-spacing:.06em}
+.note{font-size:18px;color:var(--muted);border-top:2px solid var(--line);padding-top:10px}
+
+#pad{position:absolute;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));display:none;gap:14px;align-items:center;z-index:5}
+.dpad{width:120px;height:120px;transform:rotate(45deg);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px}
+.dpad button{padding:0;font-size:16px;opacity:.85}
+.dpad button span{display:block;transform:rotate(-45deg)}
+#btnAct{width:56px;height:56px;border-radius:0;font-size:18px}
+@media (pointer:coarse){#pad{display:flex}}
+@media (prefers-reduced-motion:reduce){.shake,#dialog .next{animation:none}}
+@media (max-width:520px){.brand small{display:none}.hud{gap:8px}button{font-size:13px;padding:5px 8px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="hud">
+    <div class="brand">FUORI ORARIO<small>Museo del Territorio · Alto Vicentino</small></div>
+    <div class="seals" id="seals" aria-label="Sigilli raccolti"><span>Sigilli</span><i></i><i></i><i></i></div>
+    <div class="time" id="time">00:00</div>
+    <button id="btnJournal" type="button">Diario</button>
+    <button id="btnHint" type="button">Aiuto</button>
+  </header>
+  <main id="stage">
+    <canvas id="cv" width="320" height="210" aria-label="Sala del museo in vista isometrica"></canvas>
+    <div id="prompt" hidden></div>
+    <div id="toast" hidden></div>
+    <div id="dialog" hidden><div id="dWho"></div><p id="dText"></p><span class="next">▼</span></div>
+    <div id="pad">
+      <div class="dpad">
+        <span></span><button data-d="0,-1" aria-label="Su"><span>▲</span></button><span></span>
+        <button data-d="-1,0" aria-label="Sinistra"><span>◀</span></button><span></span><button data-d="1,0" aria-label="Destra"><span>▶</span></button>
+        <span></span><button data-d="0,1" aria-label="Giù"><span>▼</span></button><span></span>
+      </div>
+      <button id="btnAct" class="primary" type="button">E</button>
+    </div>
+  </main>
+</div>
+
+<div id="modal" hidden><div class="card" id="card"></div></div>
+
+<div id="title">
+  <div class="tcard">
+    <div class="sub">Un'escape room nel Museo del Territorio</div>
+    <h1>FUORI<br>ORARIO</h1>
+    <p>Ti sei perso tra le sale e il museo ha chiuso. Le porte si sbloccano solo con tre sigilli, nascosti in un telaio, in una cassetta militare e in un armadio d'archivio.</p>
+    <p>Le combinazioni non si indovinano: stanno nella storia dell'Alto Vicentino, scritta sui cartellini delle sale.</p>
+    <div class="controls">
+      <b>MUOVITI</b><span>Frecce o WASD, oppure clicca un punto del pavimento</span>
+      <b>ESAMINA</b><span>E, Spazio o Invio vicino a un oggetto, oppure cliccalo</span>
+      <b>DIARIO</b><span>Raccoglie tutto quello che hai letto</span>
+    </div>
+    <div class="row"><button class="primary" id="btnStart" type="button">Entra nel museo</button></div>
+    <p class="note">Prototipo. Il museo è immaginario, i fatti storici sono reali e vanno verificati sulle fonti aperte prima di una versione pubblica.</p>
+  </div>
+</div>
+
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const VW=320,VH=210,HW=12,HH=6,MW=12,MH=10,WH=54,OX=148,OY=64;
+const iso=(x,y)=>[OX+(x-y)*HW,OY+(x+y)*HH];
+const DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
+const $=id=>document.getElementById(id);
+
+/* ---------- Contenuti: storia del territorio ---------- */
+const PLAQUES={
+  lan:{title:'Il Lanificio Rossi',where:'Sala del Lanificio',lines:[
+    'Nel 1817 Francesco Rossi avvia a Schio una piccola attività laniera.',
+    'Il figlio Alessandro Rossi (1819–1898) la trasforma in una delle più grandi industrie tessili d\'Italia.',
+    'Accanto alla fabbrica fa costruire case per gli operai, scuole e un grande giardino.']},
+  fab:{title:'La Fabbrica Alta',where:'Sala del Lanificio',lines:[
+    'Plastico della Fabbrica Alta di Schio, costruita nel 1862 su progetto dell\'architetto belga Auguste Vivroux.',
+    'Per le sue fabbriche Schio fu chiamata «la Manchester d\'Italia».']},
+  pas:{title:'La Strada delle 52 Gallerie',where:'Sala della Grande Guerra',lines:[
+    'Plastico del Pasubio. Nel 1917, tra febbraio e novembre, i minatori del Genio militare italiano scavarono una strada nella roccia.',
+    'Le sue 52 gallerie portavano rifornimenti in quota, al riparo dall\'artiglieria austro-ungarica.',
+    'Oggi è uno dei percorsi della Grande Guerra più frequentati del Vicentino.']}
+};
+const SEALS={
+  loom:{title:'Sigillo della Lana',text:'Il telaio Jacquard (1804) legge schede di cartone perforate, antenate delle istruzioni dei computer. A Schio il suo inventore dà il nome al giardino del Lanificio Rossi, disegnato da Antonio Caregaro Negrin.'},
+  chest:{title:'Sigillo del Pasubio',text:'Codice 5255: 52 gallerie, e 55 anni tra la Fabbrica Alta (1862) e i lavori sul Pasubio (1917).'},
+  archive:{title:'Sigillo dell\'Archivio',text:'1804, 1817, 1862, 1917: dal telaio di Lione alla Grande Guerra, un secolo di storia dell\'Alto Vicentino in quattro schede.'}
+};
+const HINTS={
+  loom:['Il cognome che cerchi è anche il nome del giardino accanto al Lanificio Rossi, a Schio.','Inizia con la J. Giardino J _ _ _ _ _ _ _.'],
+  chest:['Ti servono due cartellini: quello del plastico del Pasubio e quello del plastico della Fabbrica Alta.','Le gallerie sono 52. Poi fai 1917 − 1862.'],
+  archive:['Gli anni sono sparsi nei cartellini: telaio, lanificio, Fabbrica Alta, Pasubio.','L\'ordine è 1804, 1817, 1862, 1917.']
+};
+
+/* ---------- Stato ---------- */
+let S,P;
+function fresh(){
+  S={seals:{loom:false,chest:false,archive:false},journal:[],hint:{loom:0,chest:0,archive:0},elapsed:0,started:false,done:false,door:0};
+  P={x:9,y:8,px:9,py:8,tx:9,ty:8,fx:0,fy:1,moving:false,walk:0,path:[],pending:null};
+}
+fresh();
+const sealCount=()=>Object.values(S.seals).filter(Boolean).length;
+
+/* ---------- Disegno: primitive ---------- */
+const R=(g,x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),w,h)};
+function diamond(g,cx,cy,a,b,c){g.fillStyle=c;for(let r=-b;r<=b;r++){const w=Math.round(a*(1-Math.abs(r)/b));if(w>0)g.fillRect(cx-w,cy+r,w*2,1)}}
+function box(g,cx,cy,a,b,h,top,left,right){
+  g.fillStyle=left;for(let i=0;i<a;i++)g.fillRect(cx-a+i,cy+Math.round(i*b/a)-h,1,h);
+  g.fillStyle=right;for(let i=0;i<a;i++)g.fillRect(cx+i,cy+b-Math.round(i*b/a)-h,1,h);
+  diamond(g,cx,cy-h,a,b,top);
+}
+// facce sinistra/destra di un box: callback per ogni colonna (x, y del bordo inferiore)
+function faceL(cx,cy,a,b,fn){for(let i=0;i<a;i++)fn(cx-a+i,cy+Math.round(i*b/a),i)}
+function faceR(cx,cy,a,b,fn){for(let i=0;i<a;i++)fn(cx+i,cy+b-Math.round(i*b/a),i)}
+function spr(rows,pal,x,y){rows.forEach((row,j)=>{for(let i=0;i<row.length;i++){const c=pal[row[i]];if(c)R(ctx,x+i,y+j,1,1,c)}})}
+
+/* ---------- Sfondo statico: pavimento e pareti ---------- */
+const bg=document.createElement('canvas');bg.width=VW;bg.height=VH;
+const zone=(x,y)=>x<6?(y<5?'lan':'arc'):(y<5?'war':'hall');
+const ZP={lan:['#6e4a31','#674529','#4e3220'],war:['#565d59','#4d5350','#3a3f3d'],arc:['#463a5e','#40355a','#2f2744'],hall:['#7a6e5c','#6e6351','#544a3b']};
+function wallCol(g,px,fy,lit){
+  const top=fy-WH;
+  g.fillStyle=lit?'#3b3058':'#2b2343';g.fillRect(px,top,1,WH);
+  g.fillStyle=lit?'#2a1f3a':'#1f182e';g.fillRect(px,fy-14,1,14);
+  g.fillStyle='#8a6a34';g.fillRect(px,fy-15,1,1);
+  g.fillStyle=lit?'#54487e':'#3e3460';g.fillRect(px,top,1,3);
+  g.fillStyle='#120e1c';g.fillRect(px,fy-2,1,2);
+}
+// pittura su parete: side 'R' (fila y=0) o 'L' (colonna x=0); fn(u,v,W,H) -> colore o null
+function onWall(g,side,t,i0,i1,top,h,fn){
+  const [cx,cy]=side==='R'?iso(t,0):iso(0,t);
+  for(let i=i0;i<=i1;i++){
+    const px=side==='R'?cx+i:cx-12+i, fy=side==='R'?cy+Math.floor(i/2):cy+6-Math.floor(i/2);
+    for(let v=0;v<h;v++){const c=fn(i-i0,v,i1-i0,h);if(c){g.fillStyle=c;g.fillRect(px,fy-top+v,1,1)}}
+  }
+}
+const framed=(inner,fr='#b8892f')=>(u,v,W,H)=>(u===0||u===W||v===0||v===H-1)?fr:inner(u,v,W,H);
+function buildBg(){
+  const g=bg.getContext('2d');g.clearRect(0,0,VW,VH);
+  for(let x=0;x<MW;x++){const [cx,cy]=iso(x,0);for(let i=0;i<12;i++)wallCol(g,cx+i,cy+Math.floor(i/2),false)}
+  for(let y=0;y<MH;y++){const [cx,cy]=iso(0,y);for(let i=0;i<12;i++)wallCol(g,cx-12+i,cy+6-Math.floor(i/2),true)}
+  g.fillStyle='#0f0b18';g.fillRect(OX,OY-WH,1,WH);
+  for(let s=0;s<MW+MH;s++)for(let x=0;x<MW;x++){const y=s-x;if(y<0||y>=MH)continue;
+    const [cx,cy]=iso(x,y),p=ZP[zone(x,y)],base=(x+y)%2?p[0]:p[1];
+    for(let r=0;r<12;r++){const w=r<6?2*r+2:2*(11-r)+2;g.fillStyle=base;g.fillRect(cx-w,cy+r,w*2,1);
+      if(r<6){g.fillStyle=p[2];g.fillRect(cx-w,cy+r,1,1);g.fillRect(cx+w-1,cy+r,1,1)}}
+    if(zone(x,y)==='arc'&&(x+y)%2===0){g.fillStyle='#5a4b78';g.fillRect(cx-1,cy+5,2,2)}
+  }
+  // parete destra: manifesto, ritratto, Pasubio, foto d'epoca, cartello uscita
+  onWall(g,'R',2,2,10,42,22,framed((u,v)=>v%5<2?'#c2493c':'#efe2c4'));
+  onWall(g,'R',4,3,9,40,18,framed((u,v,W,H)=>{const dx=u-W/2,dy=v-7;return dx*dx+dy*dy*.6<6?'#e6c9a3':(v>11&&Math.abs(dx)<3?'#2d3a5e':'#2a2030')}));
+  onWall(g,'R',7,1,11,42,20,framed((u,v,W)=>{const m=Math.abs(u-W/2)*1.6+4;return v<m?'#5b6f8c':v<m+3?'#e9eef0':v<15?'#7d8a7a':'#556b45'}));
+  onWall(g,'R',8,4,10,38,14,framed((u,v)=>(u*7+v*3)%5===0?'#8a7350':'#b39b72','#5a4630'));
+  onWall(g,'R',10,4,8,44,5,(u,v,W,H)=>(u===0||u===W||v===0||v===H-1)?'#1c4a2c':'#4fd17e');
+  // parete sinistra: stendardo, paesaggio, finestra, targa archivio
+  onWall(g,'L',1,3,9,48,30,(u,v,W,H)=>v===H-1?(u%2?'#e0b04f':null):(u===3?'#8f3229':'#c2493c'));
+  onWall(g,'L',3,2,10,42,18,framed((u,v,W)=>v<6?'#3d4d74':v<9+Math.round(Math.sin(u)*1.5)?'#4f6b3f':'#7a8a4a'));
+  onWall(g,'L',6,2,10,44,22,framed((u,v,W,H)=>(u===Math.floor(W/2)||v===Math.floor(H/2))?'#4a3b2c':(u===2&&v===3?'#f4f0d8':'#24345a'),'#4a3b2c'));
+  onWall(g,'L',8,3,9,36,7,framed((u,v)=>v===3&&u%2?'#3a2a1a':'#c9a65a','#6b5226'));
+}
+
+/* ---------- Oggetti ---------- */
+function drawLoom(o,t){const [bx,by]=base(o);
+  box(ctx,bx,by+1,10,5,5,'#7a5236','#5a3a26','#46301f');
+  R(ctx,bx-9,by-30,2,28,'#5a3a26');R(ctx,bx+7,by-30,2,28,'#46301f');R(ctx,bx-9,by-31,18,3,'#8a603f');
+  for(let k=0;k<7;k++)R(ctx,bx-6+k*2,by-27,1,15,k%2?'#efe2c4':'#c2493c');
+  R(ctx,bx-7,by-12,14,5,'#c2493c');for(let k=0;k<7;k++)R(ctx,bx-6+k*2,by-11+(k%2)*2,1,1,'#efe2c4');
+  if(!S.seals.loom){R(ctx,bx+4,by-40,8,10,'#efe2c4');[[1,2],[4,2],[2,5],[5,4],[3,7],[6,7]].forEach(([a,b])=>R(ctx,bx+4+a,by-40+b,1,1,'#3a2a1a'));R(ctx,bx+7,by-31,1,1,'#3a2a1a')}
+  else sparkle(bx,by-36,t);
+}
+function drawLectern(o){const [bx,by]=base(o);
+  diamond(ctx,bx,by+1,4,2,'rgba(0,0,0,.3)');R(ctx,bx-3,by-1,6,2,'#2b2416');R(ctx,bx-1,by-11,2,10,'#3d3320');
+  R(ctx,bx-6,by-18,12,7,'#e0b04f');R(ctx,bx-5,by-17,10,5,'#b8892f');R(ctx,bx-4,by-16,8,1,'#f4dc9a');R(ctx,bx-4,by-14,6,1,'#f4dc9a');
+}
+function drawFactory(o){const [bx,by]=base(o);
+  box(ctx,bx,by+1,10,5,6,'#8a8396','#6b6577','#575262');
+  R(ctx,bx+3,by-40,3,20,'#7a3328');R(ctx,bx+2,by-41,5,2,'#5a2620');
+  box(ctx,bx,by-5,8,4,18,'#8c3b2e','#b5523f','#93402f');
+  faceL(bx,by-5,8,4,(x,y,i)=>{if(i%2)for(let k=0;k<4;k++)R(ctx,x,y-16+k*4,1,2,'#f2d27a')});
+  faceR(bx,by-5,8,4,(x,y,i)=>{if(i%2)for(let k=0;k<4;k++)R(ctx,x,y-16+k*4,1,2,'#c9a85a')});
+}
+function drawDiorama(o){const [bx,by]=base(o);
+  box(ctx,bx,by+1,11,5,9,'#6b4a33','#4f3625','#3e2a1c');
+  diamond(ctx,bx,by-8,10,5,'#556b45');
+  for(let r=0;r<20;r++){const w=Math.round(r*.5)+1,y=by-29+r;R(ctx,bx-w,y,w,1,r<4?'#e9eef0':'#8a978a');R(ctx,bx,y,w,1,r<4?'#cfd6da':'#66726a')}
+  for(let r=5;r<20;r++){const x=bx+Math.round(Math.sin(r*.9)*r*.3);R(ctx,x,by-29+r,1,1,r%3?'#e3cf94':'#14110c')}
+}
+function drawChest(o,t){const [bx,by]=base(o);
+  if(S.seals.chest){R(ctx,bx-6,by-17,12,7,'#5d6b3a');R(ctx,bx-5,by-16,10,5,'#4a5630')}
+  box(ctx,bx,by+1,6,3,7,S.seals.chest?'#2a2a18':'#66753f','#4a5630','#3b4426');
+  if(!S.seals.chest){R(ctx,bx-6,by-4,6,1,'#2f3720');R(ctx,bx-4,by-3,2,2,'#e0b04f');R(ctx,bx+2,by-3,1,3,'#efe2c4')}
+  else sparkle(bx,by-10,t);
+}
+function drawCabinet(o,t){const [bx,by]=base(o);
+  box(ctx,bx,by+1,8,4,28,'#6a4632','#4a2f22','#3a251b');
+  faceR(bx,by+1,8,4,(x,y,i)=>{for(let k=1;k<5;k++){R(ctx,x,y-28+k*6,1,1,'#22150e');if(i===4)R(ctx,x,y-31+k*6,1,1,'#e0b04f')}});
+  faceL(bx,by+1,8,4,(x,y)=>{for(let k=1;k<5;k++)R(ctx,x,y-28+k*6,1,1,'#2a1a12')});
+  if(S.seals.archive){R(ctx,bx+2,by-14,7,4,'#7a5236');R(ctx,bx+3,by-15,5,1,'#efe2c4');sparkle(bx+5,by-20,t)}
+}
+const BOOKS=['#8f3229','#2d4a6b','#c9a65a','#3f5a3a','#6b3a5a','#efe2c4'];
+function drawShelf(o){const [bx,by]=base(o);
+  box(ctx,bx,by+1,10,5,28,'#4a3b2c','#3b2e22','#2e241a');
+  faceR(bx,by+1,10,5,(x,y,i)=>{if(i<1||i>8)return;for(let k=0;k<3;k++){const hgt=4+((i*3+k*5)%3);R(ctx,x,y-26+k*8+(6-hgt),1,hgt,BOOKS[(i*7+k*3+o.x)%6])}});
+}
+function drawDesk(o,t){const [bx,by]=base(o);
+  box(ctx,bx,by+1,10,5,8,'#5b3b2a','#4a2f22','#3a251b');
+  R(ctx,bx-5,by-10,7,4,'#efe2c4');R(ctx,bx-4,by-9,5,1,'#8a7350');
+  R(ctx,bx+4,by-16,1,7,'#3a3a3a');R(ctx,bx+2,by-18,5,3,'#2f6b4a');R(ctx,bx+3,by-15,3,1,'#fff1b8');
+}
+function drawVitrine(o){const [bx,by]=base(o);
+  box(ctx,bx,by+1,8,4,10,'#3a2f4a','#2b2238','#211a2c');
+  R(ctx,bx-3,by-17,7,4,'#6b6f4a');R(ctx,bx-4,by-14,9,1,'#55593a');R(ctx,bx-2,by-12,3,2,'#8a8f9a');
+  box(ctx,bx,by-9,8,4,13,'rgba(170,210,230,.18)','rgba(170,210,230,.12)','rgba(170,210,230,.08)');
+  R(ctx,bx-8,by-22,1,13,'rgba(220,240,255,.35)');
+}
+function drawBench(o){const [bx,by]=base(o);box(ctx,bx,by+1,10,5,5,'#7a5236','#5a3a26','#46301f')}
+function drawPlant(o,t){const [bx,by]=base(o);
+  box(ctx,bx,by+1,4,2,6,'#a0522d','#7d3f22','#62311a');
+  [[-4,-14,4,5],[1,-16,4,6],[-2,-20,4,6],[-6,-10,4,3],[3,-11,4,3]].forEach(([x,y,w,h],k)=>R(ctx,bx+x,by+y,w,h,k%2?'#3f6b3a':'#5a8a46'));
+}
+const PERSON={
+  front:['..hhhh..','.hhhhhh.','.hssssh.','.sesses.','..ssss..','.rrrrrr.','rrrrrrrr','rdrrrrdr','sdrrrrds','.rrrrrr.','.bbbbbb.','.bb..bb.','.bb..bb.','.kk..kk.'],
+  back: ['..hhhh..','.hhhhhh.','.hhhhhh.','.hhhhhh.','..ssss..','.rrrrrr.','rrrrrrrr','rrrrrrrr','srrrrrrs','.rrrrrr.','.bbbbbb.','.bb..bb.','.bb..bb.','.kk..kk.'],
+  walk: ['.bbbbbb.','..bb.bb.','..bb..bb','..kk..kk']
+};
+const PPAL={h:'#3b2618',s:'#e8b98f',e:'#1a1424',r:'#c2493c',d:'#8f3229',b:'#3b4f7a',k:'#1a1424'};
+const KEEPER=['..cccc..','cccccccc','.assssa.','.sesses.','..ssss..','.uuuuuu.','uuuguuuu','uuuguuuu','suuguuus','.uuuuuu.','.uuuuuu.','.uu..uu.','.uu..uu.','.kk..kk.'];
+const KPAL={c:'#22305a',a:'#bdb6a8',s:'#d9a77c',e:'#1a1424',u:'#2b3a6b',g:'#e0b04f',k:'#140f1c'};
+function drawKeeper(o,t){const [bx,by]=base(o);
+  diamond(ctx,bx,by+1,5,2,'rgba(0,0,0,.35)');spr(KEEPER,KPAL,bx-4,by-13-(Math.floor(t/700)%2));
+  R(ctx,bx+4,by-6,2,3,'#fff1b8');
+}
+function drawPlayer(t){
+  const [cx,cy]=iso(P.px,P.py),bx=cx,by=cy+6,step=P.moving?Math.floor(P.walk*9)%2:0;
+  diamond(ctx,bx,by+1,5,2,'rgba(0,0,0,.35)');
+  const rows=(P.fx<0||P.fy<0?PERSON.back:PERSON.front).slice();
+  if(step)rows.splice(10,4,...PERSON.walk);
+  spr(rows,PPAL,bx-4,by-13-step);
+}
+function sparkle(x,y,t){const b=Math.floor(t/250)%4;R(ctx,x-1,y-1-(b%2),3,3,'#e0b04f');R(ctx,x,y-(b%2),1,1,'#fff3c4');if(b===0){R(ctx,x-3,y,1,1,'#fff3c4');R(ctx,x+3,y-2,1,1,'#fff3c4')}}
+const base=o=>{const [cx,cy]=iso(o.x,o.y);return [cx,cy+6]};
+
+const OBJ=[
+  {id:'loom',x:2,y:1,h:42,name:'Telaio Jacquard',draw:drawLoom,act:openLoom,light:1},
+  {id:'plaqueLan',x:4,y:2,h:20,name:'Cartellino: Lanificio Rossi',draw:drawLectern,act:()=>readPlaque('lan'),light:1},
+  {id:'factory',x:2,y:3,h:42,name:'Plastico della Fabbrica Alta',draw:drawFactory,act:()=>readPlaque('fab'),light:1},
+  {id:'vitrine',x:6,y:1,h:24,name:'Teca',draw:drawVitrine,act:()=>say('Teca',['Elmetto, gavetta e lettere di un soldato sul fronte del Pasubio.','Qui la versione completa mostrerebbe la scheda dell\'oggetto presa da Europeana, con la fonte citata.'])},
+  {id:'diorama',x:8,y:2,h:32,name:'Plastico del Pasubio',draw:drawDiorama,act:()=>readPlaque('pas'),light:1},
+  {id:'chest',x:10,y:3,h:12,name:'Cassetta del Genio',draw:drawChest,act:openChest,light:1},
+  {id:'shelf1',x:0,y:5,h:30,name:'Scaffale',draw:drawShelf,act:()=>say('Scaffale',['Faldoni con le etichette scolorite: «Lanificio, corrispondenza», «Comune di Schio», «Fondo fotografico».','Le schede sono in ordine sparso. Qualcuno ha lasciato aperto l\'armadio accanto.'])},
+  {id:'cabinet',x:0,y:7,h:30,name:'Armadio dell\'archivio',draw:drawCabinet,act:openTimeline,light:1},
+  {id:'shelf2',x:0,y:9,h:30,name:'Scaffale',draw:drawShelf,act:()=>say('Scaffale',['Registri, mappe catastali, una scatola di cartoline del Pasubio.'])},
+  {id:'desk',x:3,y:7,h:18,name:'Scrivania',draw:drawDesk,act:()=>say('Scrivania',['Un foglio a matita: «Ordinare le schede dalla più vecchia alla più nuova. Gli anni sono sui cartellini delle sale.»'])},
+  {id:'keeper',x:8,y:8,h:16,name:'Custode',draw:drawKeeper,act:talkKeeper},
+  {id:'bench',x:10,y:6,h:8,name:'Panca',draw:drawBench},
+  {id:'plant1',x:5,y:0,h:20,draw:drawPlant},
+  {id:'plant2',x:11,y:9,h:20,draw:drawPlant},
+  {id:'door',x:10,y:-1,name:'Porta d\'uscita',act:tryDoor,hit:()=>{const [cx,cy]=iso(10,0);return [cx+2,cy-32,10,36]}}
+];
+const solidAt=(x,y)=>OBJ.some(o=>o.x===x&&o.y===y);
+const walkable=(x,y)=>x>=0&&y>=0&&x<MW&&y<MH&&!solidAt(x,y);
+
+function drawDoor(t){
+  const [cx,cy]=iso(10,0),open=S.door;
+  for(let i=2;i<=11;i++){const px=cx+i,fy=cy+Math.floor(i/2);
+    for(let v=0;v<32;v++){const y=fy-32+v,edge=i===2||i===11||v===0;
+      let c=edge?'#e0b04f':'#3b2a1e';
+      if(!edge){const reveal=(i-3)/8<open;c=reveal?(v>26?'#d9c38a':'#f7e7b0'):((v===10||v===22)?'#5a3e2a':(i===9&&v===16?'#e0b04f':'#3b2a1e'))}
+      ctx.fillStyle=c;ctx.fillRect(px,y,1,1)}}
+}
+
+/* ---------- Luce ---------- */
+const lc=document.createElement('canvas');lc.width=VW;lc.height=VH;const lx=lc.getContext('2d');
+function hole(x,y,r,k=1){const g=lx.createRadialGradient(x,y,0,x,y,r);
+  g.addColorStop(0,`rgba(0,0,0,${k})`);g.addColorStop(.45,`rgba(0,0,0,${k})`);g.addColorStop(.45,`rgba(0,0,0,${k*.6})`);
+  g.addColorStop(.72,`rgba(0,0,0,${k*.6})`);g.addColorStop(.72,`rgba(0,0,0,${k*.28})`);g.addColorStop(1,'rgba(0,0,0,0)');
+  lx.fillStyle=g;lx.fillRect(x-r,y-r,r*2,r*2)}
+function drawLight(t){
+  lx.globalCompositeOperation='source-over';lx.clearRect(0,0,VW,VH);lx.fillStyle='rgba(9,6,22,.64)';lx.fillRect(0,0,VW,VH);
+  lx.globalCompositeOperation='destination-out';
+  const [pcx,pcy]=iso(P.px,P.py);hole(pcx,pcy,62);
+  OBJ.forEach(o=>{if(o.light){const [bx,by]=base(o);hole(bx,by-o.h/2,24,.8)}});
+  const [kx,ky]=base(OBJ.find(o=>o.id==='keeper'));hole(kx+5,ky-4,22,.7);
+  const [dx,dy]=iso(10,0);hole(dx+7,dy-14,18+S.door*30,.6+S.door*.4);
+  const [wx,wy]=iso(0,6);hole(wx-6,wy-30,20,.5);
+  ctx.drawImage(lc,0,0);
+  ctx.globalCompositeOperation='lighter';
+  OBJ.forEach(o=>{if(o.light){const [bx,by]=base(o);const g=ctx.createRadialGradient(bx,by-o.h/2,0,bx,by-o.h/2,22);g.addColorStop(0,'rgba(224,176,79,.16)');g.addColorStop(1,'rgba(224,176,79,0)');ctx.fillStyle=g;ctx.fillRect(bx-22,by-o.h/2-22,44,44)}});
+  ctx.globalCompositeOperation='source-over';
+}
+const motes=Array.from({length:26},(_,i)=>({x:(i*53)%VW,y:(i*97)%VH,s:.004+((i*7)%5)*.0015,p:i}));
+function drawMotes(t){motes.forEach(m=>{m.y-=m.s*16;if(m.y<0)m.y=VH;R(ctx,m.x+Math.sin(t/1400+m.p)*3,m.y,1,1,'rgba(240,230,207,.35)')})}
+
+/* ---------- Loop ---------- */
+let target=null,last=performance.now();
+function frame(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  update(dt);render(now);
+  requestAnimationFrame(frame);
+}
+function render(t){
+  ctx.fillStyle='#0b0814';ctx.fillRect(0,0,VW,VH);
+  ctx.drawImage(bg,0,0);drawDoor(t);
+  const list=OBJ.filter(o=>o.draw).map(o=>({d:o.x+o.y,f:()=>o.draw(o,t)}));
+  list.push({d:P.px+P.py+.01,f:()=>drawPlayer(t)});
+  list.sort((a,b)=>a.d-b.d).forEach(e=>e.f());
+  drawMotes(t);drawLight(t);
+  if(target&&!blocked()){let x,y;if(target.id==='door'){const [cx,cy]=iso(10,0);x=cx+7;y=cy-40}else{[x,y]=base(target);y-=target.h+5}
+    y+=Math.floor(t/300)%2;R(ctx,x-2,y,5,1,'#e0b04f');R(ctx,x-1,y+1,3,1,'#e0b04f');R(ctx,x,y+2,1,1,'#e0b04f')}
+}
+const blocked=()=>!S.started||!$('dialog').hidden||!$('modal').hidden||S.done;
+function update(dt){
+  if(S.started&&!S.done){S.elapsed+=dt;const s=Math.floor(S.elapsed);$('time').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+  if(S.door>0&&S.door<1)S.door=Math.min(1,S.door+dt*.8);
+  if(P.moving){const dx=P.tx-P.px,dy=P.ty-P.py,d=Math.hypot(dx,dy),sp=5*dt;P.walk+=dt;
+    if(d<=sp){P.px=P.tx;P.py=P.ty;P.moving=false}else{P.px+=dx/d*sp;P.py+=dy/d*sp}}
+  if(!P.moving&&!blocked()){
+    if(P.path.length){const [nx,ny]=P.path.shift();if(walkable(nx,ny))stepTo(nx,ny);else P.path=[]}
+    else if(P.pending){const o=P.pending;P.pending=null;if(adj(o)){P.fx=Math.sign(o.x-P.x);P.fy=Math.sign(o.y-P.y);interact(o)}}
+    else if(held){P.fx=held[0];P.fy=held[1];const nx=P.x+held[0],ny=P.y+held[1];if(walkable(nx,ny))stepTo(nx,ny)}
+  }
+  target=P.moving?null:nearest();
+  const pr=$('prompt');
+  if(target&&!blocked()){pr.innerHTML='<b>E</b> · '+target.name;pr.hidden=false}else pr.hidden=true;
+}
+function stepTo(nx,ny){P.fx=nx-P.x;P.fy=ny-P.y;P.x=P.tx=nx;P.y=P.ty=ny;P.moving=true}
+const adj=o=>Math.abs(o.x-P.x)+Math.abs(o.y-P.y)===1;
+function nearest(){const c=OBJ.filter(o=>o.act&&adj(o));if(!c.length)return null;return c.find(o=>o.x-P.x===P.fx&&o.y-P.y===P.fy)||c[0]}
+function interact(o){if(o&&o.act)o.act()}
+
+function bfs(goals){
+  const k=(x,y)=>x+','+y,start=k(P.x,P.y),prev=new Map([[start,null]]),q=[[P.x,P.y]];
+  while(q.length){const [x,y]=q.shift(),kk=k(x,y);
+    if(goals.has(kk)){const path=[];let c=kk;while(c!==start){path.unshift(c.split(',').map(Number));c=prev.get(c)}return path}
+    for(const [dx,dy] of DIRS){const nx=x+dx,ny=y+dy,nk=k(nx,ny);if(!prev.has(nk)&&walkable(nx,ny)){prev.set(nk,kk);q.push([nx,ny])}}}
+  return null;
+}
+
+/* ---------- Input ---------- */
+let held=null;
+const KEYS={ArrowUp:[0,-1],w:[0,-1],W:[0,-1],ArrowDown:[0,1],s:[0,1],S:[0,1],ArrowLeft:[-1,0],a:[-1,0],A:[-1,0],ArrowRight:[1,0],d:[1,0],D:[1,0]};
+addEventListener('keydown',e=>{
+  if(!$('modal').hidden){if(e.key==='Escape')closeModal();else if(modalKey)modalKey(e);return}
+  if(!$('dialog').hidden&&['e','E',' ','Enter'].includes(e.key)){e.preventDefault();advance();return}
+  if(KEYS[e.key]){e.preventDefault();held=KEYS[e.key];P.path=[];P.pending=null;return}
+  if(['e','E',' ','Enter'].includes(e.key)&&!blocked()){e.preventDefault();interact(nearest())}
+});
+addEventListener('keyup',e=>{if(KEYS[e.key]&&held===KEYS[e.key])held=null});
+function toCanvas(e){const r=cv.getBoundingClientRect();return [(e.clientX-r.left)/r.width*VW,(e.clientY-r.top)/r.height*VH]}
+function hitObj(mx,my){
+  return OBJ.filter(o=>o.act).sort((a,b)=>(b.x+b.y)-(a.x+a.y)).find(o=>{
+    const [x,y,w,h]=o.hit?o.hit():(()=>{const [bx,by]=base(o);return [bx-11,by-o.h,22,o.h+5]})();
+    return mx>=x&&mx<x+w&&my>=y&&my<y+h});
+}
+cv.addEventListener('click',e=>{
+  if(blocked())return;const [mx,my]=toCanvas(e),o=hitObj(mx,my);
+  if(o){const goals=new Set(DIRS.map(([dx,dy])=>[o.x+dx,o.y+dy]).filter(([x,y])=>walkable(x,y)||(x===P.x&&y===P.y)).map(([x,y])=>x+','+y));
+    const path=bfs(goals);if(path){P.path=path;P.pending=o}return}
+  const dx=(mx-OX)/HW,dy=(my-OY)/HH,gx=Math.floor((dy+dx)/2),gy=Math.floor((dy-dx)/2);
+  if(walkable(gx,gy)){const path=bfs(new Set([gx+','+gy]));if(path){P.path=path;P.pending=null}}
+});
+cv.addEventListener('mousemove',e=>{const [mx,my]=toCanvas(e);cv.style.cursor=hitObj(mx,my)?'pointer':'default'});
+document.querySelectorAll('.dpad button').forEach(b=>{
+  const d=b.dataset.d.split(',').map(Number);
+  b.addEventListener('pointerdown',e=>{e.preventDefault();held=d;P.path=[];P.pending=null});
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>{if(held===d)held=null}));
+});
+$('btnAct').addEventListener('click',()=>{if(!$('dialog').hidden)advance();else if(!blocked())interact(nearest())});
+
+/* ---------- Dialoghi ---------- */
+let dq=[],dcb=null,typing=null,full='';
+function say(who,lines,cb){$('dWho').textContent=who;dq=lines.slice();dcb=cb||null;$('dialog').hidden=false;held=null;nextLine()}
+function nextLine(){
+  full=dq.shift();const el=$('dText');let i=0;clearInterval(typing);
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=full;typing=null;return}
+  el.textContent='';typing=setInterval(()=>{el.textContent=full.slice(0,++i);if(i>=full.length){clearInterval(typing);typing=null}},16);
+}
+function advance(){
+  if(typing){clearInterval(typing);typing=null;$('dText').textContent=full;return}
+  if(dq.length)nextLine();else{$('dialog').hidden=true;const cb=dcb;dcb=null;cb&&cb()}
+}
+$('dialog').addEventListener('click',advance);
+
+function toast(msg){const t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2400)}
+function note(id,title,where,text,seal){if(S.journal.some(j=>j.id===id))return false;S.journal.push({id,title,where,text,seal:!!seal});return true}
+function readPlaque(k){const p=PLAQUES[k];say('Cartellino · '+p.title,p.lines,()=>{if(note(k,p.title,p.where,p.lines.join(' ')))toast('Annotato nel diario')})}
+
+/* ---------- Modali e rompicapi ---------- */
+let modalKey=null;
+function openModal(html){$('card').innerHTML=html;$('modal').hidden=false;held=null;modalKey=null;const f=$('card').querySelector('button');f&&f.focus()}
+function closeModal(){$('modal').hidden=true;modalKey=null;cv.focus?.()}
+$('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+const closeBtn='<button type="button" data-close>Chiudi</button>';
+$('card').addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeModal()});
+function bad(el,msg){const m=$('msg');m.textContent=msg;m.className='msg bad';el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}
+function solved(id,msg){
+  $('msg').textContent=msg;$('msg').className='msg good';
+  const row=$('card').querySelector('.row.end');row.innerHTML='<button class="primary" type="button" id="take">Prendi il sigillo</button>';
+  $('take').focus();$('take').onclick=()=>{closeModal();grant(id)};
+}
+function grant(id){
+  S.seals[id]=true;const s=SEALS[id];note('seal-'+id,s.title,'Sigillo',s.text,true);hud();
+  const n=sealCount();
+  say(s.title,[s.text,n<3?`Sigilli: ${n} su 3.`:'Hai tutti e tre i sigilli. La porta d\'uscita è sulla parete in fondo a destra.']);
+}
+function hud(){document.querySelectorAll('#seals i').forEach((el,i)=>el.classList.toggle('on',i<sealCount()))}
+
+function openLoom(){
+  if(S.seals.loom)return say('Telaio Jacquard',['Il telaio è aperto. Sul cartone perforato restano i fori del disegno.']);
+  const letters='URJADQAC'.split('');let pick=[];
+  openModal(`<div class="eyebrow">Rompicapo · Sala del Lanificio</div><h2>Il telaio a schede</h2>
+    <p class="clue">Questo telaio legge schede di cartone perforate, un'invenzione presentata a Lione nel 1804. Alessandro Rossi dedicò all'inventore il giardino accanto alla sua fabbrica di Schio, disegnato da Antonio Caregaro Negrin.</p>
+    <p>Ricomponi il cognome dell'inventore con le lettere incise sulle schede.</p>
+    <div class="slots" id="slots">${'<div class="slot"></div>'.repeat(8)}</div>
+    <div class="row keys" id="keys">${letters.map((l,i)=>`<button type="button" data-i="${i}">${l}</button>`).join('')}</div>
+    <div class="msg" id="msg">&nbsp;</div>
+    <div class="row end"><button type="button" id="bk">Cancella</button>${closeBtn}</div>`);
+  const draw=()=>{[...$('slots').children].forEach((s,i)=>s.textContent=pick[i]!=null?letters[pick[i]]:'');
+    [...$('keys').children].forEach(b=>b.disabled=pick.includes(+b.dataset.i))};
+  const check=()=>{if(pick.length<8)return;const w=pick.map(i=>letters[i]).join('');
+    if(w==='JACQUARD'){solved('loom','Il telaio scatta. Dietro le schede perforate c\'è un sigillo di ottone.');$('keys').remove()}
+    else{bad($('slots'),'Le schede si inceppano. Rileggi il cartellino: di chi porta il nome il giardino?');pick=[];draw()}};
+  $('keys').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;pick.push(+b.dataset.i);draw();check()});
+  $('bk').onclick=()=>{pick.pop();draw()};
+  modalKey=e=>{const L=e.key.toUpperCase();if(e.key==='Backspace'){pick.pop();draw()}
+    else{const i=letters.findIndex((l,j)=>l===L&&!pick.includes(j));if(i>=0){pick.push(i);draw();check()}}};
+}
+
+function openChest(){
+  if(S.seals.chest)return say('Cassetta del Genio',['La cassetta è aperta e vuota.']);
+  let code='';
+  openModal(`<div class="eyebrow">Rompicapo · Sala della Grande Guerra</div><h2>Cassetta del Genio</h2>
+    <p class="clue">Un biglietto dentro il coperchio: «Prime due cifre: le gallerie della strada del Pasubio. Ultime due: gli anni passati tra la costruzione della Fabbrica Alta e l'inizio dei lavori sul Pasubio.»</p>
+    <div class="display" id="disp">____</div>
+    <div class="keypad" id="kp">${[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" data-n="${n}">${n}</button>`).join('')}<button type="button" data-n="del" aria-label="Cancella">⌫</button><button type="button" data-n="0">0</button><button type="button" data-n="ok" class="primary">OK</button></div>
+    <div class="msg" id="msg">&nbsp;</div>
+    <div class="row end">${closeBtn}</div>`);
+  const draw=()=>$('disp').textContent=(code+'____').slice(0,4);
+  const press=n=>{if(n==='del')code=code.slice(0,-1);else if(n==='ok'){
+      if(code==='5255'){solved('chest','Clic. Il lucchetto si apre: sotto una mappa del Pasubio c\'è il secondo sigillo.');$('kp').remove();return}
+      bad($('disp'),code.length<4?'Servono quattro cifre.':'Il lucchetto non cede. Ti servono due cartellini, uno per sala.');code=''}
+    else if(code.length<4)code+=n;draw()};
+  $('kp').addEventListener('click',e=>{const b=e.target.closest('button');if(b)press(b.dataset.n)});
+  modalKey=e=>{if(/^\d$/.test(e.key))press(e.key);else if(e.key==='Backspace')press('del');else if(e.key==='Enter'){e.preventDefault();press('ok')}};
+}
+
+function openTimeline(){
+  if(S.seals.archive)return say('Armadio dell\'archivio',['Le quattro schede sono in ordine. Il cassetto resta aperto.']);
+  const cards=[
+    {t:'A Schio si costruisce la Fabbrica Alta',y:1862},
+    {t:'A Lione viene presentato il telaio a schede perforate',y:1804},
+    {t:'I minatori scavano la Strada delle 52 Gallerie',y:1917},
+    {t:'Francesco Rossi avvia l\'attività laniera a Schio',y:1817}];
+  let order=[];
+  openModal(`<div class="eyebrow">Rompicapo · Archivio</div><h2>Le schede in disordine</h2>
+    <p class="clue">Il cassetto si apre solo se le schede tornano in ordine, dalla più antica alla più recente. Gli anni non sono scritti qui: li trovi sui cartellini delle sale.</p>
+    <div class="placed" id="placed">${'<div></div>'.repeat(4)}</div>
+    <div class="tl" id="tl">${cards.map((c,i)=>`<button type="button" data-i="${i}">${c.t}</button>`).join('')}</div>
+    <div class="msg" id="msg">&nbsp;</div>
+    <div class="row end"><button type="button" id="rs">Ricomincia</button>${closeBtn}</div>`);
+  const draw=(reveal)=>{[...$('placed').children].forEach((d,k)=>{const c=cards[order[k]];
+      d.className=c?'f':'';d.innerHTML=c?`<span class="n">${k+1}</span><span>${c.t}</span>${reveal?`<span class="yr">${c.y}</span>`:''}`:`<span class="n">${k+1}</span>`});
+    [...$('tl').children].forEach(b=>b.disabled=order.includes(+b.dataset.i))};
+  draw();
+  $('tl').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;order.push(+b.dataset.i);draw();
+    if(order.length===4){const ok=order.every((i,k)=>k===0||cards[order[k-1]].y<cards[i].y);
+      if(ok){draw(true);$('tl').remove();solved('archive','Il cassetto scorre. Tra le schede c\'è il terzo sigillo.')}
+      else{bad($('placed'),'L\'ordine non torna. Controlla gli anni nei cartellini e riprova.');order=[];setTimeout(()=>draw(),350)}}});
+  $('rs').onclick=()=>{order=[];draw()};
+}
+
+function talkKeeper(){
+  const n=sealCount();
+  if(n===3)return say('Custode',['Tre sigilli! La porta d\'uscita è sulla parete in fondo, a destra. Buona serata.']);
+  say('Custode',[n===0?'Non hai ancora trovato nessun sigillo. Comincia dai cartellini: le risposte sono lì.':`Hai ${n} sigill${n===1?'o':'i'} su 3. Ti do una mano?`],()=>hint());
+}
+function hint(){
+  if(!S.started||S.done)return;
+  const id=['loom','chest','archive'].find(k=>!S.seals[k]);
+  if(!id)return say('Custode',['Hai tutto. Vai alla porta d\'uscita.']);
+  const where={loom:'Il telaio, nella sala del Lanificio.',chest:'La cassetta del Genio, nella sala della Grande Guerra.',archive:'L\'armadio dell\'archivio.'}[id];
+  const lv=S.hint[id];S.hint[id]=Math.min(lv+1,HINTS[id].length-1);
+  say('Custode',[where,HINTS[id][lv]]);
+}
+function tryDoor(){
+  const n=sealCount();
+  if(n<3)return say('Porta d\'uscita',[`È chiusa. Sulla serratura ci sono tre incavi a forma di sigillo: ne hai ${n}.`]);
+  if(S.door===0){S.door=.01;say('Porta d\'uscita',['Metti i tre sigilli negli incavi. La serratura gira da sola.'],()=>setTimeout(win,600))}
+}
+
+/* ---------- Fine ---------- */
+function fmt(s){s=Math.floor(s);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function win(){
+  S.done=true;const tm=fmt(S.elapsed);
+  openModal(`<div class="eyebrow">Uscita · ${tm}</div><h2>Sei fuori dal museo</h2>
+    <p>In ${tm} hai attraversato un secolo di storia dell'Alto Vicentino. Ecco cosa ti porti a casa:</p>
+    <div class="journal">${['loom','chest','archive'].map(k=>`<article class="seal"><span class="tag">Sigillo</span><h3>${SEALS[k].title}</h3><p>${SEALS[k].text}</p></article>`).join('')}</div>
+    <p class="eyebrow">Fonti per la versione completa</p>
+    <ul class="src"><li>Wikidata: luoghi, persone e beni culturali collegati tra loro</li><li>Europeana: foto e oggetti per le teche</li><li>Catalogo generale dei beni culturali (MiC)</li><li>Rete Museale Alto Vicentino ed Ecomuseo della Grande Guerra</li></ul>
+    <div class="msg" id="msg">&nbsp;</div>
+    <div class="row end"><button type="button" id="share">Copia risultato</button><button class="primary" type="button" id="again">Gioca ancora</button></div>`);
+  const txt=`Ho risolto FUORI ORARIO in ${tm}: telaio Jacquard, 52 gallerie del Pasubio e l'archivio di Schio. Ci provi?`;
+  $('share').onclick=()=>{navigator.clipboard?.writeText(txt).then(()=>{$('msg').textContent='Copiato negli appunti.';$('msg').className='msg good'}).catch(fallback)||fallback()};
+  function fallback(){$('msg').textContent=txt;$('msg').className='msg';const r=document.createRange();r.selectNodeContents($('msg'));getSelection().removeAllRanges();getSelection().addRange(r)}
+  $('again').onclick=()=>{closeModal();fresh();hud();S.started=true;intro()};
+}
+
+/* ---------- Diario ---------- */
+$('btnJournal').onclick=()=>{
+  if(!S.started)return;
+  openModal(`<div class="eyebrow">Diario · ${S.journal.length} ${S.journal.length===1?'voce':'voci'}</div><h2>Quello che hai scoperto</h2>
+    ${S.journal.length?`<div class="journal">${S.journal.map(j=>`<article class="${j.seal?'seal':''}"><span class="tag">${j.where}</span><h3>${j.title}</h3><p>${j.text}</p></article>`).join('')}</div>`
+    :'<p>Ancora niente. Leggi i cartellini nelle sale: quello che scopri finisce qui.</p>'}
+    <div class="row end">${closeBtn}</div>`);
+};
+$('btnHint').onclick=()=>{if(blocked())return;hint()};
+
+/* ---------- Avvio ---------- */
+function intro(){say('Custode',[
+  'Ehi! Il museo ha chiuso alle sei. Come sei rimasto qui dentro?',
+  'La porta d\'uscita si apre solo con tre sigilli: uno nel telaio, uno nella cassetta del Genio, uno nell\'armadio dell\'archivio.',
+  'Le combinazioni le trova chi legge la storia di queste sale. I cartellini sono lì apposta.',
+  'Se ti blocchi, vieni da me o premi Aiuto.'])}
+function fit(){
+  const st=$('stage'),w=st.clientWidth,h=st.clientHeight;let s=Math.min(w/VW,h/VH);
+  if(s>=2)s=Math.floor(s);cv.style.width=VW*s+'px';cv.style.height=VH*s+'px';
+}
+addEventListener('resize',fit);
+$('btnStart').onclick=()=>{$('title').hidden=true;S.started=true;fit();intro()};
+function start(data){
+  if(data&&data.S){S=data.S;Object.assign(P,data.P);P.px=P.tx=P.x;P.py=P.ty=P.y;if(S.started)$('title').hidden=true}
+  buildBg();hud();fit();requestAnimationFrame(frame);
+}
+window.claude?.hot?.snapshot?.(()=>({S,P:{x:P.x,y:P.y}}));
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+})();
+</script>
+
+</body>
+</html>
