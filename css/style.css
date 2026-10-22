@@ -106,6 +106,18 @@ a{color:var(--brass)}
 .dpad button{padding:0;font-size:16px;opacity:.85}
 .dpad button span{display:block;transform:rotate(-45deg)}
 #btnAct{width:56px;height:56px;border-radius:0;font-size:18px}
+/* pianta del museo nell'ingresso: carta crema, rami color ottone, stanze completate dorate */
+.pianta{width:100%;max-width:520px;background:#efe2c4;border:2px solid var(--line);box-shadow:3px 3px 0 #000}
+.pianta line{stroke:#8a7350;stroke-width:3;stroke-linecap:round}
+.pianta circle{fill:#5a4e3e;stroke:#2a2030;stroke-width:1.5}
+.pianta circle.fatta{fill:var(--brass);stroke:#8a6a34}
+.pianta circle.qui{stroke:var(--wool);stroke-width:3}
+.pianta text{font-family:var(--display);font-size:10px;fill:#3a2a1a}
+.pianta g{cursor:pointer;outline:none}
+.pianta g:focus circle,.pianta g:hover circle{stroke:var(--wool);stroke-width:3}
+.pianta-rami{display:grid;gap:4px;font-size:18px}
+.pianta-rami b{font-family:var(--display);font-size:13px;color:var(--brass);letter-spacing:.06em;margin-right:6px}
+.pianta-rami span.fatta{color:var(--ok)}
 /* rompicapo della facciata: 7 colonne × 2 piani */
 .facade{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;width:100%;max-width:420px;background:#cfc3a6;border:2px solid var(--line);padding:6px}
 .facade>*{min-height:42px;display:grid;place-items:center;padding:0;font-family:var(--display);font-size:22px;letter-spacing:0;text-transform:none;color:#3a2a1a;background:#e8dfc6;border:2px solid #b3a585;box-shadow:none}

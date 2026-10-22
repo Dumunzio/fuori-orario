@@ -12,8 +12,9 @@ const $=id=>document.getElementById(id);
 let S,P;
 function fresh(){
   const k=Object.keys(SEALS);
-  S={seals:Object.fromEntries(k.map(id=>[id,false])),journal:[],hint:Object.fromEntries(k.map(id=>[id,0])),elapsed:0,started:false,done:false,door:0,room:'museo',fade:0};
-  P={x:9,y:8,px:9,py:8,tx:9,ty:8,fx:0,fy:1,moving:false,walk:0,path:[],pending:null};
+  S={seals:Object.fromEntries(k.map(id=>[id,false])),journal:[],hint:Object.fromEntries(k.map(id=>[id,0])),elapsed:0,started:false,done:false,door:0,room:'ingresso',fade:0};
+  // si comincia nell'ingresso (PIANTA.inizio), sul tappeto davanti al custode
+  P={x:5,y:6,px:5,py:6,tx:5,ty:6,fx:0,fy:-1,moving:false,walk:0,path:[],pending:null};
 }
 fresh();
 const sealCount=()=>Object.values(S.seals).filter(Boolean).length;
@@ -122,7 +123,8 @@ const lampada=(side,t)=>{const [cx,cy]=side==='R'?iso(t,0):iso(0,t);return [side
 // Gli oggetti di ogni stanza sono in OGGETTI (stanza.js).
 // pav: per ogni zona [colore pari, colore dispari, bordo, puntini (facoltativo)].
 const STANZE={
-  museo:{w:12,h:10,ox:148,oy:64,porta:true,
+  // porta = casella della parete destra dove sta la porta d'uscita, oppure false
+  museo:{w:12,h:10,ox:148,oy:64,porta:false,
     zona:(x,y)=>x<6?(y<5?'lan':'arc'):(y<5?'war':'hall'),
     pav:{lan:['#6e4a31','#674529','#4e3220'],war:['#565d59','#4d5350','#3a3f3d'],arc:['#463a5e','#40355a','#2f2744','#5a4b78'],hall:['#7a6e5c','#6e6351','#544a3b']},
     pareti(g){
@@ -137,7 +139,7 @@ const STANZE={
       onWall(g,'L',3,2,10,42,18,framed((u,v,W)=>v<6?'#3d4d74':v<9+Math.round(Math.sin(u)*1.5)?'#4f6b3f':'#7a8a4a'));
       onWall(g,'L',6,2,10,44,22,framed((u,v,W,H)=>(u===Math.floor(W/2)||v===Math.floor(H/2))?'#4a3b2c':(u===2&&v===3?'#f4f0d8':'#24345a'),'#4a3b2c'));
       onWall(g,'L',8,3,9,36,7,framed((u,v)=>v===3&&u%2?'#3a2a1a':'#c9a65a','#6b5226'));
-      pareteVarco(g,'L',4);
+      pareteVarchiPianta(g,'museo');
       pareteCartellino(g,'R',3);
       [['R',1],['R',5],['R',9],['L',2],['L',7]].forEach(([s_,t])=>applique(g,s_,t));
     },
@@ -154,7 +156,7 @@ const STANZE={
     pareti(g){
       onWall(g,'R',3,1,11,44,16,vedutaVilla(0));onWall(g,'R',4,0,9,44,16,vedutaVilla(11));
       [2,5].forEach(t=>onWall(g,'L',t,3,9,46,22,framed((u,v,W,H)=>(u===Math.floor(W/2)||v===Math.floor(H/2))?'#5a4e3e':(u===1&&v===2?'#f4f0d8':'#24345a'),'#5a4e3e')));
-      pareteVarco(g,'L',6);
+      pareteVarchiPianta(g,'villa');
       pareteCartellino(g,'R',1);pareteCartellino(g,'R',6);
       // lesene: pilastri chiari tra una casella e l'altra, come nelle facciate di Palladio
       [0,2,5,7].forEach(t=>onWall(g,'R',t,0,1,WH-3,WH-17,(u,v)=>v<3?'#d6ccb4':u?'#b8ad94':'#cfc4aa'));
@@ -163,7 +165,35 @@ const STANZE={
     },
     decoro(g){tappeto(g,3,2,5,4,'#6b2a2a','#c9a65a','#8a3a32')},
     // finestre, applique e un lampadario al centro
-    luci(){const [mx,my]=iso(4,4);return [...[2,5].map(t=>{const [wx,wy]=iso(0,t);return [wx-6,wy-34,20,.5]}),lampada('R',2),lampada('R',5),[mx,my-20,46,.45]]}}
+    luci(){const [mx,my]=iso(4,4);return [...[2,5].map(t=>{const [wx,wy]=iso(0,t);return [wx-6,wy-34,20,.5]}),lampada('R',2),lampada('R',5),[mx,my-20,46,.45]]}},
+  // Ingresso: dove si comincia. Marmo, pareti verde scuro, il custode, la piantina e i varchi verso i rami del museo.
+  ingresso:{w:10,h:8,ox:148,oy:76,porta:false,
+    zona:()=>'ingresso',
+    pav:{ingresso:['#8d8579','#827a6e','#5f584e','#a2998a']},
+    muro:{fondo:['#2f3a3a','#3c4a48'],zoccolo:['#1f2828','#283433'],cornice:['#435352','#5a6e6b'],fascia:'#b8892f'},
+    pareti(g){
+      pareteVarchiPianta(g,'ingresso');
+      // stendardo del museo e manifesto della mostra
+      onWall(g,'L',0,3,9,48,30,(u,v,W,H)=>v===H-1?(u%2?'#e0b04f':null):(u===3?'#1f4a46':'#2d6b64'));
+      onWall(g,'R',6,2,10,42,22,framed((u,v,W,H)=>v<4?'#c2493c':v>H-5?'#2a2030':(u+v)%4===0?'#e0b04f':'#efe2c4'));
+      onWall(g,'L',7,2,10,40,16,framed((u,v)=>v%4===1&&u>1?'#3a2a1a':'#efe2c4','#6b5226'));
+      [['R',3],['R',7],['L',4]].forEach(([s_,t])=>applique(g,s_,t));
+    },
+    decoro(g){tappeto(g,4,2,5,7,'#7a2a24','#c9a65a','#8f3229')},
+    luci(){const l=[['R',3],['R',7],['L',4]].map(([s_,t])=>lampada(s_,t)),k=OBJ.find(o=>o.id==='keeper');
+      if(k){const [kx,ky]=base(k);l.push([kx+5,ky-4,22,.7])}return l}},
+  // Uscita: una piccola anticamera con la porta che chiede sigilli e tessere.
+  uscita:{w:8,h:6,ox:148,oy:88,porta:5,
+    zona:()=>'uscita',
+    pav:{uscita:['#7a6e5c','#6e6351','#544a3b']},
+    pareti(g){
+      pareteVarchiPianta(g,'uscita');
+      onWall(g,'R',5,4,8,44,5,(u,v,W,H)=>(u===0||u===W||v===0||v===H-1)?'#1c4a2c':'#4fd17e');
+      onWall(g,'L',1,2,10,42,20,framed((u,v,W)=>{const m=Math.abs(u-W/2)*1.6+4;return v<m?'#3d4d74':v<m+3?'#e9eef0':v<14?'#7d8a7a':'#556b45'}));
+      [['R',2],['R',7]].forEach(([s_,t])=>applique(g,s_,t));
+    },
+    decoro(g){tappeto(g,4,0,6,1,'#7a2a24','#c9a65a','#8f3229')},
+    luci(){return [['R',2],['R',7]].map(([s_,t])=>lampada(s_,t))}}
 };
 const sfondi={};
 function buildBg(){
@@ -268,6 +298,14 @@ function drawBust(o){const [bx,by]=base(o);
   diamond(ctx,bx,by+1,5,2,'rgba(0,0,0,.3)');box(ctx,bx,by+1,4,2,13,'#d8d2c4','#b8b0a0','#9a9284');
   R(ctx,bx-4,by-16,8,3,'#d8d2c4');R(ctx,bx-2,by-22,4,6,'#e6e0d2');R(ctx,bx-2,by-23,4,2,'#cfc8b8');R(ctx,bx+1,by-19,1,1,'#9a9284');
 }
+// leggio con la pianta del museo: un foglio crema con i rami e i punti delle stanze
+function drawPiantina(o,t){const [bx,by]=base(o);
+  diamond(ctx,bx,by+1,5,2,'rgba(0,0,0,.3)');R(ctx,bx-1,by-12,2,12,'#3d3320');R(ctx,bx-4,by-1,8,2,'#2b2416');
+  R(ctx,bx-9,by-24,18,12,'#6b5226');R(ctx,bx-8,by-23,16,10,'#efe2c4');
+  [[-6,-14,0,-6],[0,-20,0,-6],[0,-20,-5,-5],[0,-20,5,-4]].forEach(([x,y,dx,dy])=>{for(let k=0;k<6;k++)R(ctx,bx+x+Math.round(dx*k/6),by+y+Math.round(dy*k/6)+(y<-15?0:0),1,1,'#8a7350')});
+  [[-6,-15],[0,-15],[0,-21],[-5,-22],[5,-21],[4,-16]].forEach(([x,y],i)=>R(ctx,bx+x-1,by+y,2,2,i%2?'#c2493c':'#2d6b64'));
+  if(Math.floor(t/600)%2)R(ctx,bx-1,by-14,2,2,'#e0b04f');
+}
 function drawBench(o){const [bx,by]=base(o);box(ctx,bx,by+1,10,5,5,'#7a5236','#5a3a26','#46301f')}
 function drawPlant(o,t){const [bx,by]=base(o);
   box(ctx,bx,by+1,4,2,6,'#a0522d','#7d3f22','#62311a');
@@ -299,8 +337,8 @@ const solidAt=(x,y)=>OBJ.some(o=>o.x===x&&o.y===y);
 const walkable=(x,y)=>x>=0&&y>=0&&x<MW&&y<MH&&!solidAt(x,y);
 
 function drawDoor(t){
-  if(!STANZE[S.room].porta)return;
-  const [cx,cy]=iso(10,0),open=S.door;
+  const pt=STANZE[S.room].porta;if(pt===false||pt==null)return;
+  const [cx,cy]=iso(pt,0),open=S.door;
   for(let i=2;i<=11;i++){const px=cx+i,fy=cy+Math.floor(i/2);
     for(let v=0;v<32;v++){const y=fy-32+v,edge=i===2||i===11||v===0;
       let c=edge?'#e0b04f':'#3b2a1e';
@@ -323,7 +361,7 @@ function drawLight(t){
   OBJ.forEach(o=>{if(o.light){const [lx_,ly_]=centroLuce(o);hole(lx_,ly_,24,.8)}});
   OBJ.forEach(o=>{if(o.acceso&&o.hit&&o.acceso()){const [x,y,w,h]=o.hit();hole(x+w/2,y+h/2,30,.9)}});
   STANZE[S.room].luci().forEach(l=>hole(...l));
-  if(STANZE[S.room].porta){const [dx,dy]=iso(10,0);hole(dx+7,dy-14,18+S.door*30,.6+S.door*.4)}
+  if(STANZE[S.room].porta!==false){const [dx,dy]=iso(STANZE[S.room].porta,0);hole(dx+7,dy-14,18+S.door*30,.6+S.door*.4)}
   ctx.drawImage(lc,0,0);
   ctx.globalCompositeOperation='lighter';
   OBJ.forEach(o=>{if(o.light){const [bx,cy]=centroLuce(o);const g=ctx.createRadialGradient(bx,cy,0,bx,cy,22);g.addColorStop(0,'rgba(224,176,79,.16)');g.addColorStop(1,'rgba(224,176,79,0)');ctx.fillStyle=g;ctx.fillRect(bx-22,cy-22,44,44)}});

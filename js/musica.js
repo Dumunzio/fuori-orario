@@ -8,6 +8,8 @@
 // eco = quantità di eco (0-1); vol = volume del brano, per pareggiare le stanze; pad = accordi lunghi; basso = timbro del basso (VOCI) o null; ritmo = percussioni (RITMI) o null.
 // Una stanza può avere il suo brano in STANZE.<id>.musica, con lo stesso formato: vince su questa tabella.
 const MUSICHE={
+  ingresso:  {bpm:72, radice:60,scala:[0,2,4,5,7,9,11],giro:[0,3,4,0],voce:'piano',densita:.3,alto:1,eco:.35,pad:1,basso:'morbido',ritmo:null,vol:.85},
+  uscita:    {bpm:96, radice:62,scala:[0,2,4,5,7,9,11],giro:[0,3,4,4],voce:'liuto',densita:.5,alto:1,eco:.3,pad:1,basso:'morbido',ritmo:'arpeggio',vol:.9},
   museo:     {bpm:64, radice:57,scala:[0,2,3,5,7,8,11],giro:[0,5,3,4],voce:'carillon',densita:.45,alto:1,eco:.4,pad:0,basso:'morbido',ritmo:null,vol:1},
   villa:     {bpm:84, radice:62,scala:[0,2,3,5,7,9,10],giro:[0,3,6,4],voce:'liuto',densita:.55,alto:0,eco:.25,pad:0,basso:'morbido',ritmo:'arpeggio',vol:0.95},
   atrio:     {bpm:56, radice:60,scala:[0,2,4,6,7,9,11],giro:[0,3,5,4],voce:'flauto',densita:.2,alto:1,eco:.5,pad:1,basso:null,ritmo:null,vol:0.92},

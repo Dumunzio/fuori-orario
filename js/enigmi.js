@@ -16,7 +16,7 @@ function solved(id,msg){
 function grant(id){
   S.seals[id]=true;const s=SEALS[id];note('seal-'+id,s.title,'Sigillo',s.text,true);hud();
   const n=sealCount();
-  say(s.title,[s.text,n<NSEALS()?`Sigilli: ${n} su ${NSEALS()}.`:'Hai tutti i sigilli. La porta d\'uscita è nel museo, sulla parete in fondo a destra.']);
+  say(s.title,[s.text,n<NSEALS()?`Sigilli: ${n} su ${NSEALS()}.`:'Hai tutti i sigilli. La porta d\'uscita è nella sala dopo il museo, oltre il varco con il cartello verde.']);
 }
 
 function openLoom(){
@@ -124,11 +124,11 @@ function openFacade(){
 // Se ci sono le sale a tema (js/sale/registro.js), per uscire servono anche tutte le tessere:
 // bloccoUscita() restituisce le righe da dire se ne manca qualcuna, altrimenti null.
 const tessereMancanti=()=>typeof bloccoUscita==='function'&&bloccoUscita();
-const regolaTessere=()=>typeof bloccoUscita==='function'?' Servono anche le tessere delle sale del territorio, dietro l\'arco con la fascia dorata sulla parete destra.':'';
+const regolaTessere=()=>typeof bloccoUscita==='function'?' Servono anche le tessere delle sale del territorio: i varchi colorati di questo ingresso portano ai loro rami.':'';
 function talkKeeper(){
   const n=sealCount();
   if(n===NSEALS()){const b=tessereMancanti();if(b)return say('Custode',['Tutti i sigilli, ottimo! Ma la porta vuole anche le tessere.',...b]);
-    return say('Custode',['Tutti i sigilli! La porta d\'uscita è sulla parete in fondo, a destra. Buona serata.'])}
+    return say('Custode',['Tutti i sigilli! La porta d\'uscita è nella sala dopo il museo. Buona serata.'])}
   say('Custode',[n===0?'Non hai ancora trovato nessun sigillo. Comincia dai cartellini: le risposte sono lì.':`Hai ${n} sigill${n===1?'o':'i'} su ${NSEALS()}. Vuoi chiedermi qualcosa? Per un indizio c'è il pulsante Aiuto.`],()=>typeof apriDomandeCustode==='function'?apriDomandeCustode():hint());
 }
 function hint(){
@@ -161,7 +161,8 @@ function win(){
   const txt=`Ho risolto FUORI ORARIO in ${tm}: ${lettere(NSEALS())} sigilli nascosti nella storia dell'Alto Vicentino. Ci provi?`;
   $('share').onclick=()=>{navigator.clipboard?.writeText(txt).then(()=>{$('msg').textContent='Copiato negli appunti.';$('msg').className='msg good'}).catch(fallback)||fallback()};
   function fallback(){$('msg').textContent=txt;$('msg').className='msg';const r=document.createRange();r.selectNodeContents($('msg'));getSelection().removeAllRanges();getSelection().addRange(r)}
-  $('again').onclick=()=>{closeModal();fresh();hud();S.started=true;intro()};
+  // si vince nell'uscita: per ricominciare si torna davvero all'ingresso, con la sua stanza e i suoi oggetti
+  $('again').onclick=()=>{closeModal();fresh();entraStanza(PIANTA.inizio);hud();S.started=true;intro()};
 }
 
 /* ---------- Diario ---------- */
@@ -179,4 +180,5 @@ function intro(){say('Custode',[
   'Ehi! Il museo ha chiuso alle sei. Come sei rimasto qui dentro?',
   `La porta d'uscita si apre solo con i sigilli nascosti nelle sale. Ne servono ${lettere(NSEALS())}.${regolaTessere()}`,
   'Le combinazioni le trova chi legge la storia di queste sale. I cartellini sono lì apposta.',
+  'Il museo è a destra, la porta d\'uscita c\'è dopo il museo. Sul leggio qui davanti c\'è la pianta: ti dice quali sale hai già finito.',
   'Se ti blocchi, vieni da me o premi Aiuto.'])}
