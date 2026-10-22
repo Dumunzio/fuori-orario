@@ -21,6 +21,8 @@ button{font-family:var(--display);font-size:15px;letter-spacing:.06em;text-trans
 button:hover{border-color:var(--brass)}
 button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
 button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+input{font:inherit;color:inherit;background:#120e1c;border:2px solid var(--line);padding:6px 10px}
+input:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 button.primary{background:var(--brass);color:#1a1424;border-color:#1a1424}
 
 #app{height:100%;display:flex;flex-direction:column;gap:8px;padding-block:10px}
@@ -80,6 +82,7 @@ button.primary{background:var(--brass);color:#1a1424;border-color:#1a1424}
 ul.src{margin:0;padding-left:1.1em;display:grid;gap:2px}
 ul.src li::marker{color:var(--brass)}
 a{color:var(--brass)}
+.fonti{display:block;font-size:17px;color:var(--muted)}
 
 #title{position:fixed;inset:0;z-index:30;background:var(--night);display:grid;place-items:center;padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));overflow:auto}
 .tcard{width:min(620px,100%);display:flex;flex-direction:column;gap:14px}
