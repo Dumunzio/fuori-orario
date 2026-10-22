@@ -90,7 +90,7 @@ function apri(){
         g.strokeStyle=w?'#7fc4dc':'#8a8d95';g.lineWidth=14;g.lineCap='butt';
         [[1,0,-1],[2,1,0],[4,0,1],[8,-1,0]].forEach(([b,dx,dy])=>{if(m&b){g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+dx*L/2,cy+dy*L/2);g.stroke()}});
         g.fillStyle=w?'#7fc4dc':'#8a8d95';g.fillRect(cx-7,cy-7,14,14)}
-      g.fillStyle='#3f8ab0';g.fillRect(0,ENTRA[1]*L+L/2-12,L/2,24);g.fillStyle='#efe2c4';g.font='14px VT323, monospace';g.fillText('Lelia',2,ENTRA[1]*L+L/2-16);
+      g.fillStyle='#3f8ab0';g.fillRect(0,ENTRA[1]*L+L/2-12,L/2,24);g.fillStyle='#efe2c4';g.font=fontTela(15);g.fillText('Lelia',2,ENTRA[1]*L+L/2-16);
       g.fillStyle=fine?'#e0b04f':'#5a3e2a';g.fillRect(COLS*L+L/2-2,ESCE[1]*L+L/2-12,10,24);
       return fine};
     cv2.onclick=e=>{if(!$('slTubi')||$('slPrendi'))return;const b=cv2.getBoundingClientRect(),x=Math.floor(((e.clientX-b.left)/b.width*cv2.width-L/2)/L),y=Math.floor((e.clientY-b.top)/b.height*cv2.height/L);

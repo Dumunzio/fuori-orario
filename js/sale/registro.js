@@ -22,7 +22,7 @@ function registraSala(s){
     return o.muro.lato==='R'?[cx+6,cy-20,18,.7]:[cx-6,cy-18,18,.7]})];
   STANZE[s.id]=st;
   OGGETTI[s.id]=[...s.oggetti,varco('ritorno-'+s.id,s.ritorno.lato,s.ritorno.t,'Varco: torna all\'atrio',()=>vaiInStanza('atrio',...davantiVarco(lato,t)))];
-  OGGETTI.atrio.push(varco('varco-'+s.id,lato,t,'Varco: '+s.nome,()=>entraInSala(s.id)));
+  OGGETTI.atrio.push(varco('varco-'+s.id,lato,t,'Varco: '+s.nome,()=>entraInSala(s.id),()=>!!tessereS()[s.id]));
   Object.assign(PLAQUES,s.cartellini);
   Object.assign(FONTI,s.fonti);
   CONOSCENZA.push(...s.schede);
@@ -34,18 +34,33 @@ function entraInSala(id){
 }
 
 /* ---------- Varchi ---------- */
-// Arco aperto nella parete (lato 'R' = parete destra, fila y=0; 'L' = parete sinistra, colonna x=0), con una fascia colorata sopra.
-function arcoVarco(g,lato,t,colore){
+// Emblema di ogni sala sopra il suo arco nell'atrio (i motivi li disegna pareteVarco, in motore.js).
+const MOTIVI={tessitore:'navetta',mine:'mina',cimone:'croce',forti:'torre',citta:'case',castello:'merli',
+  ferrarin:'aereo',grotta:'fossile',anguane:'onde',meneghello:'libro',recoaro:'goccia'};
+// Arco aperto nella parete (lato 'R' = parete destra, fila y=0; 'L' = parete sinistra, colonna x=0).
+// Usa pareteVarco del motore quando c'è; se accetta il tema (colore e motivo) glielo passa,
+// altrimenti aggiunge sopra la fascia colorata. Senza motore a varchi, disegna un arco suo.
+function arcoVarco(g,lato,t,colore,motivo){
+  if(typeof pareteVarco==='function'){
+    if(pareteVarco.length>=4)return pareteVarco(g,lato,t,{colore,motivo});
+    pareteVarco(g,lato,t);onWall(g,lato,t,3,9,47,5,()=>colore);return;
+  }
   onWall(g,lato,t,1,11,40,40,(u,v)=>{
     const dx=u-5,dentro=v>=6?Math.abs(dx)<=3:dx*dx+(v-6)*(v-6)<=10,bordo=v>=5?Math.abs(dx)<=4:dx*dx+(v-6)*(v-6)<=20;
     if(dentro)return v>32?'#1a1428':'#0b0814';
     return bordo?(v%4===0?'#6f6553':'#8a7d66'):null});
   onWall(g,lato,t,3,9,47,5,()=>colore);
 }
-function varco(id,lato,t,name,act){
+// Oggetto varco (o cartellino appeso) sulla parete. acceso: funzione facoltativa, vera quando il motore deve illuminarlo.
+function varco(id,lato,t,name,act,acceso){
   const [x,y]=lato==='R'?[t,-1]:[-1,t];
-  return {id,x,y,name,act,hit:()=>{const [cx,cy]=lato==='R'?iso(t,0):iso(0,t);return lato==='R'?[cx+2,cy-38,10,40]:[cx-11,cy-36,10,40]}};
+  const o={id,x,y,name,act,hit:()=>{if(typeof hitVarco==='function')return hitVarco(lato,t);
+    const [cx,cy]=lato==='R'?iso(t,0):iso(0,t);return lato==='R'?[cx+2,cy-38,10,40]:[cx-11,cy-36,10,40]}};
+  if(acceso)o.acceso=acceso;
+  return o;
 }
+// Font del testo del gioco, per i disegni su canvas (mappa, tubi): segue --body di style.css.
+const fontTela=px=>px+'px '+(getComputedStyle(document.body).getPropertyValue('--body').trim()||'monospace');
 
 /* ---------- Pareti e pavimenti delle sale ---------- */
 // Ridipinge le due pareti della stanza corrente: chiaro a sinistra (illuminata), scuro a destra, zoccolo e cornice.
@@ -81,7 +96,7 @@ STANZE.atrio={w:13,h:11,ox:148,oy:64,porta:false,
   pav:{a:['#8a8378','#827b70','#5f5950'],b:['#77706a','#6f6862','#5f5950','#9a9286']},
   pareti(g){
     tintaPareti(g,'#5d5a6e','#46435a','#2e2b3c','#b8892f');
-    SALE.forEach(s=>arcoVarco(g,s.posto.lato,s.posto.t,s.colore));
+    SALE.forEach(s=>arcoVarco(g,s.posto.lato,s.posto.t,s.colore,MOTIVI[s.id]));
   },
   // luce diffusa su tutto l'atrio, più una luce per ogni varco: così gli archi si vedono anche da lontano
   luci(){const [mx,my]=iso(6,5);return [[mx,my-10,150,.45],...SALE.map(s=>{const [cx,cy]=s.posto.lato==='R'?iso(s.posto.t,0):iso(0,s.posto.t);

@@ -72,7 +72,7 @@ function apri(){
       g.strokeStyle='rgba(159,180,200,.15)';for(let lon=10;lon<=150;lon+=20){g.beginPath();g.moveTo(px(lon),0);g.lineTo(px(lon),MH_);g.stroke()}
       for(let lat=10;lat<=50;lat+=10){g.beginPath();g.moveTo(0,py(lat));g.lineTo(MW_,py(lat));g.stroke()}
       g.strokeStyle='#e0b04f';g.lineWidth=2;g.beginPath();TAPPE.slice(0,fatte).forEach(([,lo,la],k)=>k?g.lineTo(px(lo),py(la)):g.moveTo(px(lo),py(la)));g.stroke();
-      g.font='14px VT323, monospace';
+      g.font=fontTela(15);
       TAPPE.forEach(([n,lo,la],k)=>{g.fillStyle=k<fatte?'#e0b04f':'#efe2c4';g.beginPath();g.arc(px(lo),py(la),k<fatte?5:4,0,7);g.fill();
         g.fillText(n,px(lo)+6,py(la)+(n==='Pechino'?-6:n==='Shanghai'||n==='Valona'?14:-4))});
     };
