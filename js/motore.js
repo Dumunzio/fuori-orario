@@ -409,6 +409,7 @@ function update(dt){
   target=P.moving?null:nearest();
   const pr=$('prompt');
   if(target&&!blocked()){pr.innerHTML='<b>E</b> · '+target.name;pr.hidden=false}else pr.hidden=true;
+  if(blocked())etichetta.hidden=true; // un dialogo o una finestra che si apre col mouse fermo copre il nome
 }
 function stepTo(nx,ny){P.fx=nx-P.x;P.fy=ny-P.y;P.x=P.tx=nx;P.y=P.ty=ny;P.moving=true}
 const adj=o=>Math.abs(o.x-P.x)+Math.abs(o.y-P.y)===1;
@@ -447,11 +448,12 @@ cv.addEventListener('click',e=>{
   const dx=(mx-OX)/HW,dy=(my-OY)/HH,gx=Math.floor((dy+dx)/2),gy=Math.floor((dy-dx)/2);
   if(walkable(gx,gy)){const path=bfs(new Set([gx+','+gy]));if(path){P.path=path;P.pending=null}}
 });
-// Con il mouse sopra un varco compare il nome della stanza dove porta (sul telefono no: c'è il nome in alto).
+// Con il mouse sopra un oggetto compare il suo nome; sopra un varco, il nome della stanza dove porta (sul telefono no: c'è il nome in alto).
 const etichetta=document.createElement('div');etichetta.id='etichetta';etichetta.hidden=true;$('stage').appendChild(etichetta);
 const stanzaDelVarco=o=>o&&o.hit&&/^Varco: /.test(o.name)?o.name.replace(/^Varco: /,''):null;
+const nomeAlPassaggio=o=>o?stanzaDelVarco(o)||o.name||null:null;
 cv.addEventListener('pointermove',e=>{const [mx,my]=toCanvas(e),o=hitObj(mx,my);cv.style.cursor=o?'pointer':'default';
-  const nome=e.pointerType==='mouse'&&!blocked()&&stanzaDelVarco(o);etichetta.hidden=!nome;if(!nome)return;
+  const nome=e.pointerType==='mouse'&&!blocked()&&nomeAlPassaggio(o);etichetta.hidden=!nome;if(!nome)return;
   const s=$('stage').getBoundingClientRect();etichetta.textContent=nome;etichetta.style.left=e.clientX-s.left+'px';etichetta.style.top=e.clientY-s.top+'px'});
 cv.addEventListener('pointerleave',()=>etichetta.hidden=true);
 document.querySelectorAll('.dpad button').forEach(b=>{
