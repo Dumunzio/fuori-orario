@@ -9,14 +9,15 @@
   --brass:#e0b04f;   /* plaque brass, the one accent */
   --wool:#c2493c;    /* Schio wool red, for errors and the hero */
   --ok:#86c98f;
-  /* "Jersey 15" contiene solo le 10 cifre (vedi index.html): i numeri vengono da lì, più leggibili, tutto il resto dal font di sempre */
-  --display:"Jersey 15","Pixelify Sans","Courier New",monospace;
-  --body:"Jersey 15","Jersey 10","VT323","Courier New",monospace;  /* leggibile ma pixel; VT323 resta come riserva */
+  /* Times New Roman per tutti i testi (richiesta di Dumunzio): c'è già su Windows e Mac, quindi non si scarica niente;
+     Liberation Serif e Tinos hanno le stesse misure, per Linux e Android */
+  --display:"Times New Roman",Times,"Liberation Serif",Tinos,serif;
+  --body:"Times New Roman",Times,"Liberation Serif",Tinos,serif;
   color-scheme:dark;
 }
 [hidden]{display:none!important}
 html,body{height:100%}
-body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body);font-size:22px;line-height:1.25;letter-spacing:.01em;overflow:hidden;box-sizing:border-box;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body);font-size:19px;line-height:1.3;overflow:hidden;box-sizing:border-box;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 *,*::before,*::after{box-sizing:inherit}
 button{font-family:var(--display);font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:var(--panel);border:2px solid var(--line);padding:6px 12px;cursor:pointer;box-shadow:3px 3px 0 #000}
 button:hover{border-color:var(--brass)}
