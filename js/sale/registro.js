@@ -17,8 +17,8 @@ function registraSala(s){
   s.posto={lato,t};SALE.push(s);SALA[s.id]=s;
   const st=Object.assign({porta:false,luci:()=>[]},s.stanza),pareti=st.pareti,luci=st.luci,targhe=s.oggetti.filter(o=>o.muro);
   st.pareti=g=>{pareti(g);arcoVarco(g,s.ritorno.lato,s.ritorno.t,'#c9b98f');targhe.forEach(o=>targaMuro(g,o.muro.lato,o.muro.t,o.muro.colore))};
-  // una luce calda sopra ogni cartellino appeso
-  st.luci=()=>[...luci(),...targhe.map(o=>{const [cx,cy]=o.muro.lato==='R'?iso(o.muro.t,0):iso(0,o.muro.t);
+  // una luce calda sopra ogni cartellino appeso (con il motore che illumina gli oggetti a parete, ci pensa lui)
+  st.luci=()=>typeof hitCartellino==='function'?luci():[...luci(),...targhe.map(o=>{const [cx,cy]=o.muro.lato==='R'?iso(o.muro.t,0):iso(0,o.muro.t);
     return o.muro.lato==='R'?[cx+6,cy-20,18,.7]:[cx-6,cy-18,18,.7]})];
   STANZE[s.id]=st;
   OGGETTI[s.id]=[...s.oggetti,varco('ritorno-'+s.id,s.ritorno.lato,s.ritorno.t,'Varco: torna all\'atrio',()=>vaiInStanza('atrio',...davantiVarco(lato,t)))];
@@ -84,8 +84,12 @@ function leggio(colore){return o=>{const [bx,by]=base(o);
   R(ctx,bx-6,by-18,12,7,colore);R(ctx,bx-5,by-17,10,5,'#efe2c4');R(ctx,bx-4,by-16,8,1,'#8a7350');R(ctx,bx-4,by-14,6,1,'#8a7350')}}
 function cartellino(id,k,x,y,colore,titolo){return {id,x,y,h:20,name:'Cartellino: '+titolo,draw:leggio(colore),act:()=>readPlaque(k),light:1}}
 // Cartellino appeso alla parete (lato 'R' o 'L', casella t): si legge dalla casella davanti, come un varco.
-function cartellinoMuro(id,k,lato,t,colore,titolo){const o=varco(id,lato,t,'Cartellino: '+titolo,()=>readPlaque(k));o.muro={lato,t,colore};return o}
+// Con il motore di grafica-motore usa la sua targa (pareteCartellino, hitCartellino) e la sua luce (light:1),
+// così il gioco ha un solo stile di cartellino; senza, usa la targa qui sotto.
+function cartellinoMuro(id,k,lato,t,colore,titolo){const o=varco(id,lato,t,'Cartellino: '+titolo,()=>readPlaque(k));o.muro={lato,t,colore};
+  if(typeof hitCartellino==='function'){o.hit=()=>hitCartellino(lato,t);o.light=1}return o}
 function targaMuro(g,lato,t,colore){
+  if(typeof pareteCartellino==='function')return pareteCartellino(g,lato,t);
   onWall(g,lato,t,2,10,33,14,(u,v,W,H)=>u===0||u===W||v===0||v===H-1?colore:(v%3===1&&u>1&&u<W-1?'#8a7350':'#efe2c4'));
   onWall(g,lato,t,5,7,35,2,()=>'#b8892f');
 }
