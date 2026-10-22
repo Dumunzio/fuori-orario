@@ -13,7 +13,7 @@ if(lingua!=='en')lingua='it';
 const norm=s=>s.replace(/\s+/g,' ').trim();
 const D=new Map(),MODELLI=[];
 for(const [it,en] of Object.entries(typeof LINGUA_EN!=='undefined'?LINGUA_EN:{})){
-  if(it===en)continue;
+  if(it===en&&!it.includes('{}'))continue; // i modelli uguali («{}, {}») servono a tradurre i pezzi
   if(it.includes('{}'))MODELLI.push({re:new RegExp('^'+it.split('{}').map(p=>p.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('(.+?)')+'$'),en,fisso:it.replace(/\{\}/g,'').length});
   else D.set(it,en);
 }
@@ -30,7 +30,11 @@ function tr(s,prof=0){
   if(lingua!=='en'||typeof s!=='string'||!/[A-Za-zÀ-ÿ]/.test(s))return s;
   const n=norm(s);if(!n)return s;
   let r=D.get(n);
-  if(r===undefined&&prof<3)for(const m of MODELLI){const x=n.match(m.re);if(x){let k=1;r=m.en.replace(/\{\}/g,()=>tr(x[k++],prof+1));break}}
+  if(r===undefined&&prof<5)for(const m of MODELLI){const x=n.match(m.re);if(!x)continue;
+    const pezzi=x.slice(1).map(p=>tr(p,prof+1));
+    // un modello quasi vuoto («{} e {}», «{}, {}») vale solo se ogni pezzo con delle lettere si traduce
+    if(m.fisso<4&&pezzi.some((p,i)=>p===x[i+1]&&/[A-Za-zÀ-ÿ]{2}/.test(p)))continue;
+    let k=0;r=m.en.replace(/\{\}/g,()=>pezzi[k++]);break}
   if(r===undefined&&prof<3&&n.includes(' · ')){const p=n.split(' · ').map(t=>tr(t,prof+1));if(p.join(' · ')!==n)r=p.join(' · ')}
   // un simbolo davanti alla frase («✓ Ingresso», «▲ 3»): traduco quello che segue
   if(r===undefined&&prof<3){const x=n.match(/^([^A-Za-zÀ-ÿ0-9«“"']+)(.+)$/);if(x){const t=tr(x[2],prof+1);if(t!==x[2])r=x[1]+t}}
