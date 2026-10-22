@@ -185,6 +185,7 @@ function buildBg(){
 // Assegna dimensioni, oggetti e sfondo della stanza id, senza dissolvenza.
 function entraStanza(id){
   const st=STANZE[id];if(!st)return;S.room=id;MW=st.w;MH=st.h;OX=st.ox;OY=st.oy;OBJ=OGGETTI[id]||[];buildBg();
+  if(typeof suonaStanza==='function')suonaStanza(id); // js/musica.js
 }
 // Porta il giocatore nella stanza id, in (x,y). Il cambio è immediato; la dissolvenza è solo visiva.
 // ultimoCambio evita i rimbalzi (tasto tenuto, doppio tocco) anche senza dissolvenza
