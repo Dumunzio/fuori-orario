@@ -156,9 +156,42 @@ function _aggiornaPesi(){
   _pesoN=CONOSCENZA.length;
 }
 
+/* ---------- Domande sul gioco, saluti e «non lo so» ---------- */
+const _aCaso=a=>a[Math.floor(Math.random()*a.length)];
+// Domande d'esempio: la finestra ne mostra 4 a caso, e il «non lo so» ne propone una.
+const ESEMPI_CUSTODE=['Chi era Alessandro Rossi?','Perché la Fabbrica Alta è famosa?','Chi ha inventato il telaio a schede?','Chi ha progettato le 52 gallerie?',
+  'Chi era Arturo Ferrarin?','Cosa sono le anguane?','Cosa si trova nel Buso della Rana?','Perché il castello di Thiene non è un vero castello?',
+  'Cos\'è la Città Sociale di Valdagno?','Chi era Luigi Meneghello?','Cosa successe sul Monte Cimone?','Chi era Andrea Palladio?',
+  'Quanti sigilli mi mancano?','Come faccio a uscire?'];
+// Risposte che leggono la partita. Si riconoscono dal testo della domanda (senza accenti, in minuscolo) e vengono prima delle schede di storia.
+const DOMANDE_GIOCO=[
+  {id:'grazie',re:/\b(grazie|thanks|thank you)\b/,risposta:()=>_aCaso(['Prego! È il mio mestiere.','Figurati. Torna quando vuoi.','È un piacere: a quest\'ora non capita spesso di parlare con qualcuno.'])},
+  {id:'saluto',re:/^(ciao|salve|buongiorno|buonasera|ehi|hey|hello|hi|good evening)\b/,risposta:()=>_aCaso(['Ciao! Sono qui, come ogni sera dopo la chiusura. Chiedimi pure.','Buonasera a te. Il museo è chiuso, ma per le domande ho sempre tempo.','Salve! Ti ascolto: storia, sale o sigilli, chiedi.'])},
+  {id:'chi',re:/\b(chi sei|come ti chiami|who are you|your name)\b/,risposta:()=>'Sono il custode del museo. Di giorno controllo i biglietti, di notte i ritardatari come te. E conosco a memoria ogni cartellino.'},
+  {id:'dove',re:/\b(dove|where)\b.*\b(sigill|seal|prossim|next)|\bprossim\w* (sigill|sala)|\bcosa (mi )?manca\b|what.*missing/,risposta:()=>{
+    const museo=Object.keys(SEALS).filter(k=>!S.seals[k]);
+    if(museo.length)return museo.length===1?`Ti manca un sigillo tra museo e villa. ${DOVE[museo[0]]}`:`Tra museo e villa ti mancano ${museo.length} sigilli. Comincia da qui: ${DOVE[museo[0]]}`;
+    const p=typeof prossimaSala==='function'&&prossimaSala();
+    if(p&&p.sala)return `Il museo è finito. La prossima sala che ti manca è la ${nomePianta(p.sala)}: dall'ingresso, ${p.strada}.`;
+    return 'Hai già tutti i sigilli. La porta d\'uscita ti aspetta, nella sala dopo il museo.'}},
+  {id:'mancano',re:/\b(quant[ie]|how many)\b.*\b(sigill|seal)|\bsigill\w* (mi )?manc|\bmanc\w*\b.*\bsigill/,risposta:()=>{
+    const n=NPRESI(),t=NTOT(),m=t-n;
+    return m<=0?`Li hai tutti e ${t}. La porta d'uscita ti aspetta, nella sala dopo il museo.`:m===1?`Hai ${n} sigilli su ${t}: te ne manca uno solo.`:n===1?`Hai 1 sigillo su ${t}: te ne mancano ${m}.`:n===0?`Non hai ancora nessun sigillo: te ne servono ${t}.`:`Hai ${n} sigilli su ${t}: te ne mancano ${m}.`}},
+  {id:'uscita',re:/\b(uscire|uscita|esco|esci|exit|get out|leave)\b/,risposta:()=>`La porta d'uscita è nella sala dopo il museo: dall'ingresso vai nel museo e prendi il varco con il cartello verde. Si apre solo con tutti i ${NTOT()} sigilli.`},
+  {id:'pianta',re:/\b(pianta|piantina|floor plan)\b/,risposta:()=>'La pianta è sul leggio qui all\'ingresso. Toccala: vedi tutte le stanze, quelle già finite in oro e dove ti trovi.'},
+  {id:'salva',re:/\b(salva\w*|salvat\w*|save\w*)\b/,risposta:()=>typeof caricaPartita==='function'
+    ?'Sì: la partita si salva da sola ogni volta che scopri qualcosa di nuovo o cambi stanza. Quando torni, premi «Continua la partita».'
+    :'No, qui non si salva niente: se chiudi, il museo ti aspetta da capo.'}
+];
+const NON_SO=['Su questo le fonti che ho non dicono niente, e non voglio inventare.','Questa non la so, e preferisco non tirare a indovinare.',
+  'Mi dispiace, nei miei cartellini non c\'è.','Bella domanda, ma le mie fonti su questo tacciono.'];
+const _nonSo=()=>`${_aCaso(NON_SO)} Prova a chiedermi: «${_aCaso(ESEMPI_CUSTODE.filter(e=>!/sigill|uscire/.test(e)))}»`;
+
 // Trova la scheda che risponde meglio. Restituisce {testo, fonte, id} oppure {testo, fonte:null} se non sa rispondere.
 function chiediAlCustode(domanda){
   _aggiornaPesi();
+  const testo=_norm(domanda||'').trim(),gioco=DOMANDE_GIOCO.find(d=>d.re.test(testo));
+  if(gioco)return {testo:gioco.risposta(),fonte:null,id:'gioco-'+gioco.id};
   const q=new Set(_parole(domanda||''));
   if(!q.size)return {testo:'Fammi una domanda sul museo: il lanificio, la Fabbrica Alta, il telaio, le 52 gallerie…',fonte:null};
   let migliore=null,punti=0;
@@ -171,13 +204,14 @@ function chiediAlCustode(domanda){
     if(p&&q.has('chi')&&s.chiavi.some(k=>_parole(k).includes('chi')))p+=_peso.chi;
     if(p>punti){punti=p;migliore=s}
   });
-  if(!migliore)return {testo:'Su questo le fonti che ho non dicono niente, e non voglio inventare. Prova a chiedermi del lanificio, della Fabbrica Alta, del telaio Jacquard o delle 52 gallerie.',fonte:null};
+  if(!migliore)return {testo:_nonSo(),fonte:null};
   return {testo:migliore.testo,fonte:migliore.fonte,id:migliore.id};
 }
 
 // Finestra "Chiedi al custode". Da chiamare dal dialogo del custode (enigmi.js).
 function apriDomandeCustode(){
-  const esempi=['Chi era Alessandro Rossi?','Perché la Fabbrica Alta è famosa?','Chi ha inventato il telaio a schede?','Chi ha progettato le 52 gallerie?'];
+  // 4 domande d'esempio a caso, ogni volta diverse
+  const esempi=[...ESEMPI_CUSTODE].sort(()=>Math.random()-.5).slice(0,4);
   openModal(`<div class="eyebrow">Custode</div><h2>Chiedi al custode</h2>
     <p>Rispondo solo con quello che dicono le fonti aperte, e ti dico sempre dove l'ho letto.</p>
     <div class="row" id="cEsempi">${esempi.map(e=>`<button type="button">${e}</button>`).join('')}</div>

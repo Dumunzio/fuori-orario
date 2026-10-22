@@ -149,7 +149,7 @@ function talkKeeper(){
     'Hai tutti i sigilli. La porta ti aspetta, nella sala dopo il museo. Io chiudo le luci.'])]);
   let righe;
   if(n===0)righe=[aTurno('zero',[
-    'Ancora nessun sigillo? Tranquillo, il primo è sempre il più lento. Il museo è qui a destra: comincia dai cartellini.',
+    'Ancora nessun sigillo? Niente paura, il primo è sempre il più lento. Il museo è qui a destra: comincia dai cartellini.',
     'Niente sigilli, per ora. Un consiglio da vecchio custode: leggi tutto, anche i cartellini che sembrano noiosi.',
     'Sei ancora a zero. Prova il telaio, nel museo: è il rompicapo più gentile.'])];
   else if(manca<=2)righe=[aTurno('quasi',[
