@@ -156,7 +156,7 @@ function apriDomandeCustode(){
   openModal(`<div class="eyebrow">Custode</div><h2>Chiedi al custode</h2>
     <p>Rispondo solo con quello che dicono le fonti aperte, e ti dico sempre dove l'ho letto.</p>
     <div class="row" id="cEsempi">${esempi.map(e=>`<button type="button">${e}</button>`).join('')}</div>
-    <form class="row" id="cForm"><input id="cDomanda" maxlength="160" autocomplete="off" placeholder="Scrivi una domanda…" style="flex:1;min-width:0;font:inherit;color:inherit;background:#120e1c;border:2px solid var(--line);padding:6px 10px"><button class="primary" type="submit">Chiedi</button></form>
+    <form class="row" id="cForm"><input id="cDomanda" maxlength="160" autocomplete="off" placeholder="Scrivi una domanda…" style="flex:1;min-width:0"><button class="primary" type="submit">Chiedi</button></form>
     <div id="cRisposta" class="clue" hidden></div>
     <div class="row end">${closeBtn}</div>`);
   const rispondi=d=>{
