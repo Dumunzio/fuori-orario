@@ -160,10 +160,4 @@ setInterval(()=>{
   if(MUSICA.prossimo<ac.currentTime)MUSICA.prossimo=ac.currentTime+.05;
   while(MUSICA.prossimo<ac.currentTime+.2){programmaPasso(ac,MUSICA.bus,MUSICA.brano,MUSICA.passo,MUSICA.prossimo);MUSICA.passo=(MUSICA.passo+1)%64;MUSICA.prossimo+=passo}
 },50);
-
-/* ---------- Pulsante nella HUD ---------- */
-(()=>{const b=document.createElement('button');b.id='btnMusica';b.type='button';b.textContent='♪';b.title='Musica';
-  const mostra=()=>{b.setAttribute('aria-pressed',String(MUSICA.on));b.setAttribute('aria-label',MUSICA.on?'Musica accesa':'Musica spenta');b.classList.toggle('spento',!MUSICA.on)};
-  b.onclick=()=>{MUSICA.on=!MUSICA.on;try{localStorage.setItem('fuoriOrario.musica',MUSICA.on?'1':'0')}catch(e){}mostra();svegliaMusica()};
-  mostra();$('btnHint').before(b);
-})();
+// Accendere e spegnere la musica: nel menu ⚙ (js/impostazioni.js), con MUSICA.on e la chiave fuoriOrario.musica.
