@@ -130,8 +130,26 @@ const _parole=s=>_norm(s).split(/\s+/).filter(w=>w&&!_stop.has(w)).map(_radice);
 // Peso di ogni parola: più è rara tra le schede, più conta ("progettato" pesa più di "gallerie").
 // Si ricalcola quando cambia il numero di schede, perché le sale (js/sale/) ne aggiungono dopo il caricamento.
 const _peso={};let _pesoN=-1;
+// Parole chiave inglesi, per le domande scritte in inglese (js/lingua.js). Si aggiungono alle chiavi italiane della scheda.
+const CHIAVI_EN={
+  lanificio:['wool mill','woollen mill','rossi mill','founded'],alessandro:['who was alessandro rossi','industrialist'],quartiere:['workers houses','workers village','schools'],
+  fabbricaAlta:['tall factory','factory','architect','chimney'],manchester:['manchester of italy','industrial town'],tessitore:['weaver','statue','weaver monument'],
+  conte:['conte mill'],giardino:['garden','jacquard garden'],telaio:['loom','punched cards','punch cards','computer','invented'],jacquardUomo:['who was jacquard','lyon','silk weavers revolt'],
+  gallerie:['52 tunnels','tunnels','tunnel road','mule track','built'],motti:['who designed','designer','captain','who planned','designed 52 tunnels','designed tunnels'],pasubio:['teeth','mines','mine war','trenches','war'],
+  oggi:['bike','bicycle','hiking','walk today','visit'],unesco:['unesco','world heritage'],villaGodi:['villa godi','first villa','godi brothers'],
+  loggia:['arches','arcade','staircase','symmetry','symmetric','facade'],palladio:['who was palladio','architect palladio','renaissance'],quattroLibri:['four books','treatise','rules'],
+  mottiRossi:['mottos','motto','tiles','plinth','inscriptions'],omoStoria:['crane','fell','moved','square','cathedral'],ellison:['ellison','countermine','underground war'],
+  mina1918:['march 1918','big mine','explosive'],cimoneMina:['cimone','mountain blown','1916 mine'],cimoneOssario:['ossuary','fallen soldiers','unknown soldiers'],
+  casaRatti:['casa ratti','propaganda','fake news','fort conquered'],maso:['monte maso','fort','forts','armoured fort'],cittaSociale:['social city','city of harmony','valdagno'],
+  marzotto1968:['statue toppled','protest','strike','riots'],castelloThiene:['castle','thiene castle','warehouse','not a real castle'],scuderia:['stables','horses','stalls'],
+  ferrarin:['aviator','pilot','porco rosso','who was ferrarin'],raid:['flight','rome tokyo','japan','biplane'],busoRana:['cave','frog hole','cavers','speleologists'],
+  priaboniano:['fossils','fossil','shark teeth','crabs','priabonian','fossils cave'],anguana:['water fairy','water spirit','nymph','legend'],sigar:['saying','shout','scream','song'],
+  meneghello:['writer','who was meneghello','reading university'],liberaNos:['deliver us from evil','book title','pun','hook words'],
+  recoaro:['spa','springs','mineral water','thermal baths'],gingerino:['soft drink','soda','fizzy drinks']
+};
 function _aggiornaPesi(){
   if(_pesoN===CONOSCENZA.length)return;
+  CONOSCENZA.forEach(s=>{if(CHIAVI_EN[s.id]&&!s._en){s._en=true;s.chiavi=[...s.chiavi,...CHIAVI_EN[s.id]]}});
   Object.keys(_peso).forEach(w=>delete _peso[w]);
   CONOSCENZA.forEach(s=>new Set(s.chiavi.flatMap(_parole)).forEach(w=>_peso[w]=(_peso[w]||0)+1));
   Object.keys(_peso).forEach(w=>_peso[w]=1/_peso[w]);

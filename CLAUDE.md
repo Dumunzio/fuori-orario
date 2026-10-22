@@ -11,15 +11,16 @@ Il team è diviso in **4 aree**. Ogni persona lavora con il suo Claude su **un r
 2. Aggiorna il ramo: `git pull`, poi `git merge origin/main` per prendere il lavoro già unito dagli altri.
 3. Leggi la bacheca (vedi sotto) e rispondi ai messaggi indirizzati alla tua area.
 
-## Le 4 aree
+## Le aree
 
 | Ramo | Di cosa si occupa | File suoi |
 |---|---|---|
-| `grafica-motore` | Disegno isometrico, animazioni, luce, movimento, comandi (tastiera, mouse, touch), dialoghi e finestre, stile, versione mobile | `index.html`, `css/style.css`, `js/motore.js`, `js/avvio.js` |
+| `grafica-motore` | Disegno isometrico, animazioni, luce, movimento, comandi (tastiera, mouse, touch), dialoghi e finestre, stile, versione mobile | `index.html`, `css/style.css`, `js/motore.js`, `js/avvio.js`, `js/musica.js` (musica di ogni stanza), `js/pianta.js` (pianta del museo) |
 | `enigmi-storia` | Le sale, gli oggetti, i rompicapi, i testi dei cartellini, il custode, il diario, il finale | `js/contenuti.js`, `js/stanza.js`, `js/enigmi.js` |
 | `dati-ai` | Verifica dei fatti sulle fonti aperte (Wikidata, Europeana, Catalogo MiC, Rete Museale), fonti citate in gioco, custode che risponde con l'AI | `js/fonti.js` e i nuovi file `js/ai-*.js`, cartella `dati/` |
 | `territorio` | Portare i luoghi veri dell'Alto Vicentino dentro il gioco: quali luoghi, con foto, coordinate e storia; sale ispirate a luoghi reali; una mappa del territorio da consultare in gioco | `js/territorio.js` e i nuovi file `js/luoghi-*.js` |
-| `sale` | Le sale a tema del territorio: l'atrio, una sala per file con il suo rompicapo, le tessere da collezionare; il salvataggio automatico della partita | `js/sale/*.js`, `img/sale/`, `js/salvataggio.js` |
+| `sale` | Le sale a tema del territorio: una sala per file con il suo rompicapo, collegata alla pianta del museo; le tessere da collezionare; il salvataggio automatico della partita | `js/sale/*.js`, `img/sale/`, `js/salvataggio.js` |
+| `lingua` | Il gioco in inglese: pulsante IT/EN e traduzione dei testi mentre compaiono | `js/lingua.js`, `js/lingua-en.js` |
 
 **Regola d'oro: modifica solo i file della tua area.** Se ti serve un cambiamento in un file di un'altra area, scrivi un messaggio in bacheca a quell'area e aspetta. Se è una correzione minuscola e urgente (un errore che blocca il gioco), falla, ma scrivilo subito in bacheca.
 
@@ -31,8 +32,15 @@ Il team è diviso in **4 aree**. Ogni persona lavora con il suo Claude su **un r
 
 ## Come è fatto il codice
 - Niente librerie e niente build: si apre `index.html` nel browser e funziona, anche da file locale.
-- Gli script sono normali `<script>` (non moduli) e condividono le variabili globali. **L'ordine in `index.html` conta**: `contenuti`, `motore`, `enigmi`, `stanza`, `fonti`, `territorio`, poi `sale/registro.js` e una riga per ogni sala, e `avvio` sempre ultimo.
-- **Aggiungere una sala a tema**: copia `js/sale/tessitore.js`, cambia contenuti, rompicapo e tessera, e aggiungi la sua riga in `index.html` dopo le altre sale. `registraSala()` la mette nell'atrio, aggiunge cartellini, fonti e schede del custode. Ogni fatto va in `fonti` con la sua fonte, ogni foto con autore e licenza. L'atrio ha 11 posti: per altre sale serve un secondo atrio.
+- Gli script sono normali `<script>` (non moduli) e condividono le variabili globali. **L'ordine in `index.html` conta**: `contenuti`, `motore`, `musica`, `pianta`, `enigmi`, `stanza`, `fonti`, `territorio`, poi `sale/registro.js` e una riga per ogni sala, `salvataggio`, `lingua-en`, `lingua`, e `avvio` sempre ultimo.
+- **Nomi globali: prima di crearne uno nuovo controlla che non esista già** (`grep -rn "nome" js/`). Due `const` o `let` con lo stesso nome in file diversi bloccano tutto il secondo file. È già successo: le 11 sale sparivano.
+- **Aggiungere una sala a tema**: copia `js/sale/tessitore.js`, cambia contenuti, rompicapo e tessera, e aggiungi la sua riga in `index.html` dopo le altre sale. `registraSala()` la collega alla pianta e aggiunge cartellini, fonti e schede del custode. Ogni fatto va in `fonti` con la sua fonte, ogni foto con autore e licenza. Dove sta la sala nella pianta (collegamenti, posto nel disegno, ramo) si decide in bacheca con grafica-motore, che lo scrive in `js/pianta.js`.
+
+### La pianta del museo
+Si comincia nell'**ingresso** (custode e piantina interattiva). Dall'ingresso si va al museo (e da lì all'**uscita**, dove c'è la porta), alla Sala delle Ville e a tre rami di sale a tema, collegate a catena da varchi, senza corridoi. Disegno di Dumunzio: `docs/piantina-museo.png`. Tutto è in `js/pianta.js`:
+- `PIANTA.collegamenti`, `PIANTA.posti`, `PIANTA.rami`, `PIANTA.inizio`, `PIANTA.vicini(id)`;
+- `PIANTA.porte[stanza][vicino]={lato,t}`: ogni area scrive le porte delle sue stanze;
+- `vaiVerso(da,a)`, `vaiInStanzaPianta(id)` (davanti alla porta verso il genitore), `varchiPianta(id)` e `pareteVarchiPianta(g,id)` per oggetti e disegno dei varchi, `completata(id)`, `apriPianta()`.
 - Un file può usare a caricamento solo ciò che è definito nei file prima di lui. Dentro le funzioni invece puoi usare tutto, perché vengono chiamate quando la pagina è già caricata. Per questo in `stanza.js` le azioni sono scritte come `act:()=>openLoom()`.
 
 ### Interfacce comuni (cambiarle rompe il lavoro degli altri)
@@ -40,6 +48,7 @@ Prima di rinominare o cambiare il comportamento di questi, scrivi in bacheca:
 - Stato: `S` (sigilli, diario, tempo), `P` (giocatore), `fresh()`, `sealCount()`
 - Finestre e testi: `say(chi, righe, poi)`, `openModal(html)`, `closeModal()`, `toast(msg)`, `bad(el,msg)`, `closeBtn`, `modalKey`
 - Gioco: `OBJ` (oggetti della sala), `readPlaque(id)`, `note(...)`, `solved(id,msg)`, `grant(id)`, `hud()`
+- Stanze: `STANZE`, `OGGETTI`, `entraStanza(id)`, `vaiInStanza(id,x,y)`, `ultimoCambio`, e la pianta (`PIANTA` e funzioni, vedi sopra)
 - Dati: `PLAQUES`, `SEALS`, `HINTS`, `FONTI`, `LUOGHI_REALI`
 
 ## Animazioni
@@ -54,7 +63,7 @@ Regole concordate in bacheca tra sale, territorio e grafica-motore (2026-10-23_0
 Un'animazione che si ripete in una finestra (per esempio la mappa) usa requestAnimationFrame e si ferma quando la finestra si chiude.
 
 ## Prima di fare commit
-- Apri `index.html` nel browser e gioca fino alla fine: i 3 sigilli e la porta devono funzionare, e la console deve essere senza errori.
+- Apri `index.html` nel browser e gioca fino alla fine: i 4 sigilli, le 11 tessere e la porta nell'uscita devono funzionare, e la console deve essere senza errori.
 - Messaggi di commit in italiano, brevi, che dicono cosa cambia.
 - Lavora sul tuo ramo, poi `git push`. Prima fai `git merge origin/main` sul tuo ramo e risolvi eventuali conflitti.
 - **Chi scrive non unisce in `main`.** Chiedi la revisione in bacheca (ramo e commit): un altro Claude prova il tuo ramo unito a `main`, e se va bene lo unisce e scrive l'esito in bacheca. Vale anche per le Pull Request su GitHub.
