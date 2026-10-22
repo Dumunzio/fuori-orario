@@ -23,6 +23,8 @@ button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
 button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 input{font:inherit;color:inherit;background:#120e1c;border:2px solid var(--line);padding:6px 10px}
 input:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+#btnMusica{min-width:38px;font-family:"Segoe UI Symbol",var(--display)}
+#btnMusica.spento{opacity:.55;text-decoration:line-through}
 button.primary{background:var(--brass);color:#1a1424;border-color:#1a1424}
 
 #app{height:100%;display:flex;flex-direction:column;gap:8px;padding-block:10px}
