@@ -215,7 +215,16 @@ function buildBg(){
 // Assegna dimensioni, oggetti e sfondo della stanza id, senza dissolvenza.
 function entraStanza(id){
   const st=STANZE[id];if(!st)return;S.room=id;MW=st.w;MH=st.h;OX=st.ox;OY=st.oy;OBJ=OGGETTI[id]||[];buildBg();
+  inquadra();
   if(typeof suonaStanza==='function')suonaStanza(id); // js/musica.js
+}
+// Inquadratura (compito 4): la tela mostra solo il riquadro della stanza corrente, non tutto il fondo VW×VH,
+// e fit() lo ingrandisce fino a riempire la finestra. Tutto si disegna ancora nelle coordinate di sempre:
+// render() sposta il disegno con setTransform, toCanvas() riporta il mouse nelle stesse coordinate.
+let VISTA={x:0,y:0,w:VW,h:VH};
+function inquadra(){
+  const m=6,x0=OX-MH*HW-m,x1=OX+MW*HW+m,y0=OY-WH-m-4,y1=OY+(MW+MH)*HH+m;
+  VISTA={x:x0,y:y0,w:x1-x0,h:y1-y0};fit();
 }
 // Porta il giocatore nella stanza id, in (x,y). Il cambio è immediato; la dissolvenza è solo visiva.
 // ultimoCambio evita i rimbalzi (tasto tenuto, doppio tocco) anche senza dissolvenza
@@ -382,7 +391,8 @@ function frame(now){
   requestAnimationFrame(frame);
 }
 function render(t){
-  ctx.fillStyle='#0b0814';ctx.fillRect(0,0,VW,VH);
+  ctx.setTransform(1,0,0,1,-VISTA.x,-VISTA.y);
+  ctx.fillStyle='#0b0814';ctx.fillRect(VISTA.x,VISTA.y,VISTA.w,VISTA.h);
   ctx.drawImage(sfondi[S.room],0,0);drawDoor(t);
   const accesi=OBJ.filter(o=>o.acceso&&o.hit&&o.acceso());accesi.forEach(o=>varcoAcceso(o,t));
   const list=OBJ.filter(o=>o.draw).map(o=>({d:o.x+o.y,f:()=>o.draw(o,t)}));
@@ -434,7 +444,7 @@ addEventListener('keydown',e=>{
   if(['e','E',' ','Enter'].includes(e.key)&&!e.repeat&&!blocked()){e.preventDefault();interact(nearest())}
 });
 addEventListener('keyup',e=>{if(KEYS[e.key]&&held===KEYS[e.key])held=null});
-function toCanvas(e){const r=cv.getBoundingClientRect();return [(e.clientX-r.left)/r.width*VW,(e.clientY-r.top)/r.height*VH]}
+function toCanvas(e){const r=cv.getBoundingClientRect();return [VISTA.x+(e.clientX-r.left)/r.width*VISTA.w,VISTA.y+(e.clientY-r.top)/r.height*VISTA.h]}
 function hitObj(mx,my){
   // porte e varchi (con hit) prima degli oggetti che stanno davanti alla parete
   return OBJ.filter(o=>o.act).sort((a,b)=>(!!b.hit-!!a.hit)||(b.x+b.y)-(a.x+a.y)).find(o=>{
@@ -496,8 +506,12 @@ function hud(){
   box.querySelectorAll('i').forEach((el,i)=>el.classList.toggle('on',i<sealCount()));
 }
 
+// La tela ha la misura del riquadro della stanza (VISTA) e si ingrandisce fino a riempire la finestra.
+// Ingrandimento intero se toglie poco spazio (pixel tutti uguali), altrimenti quello che riempie di più.
 function fit(){
-  const st=$('stage'),w=st.clientWidth,h=st.clientHeight;let s=Math.min(w/VW,h/VH);
-  if(s>=2)s=Math.floor(s);cv.style.width=VW*s+'px';cv.style.height=VH*s+'px';
+  const st=$('stage'),w=st.clientWidth,h=st.clientHeight,v=VISTA;
+  if(cv.width!==v.w||cv.height!==v.h){cv.width=v.w;cv.height=v.h}
+  let s=Math.min(w/v.w,h/v.h);if(s>=2&&Math.floor(s)/s>.92)s=Math.floor(s);
+  cv.style.width=Math.floor(v.w*s)+'px';cv.style.height=Math.floor(v.h*s)+'px';
 }
 addEventListener('resize',fit);
