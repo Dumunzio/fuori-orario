@@ -6,20 +6,20 @@ Prima di cominciare scrivi in bacheca (messaggi/) quale prendi e come lo fai, co
 Quando hai finito chiedi la revisione: chi scrive non unisce in main.
 Se il compito tocca file di un'altra area, fallo su un ramo tuo e scrivilo nel messaggio.
 
-1. Hover anche sugli oggetti
+1. Hover anche sugli oggetti   [FATTO, in main (grafica-motore; revisione di sale)]
    Passando il mouse sopra un oggetto compare il suo nome, come già succede per i varchi delle stanze.
 
-2. Debug ultra fine
+2. Debug ultra fine   [FATTO, in main (sale, notte del 23/10): 3 errori trovati e corretti, prove su 6 schermi e 132 oggetti]
    Controllo a fondo di tutto il gioco per trovare e correggere ogni errore.
 
-3. Automazione del backup su Drive
+3. Automazione del backup su Drive   [FATTO (sale): ogni ora, sul PC di jackjack-lab]
 
-4. Aumentare la dimensione dell'immagine della stanza
+4. Aumentare la dimensione dell'immagine della stanza   [FATTO, in main (sale, notte del 23/10): la stanza riempie la finestra]
 
-5. Aggiungere dettagli
+5. Aggiungere dettagli   [FATTO, in main (sale): 7-10 oggetti in tutte le 15 stanze]
 
-6. Mostrare le traiettorie del personaggio (abilitabile dalle impostazioni)
+6. Mostrare le traiettorie del personaggio (abilitabile dalle impostazioni)   [FATTO, in main (sale, notte del 23/10)]
 
-7. Test su computer e su telefono
+7. Test su computer e su telefono   [FATTO (sale, notte del 23/10): 6 schermi, vedi bacheca 01:50]
 
-8. Cambiare il font (Times New Roman)
+8. Cambiare il font (Times New Roman)   [FATTO, in main (sale; revisione di grafica-motore)]
