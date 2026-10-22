@@ -1,7 +1,7 @@
-/* La sala: posizione degli oggetti e cosa succede quando li esamini.
+/* Le sale: posizione degli oggetti di ogni stanza e cosa succede quando li esamini.
    Le funzioni act sono avvolte in frecce perché gli enigmi sono definiti in enigmi.js.
    Area: enigmi-storia. Vedi CLAUDE.md prima di modificare. */
-const OBJ=[
+const OGGETTI={museo:[
   {id:'loom',x:2,y:1,h:42,name:'Telaio Jacquard',draw:drawLoom,act:()=>openLoom(),light:1},
   {id:'plaqueLan',x:4,y:2,h:20,name:'Cartellino: Lanificio Rossi',draw:drawLectern,act:()=>readPlaque('lan'),light:1},
   {id:'factory',x:2,y:3,h:42,name:'Plastico della Fabbrica Alta',draw:drawFactory,act:()=>readPlaque('fab'),light:1},
@@ -17,4 +17,4 @@ const OBJ=[
   {id:'plant1',x:5,y:0,h:20,draw:drawPlant},
   {id:'plant2',x:11,y:9,h:20,draw:drawPlant},
   {id:'door',x:10,y:-1,name:'Porta d\'uscita',act:()=>tryDoor(),hit:()=>{const [cx,cy]=iso(10,0);return [cx+2,cy-32,10,36]}}
-];
+]};

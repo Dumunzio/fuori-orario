@@ -3,7 +3,10 @@
 $('btnStart').onclick=()=>{$('title').hidden=true;S.started=true;fit();intro()};
 function start(data){
   if(data&&data.S){S=data.S;Object.assign(P,data.P);P.px=P.tx=P.x;P.py=P.ty=P.y;if(S.started)$('title').hidden=true}
-  buildBg();hud();fit();requestAnimationFrame(frame);
+  // uno stato salvato da una versione precedente può non avere stanza, dissolvenza o sigilli nuovi
+  if(!STANZE[S.room])S.room='museo';S.fade=0;
+  Object.keys(SEALS).forEach(k=>{if(!(k in S.seals))S.seals[k]=false;if(!(k in S.hint))S.hint[k]=0});
+  entraStanza(S.room);hud();fit();requestAnimationFrame(frame);
 }
 window.claude?.hot?.snapshot?.(()=>({S,P:{x:P.x,y:P.y}}));
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
