@@ -53,9 +53,9 @@ const OGGETTI_SALA=[
     act:()=>say('Modello di S.V.A.9',['Legno e tela, nessuna cabina: con un biplano così Ferrarin volò da Roma a Tokyo.','Il diario di bordo è aperto sul mappamondo: la rotta però è da ricostruire.'])},
   {id:'mappamondo',x:6,y:2,h:26,name:'Mappamondo: la rotta del raid',draw:drawMappamondo,light:1,
     act:oggettoSala(ID,()=>apri(),'La rotta è tracciata: 14 febbraio, Roma. 31 maggio, Tokyo.')},
-  cartellino('ferPl1','fer_raid',2,4,COL,C.fer_raid.title),
-  cartellino('ferPl2','fer_rotta',5,6,COL,C.fer_rotta.title),
-  cartellino('ferPl3','fer_vita',2,1,COL,C.fer_vita.title)
+  cartellinoMuro('ferPl1','fer_raid','L',1,COL,C.fer_raid.title),
+  cartellinoMuro('ferPl2','fer_rotta','L',5,COL,C.fer_rotta.title),
+  cartellinoMuro('ferPl3','fer_vita','R',2,COL,C.fer_vita.title)
 ];
 
 /* ---------- Rompicapo: traccia la rotta ---------- */

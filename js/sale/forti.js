@@ -68,9 +68,9 @@ const OGGETTI_SALA=[
     act:()=>say('Plastico di un forte',['Pietra, cemento e cupole di acciaio: così erano i forti dello sbarramento Agno-Astico-Posina.','Sull\'edicola qui accanto c\'è un giornale del 1916 che racconta Casa Ratti a modo suo.'])},
   {id:'edicola',x:6,y:2,h:30,name:'Edicola: un giornale del 1916',draw:drawEdicola,light:1,
     act:oggettoSala(ID,()=>apri(),'Il giornale ora ha le sue bugie cancellate in rosso.')},
-  cartellino('fortiPl1','forti_ratti',2,4,COL,C.forti_ratti.title),
-  cartellino('fortiPl2','forti_maso',5,6,COL,C.forti_maso.title),
-  cartellino('fortiPl3','forti_campomolon',2,1,COL,C.forti_campomolon.title),
+  cartellinoMuro('fortiPl1','forti_ratti','L',1,COL,C.forti_ratti.title),
+  cartellinoMuro('fortiPl2','forti_maso','L',5,COL,C.forti_maso.title),
+  cartellinoMuro('fortiPl3','forti_campomolon','R',5,COL,C.forti_campomolon.title),
   {id:'obice',x:6,y:5,h:16,draw:drawObice}
 ];
 

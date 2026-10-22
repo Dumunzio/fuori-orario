@@ -15,8 +15,11 @@ const davantiVarco=(lato,t)=>lato==='R'?[t,0]:[0,t];
 function registraSala(s){
   const [lato,t]=ATRIO_POSTI[SALE.length];
   s.posto={lato,t};SALE.push(s);SALA[s.id]=s;
-  const st=Object.assign({porta:false,luci:()=>[]},s.stanza),pareti=st.pareti;
-  st.pareti=g=>{pareti(g);arcoVarco(g,s.ritorno.lato,s.ritorno.t,'#c9b98f')};
+  const st=Object.assign({porta:false,luci:()=>[]},s.stanza),pareti=st.pareti,luci=st.luci,targhe=s.oggetti.filter(o=>o.muro);
+  st.pareti=g=>{pareti(g);arcoVarco(g,s.ritorno.lato,s.ritorno.t,'#c9b98f');targhe.forEach(o=>targaMuro(g,o.muro.lato,o.muro.t,o.muro.colore))};
+  // una luce calda sopra ogni cartellino appeso
+  st.luci=()=>[...luci(),...targhe.map(o=>{const [cx,cy]=o.muro.lato==='R'?iso(o.muro.t,0):iso(0,o.muro.t);
+    return o.muro.lato==='R'?[cx+6,cy-20,18,.7]:[cx-6,cy-18,18,.7]})];
   STANZE[s.id]=st;
   OGGETTI[s.id]=[...s.oggetti,varco('ritorno-'+s.id,s.ritorno.lato,s.ritorno.t,'Varco: torna all\'atrio',()=>vaiInStanza('atrio',...davantiVarco(lato,t)))];
   OGGETTI.atrio.push(varco('varco-'+s.id,lato,t,'Varco: '+s.nome,()=>entraInSala(s.id)));
@@ -65,6 +68,12 @@ function leggio(colore){return o=>{const [bx,by]=base(o);
   diamond(ctx,bx,by+1,4,2,'rgba(0,0,0,.3)');R(ctx,bx-3,by-1,6,2,'#2b2416');R(ctx,bx-1,by-11,2,10,'#3d3320');
   R(ctx,bx-6,by-18,12,7,colore);R(ctx,bx-5,by-17,10,5,'#efe2c4');R(ctx,bx-4,by-16,8,1,'#8a7350');R(ctx,bx-4,by-14,6,1,'#8a7350')}}
 function cartellino(id,k,x,y,colore,titolo){return {id,x,y,h:20,name:'Cartellino: '+titolo,draw:leggio(colore),act:()=>readPlaque(k),light:1}}
+// Cartellino appeso alla parete (lato 'R' o 'L', casella t): si legge dalla casella davanti, come un varco.
+function cartellinoMuro(id,k,lato,t,colore,titolo){const o=varco(id,lato,t,'Cartellino: '+titolo,()=>readPlaque(k));o.muro={lato,t,colore};return o}
+function targaMuro(g,lato,t,colore){
+  onWall(g,lato,t,2,10,33,14,(u,v,W,H)=>u===0||u===W||v===0||v===H-1?colore:(v%3===1&&u>1&&u<W-1?'#8a7350':'#efe2c4'));
+  onWall(g,lato,t,5,7,35,2,()=>'#b8892f');
+}
 
 /* ---------- Atrio ---------- */
 STANZE.atrio={w:13,h:11,ox:148,oy:64,porta:false,
@@ -102,7 +111,7 @@ OGGETTI.atrio=[...OGGETTI_ATRIO];
       `Qui comincia il museo del territorio: ${SALE.length} sale, una per ogni storia dell'Alto Vicentino.`,
       'Ogni sala ha un rompicapo. Risolvilo e avrai la sua tessera, con la foto vera del luogo.',
       'Ogni arco porta a una sala. Il leggio al centro è la guida: elenca tutte le sale e ti ci porta.',
-      'Le tessere non servono per uscire: sono la tua collezione.'])}
+      tesserePerUscire()?`Attenzione: la porta d'uscita del museo si apre solo con tutte le ${SALE.length} tessere, oltre ai sigilli.`:'Le tessere sono la tua collezione.'])}
   }));
 }
 
@@ -128,7 +137,7 @@ function mostraTessera(id,nuova){
 }
 function apriCollezione(){
   openModal(`<div class="eyebrow">Tessere del territorio · ${tessereN()} su ${SALE.length}</div><h2>La tua collezione</h2>
-    <p>Ogni sala del territorio nasconde una tessera. Le trovi passando dal varco sulla parete destra del museo.</p>
+    <p>Ogni sala del territorio nasconde una tessera. Le trovi passando dal varco sulla parete destra del museo.${tesserePerUscire()?` Per uscire dal museo servono tutte e ${SALE.length}.`:''}</p>
     <div class="sl-collezione">${SALE.map(s=>tessereS()[s.id]
       ?`<button type="button" class="sl-t" data-id="${s.id}" style="--c:${s.colore}"><img src="${s.tessera.foto.file}" alt=""><span>${s.tessera.titolo}</span></button>`
       :`<div class="sl-t sl-chiusa" style="--c:${s.colore}"><b>?</b><span>${s.nome}</span></div>`).join('')}</div>
@@ -154,6 +163,15 @@ function hudTessere(){const b=$('btnTessere'),t=`Tessere ${tessereN()}/${SALE.le
 }
 
 /* ---------- Per gli altri file (enigmi.js) ---------- */
+// Per uscire dal museo servono tutte le tessere. Restituisce le righe da far dire alla porta se ne manca qualcuna,
+// altrimenti null. Pensato per tryDoor(): const b=typeof bloccoUscita==='function'&&bloccoUscita();if(b)return say('Porta d\'uscita',b);
+// Vero quando la porta (tryDoor, in enigmi.js) controlla le tessere: i testi delle sale lo dicono solo allora.
+const tesserePerUscire=()=>typeof tryDoor==='function'&&String(tryDoor).includes('bloccoUscita');
+function bloccoUscita(){
+  const mancano=SALE.filter(s=>!tessereS()[s.id]);if(!mancano.length)return null;
+  return [`Sulla porta c'è un'altra serratura: ha ${SALE.length} incavi, uno per ogni tessera del territorio. Ne hai ${SALE.length-mancano.length}.`,
+    mancano.length<=3?`Ti mancano: ${mancano.map(s=>s.nome).join(', ')}.`:`Ti mancano ${mancano.length} sale. Le trovi passando dall'arco con la fascia dorata, sulla parete destra.`];
+}
 // Se sei in una sala a tema, mostra il primo aiuto del suo rompicapo e restituisce true.
 // Pensato per hint(): if(typeof aiutoSala==='function'&&aiutoSala())return;
 function aiutoSala(){

@@ -55,9 +55,9 @@ const OGGETTI_SALA=[
     act:()=>say('Plastico della Città Sociale',['Case, scuole, asilo, teatro e stadio sulla sponda sinistra dell\'Agno: la Valdagno progettata da Francesco Bonfanti.','Sulla lavagna qui accanto qualcuno ha cancellato i numeri del grafico.'])},
   {id:'lavagna',x:6,y:2,h:32,name:'Lavagna: il grafico dei numeri',draw:drawLavagna,light:1,
     act:oggettoSala(ID,()=>apri(),'Il grafico è completo: da 12 operai a una città.')},
-  cartellino('csPl1','cs_marzotto',2,4,COL,C.cs_marzotto.title),
-  cartellino('csPl2','cs_citta',5,6,COL,C.cs_citta.title),
-  cartellino('csPl3','cs_1968',2,1,COL,C.cs_1968.title),
+  cartellinoMuro('csPl1','cs_marzotto','L',1,COL,C.cs_marzotto.title),
+  cartellinoMuro('csPl2','cs_citta','L',3,COL,C.cs_citta.title),
+  cartellinoMuro('csPl3','cs_1968','L',7,COL,C.cs_1968.title),
   {id:'pianta',x:7,y:7,h:20,draw:drawPlant}
 ];
 

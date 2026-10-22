@@ -50,8 +50,8 @@ const STANZA={w:8,h:8,ox:160,oy:70,
 const OGGETTI_SALA=[
   {id:'ascolto',x:4,y:4,h:22,name:'Posto d\'ascolto',draw:drawAscolto,light:1,
     act:oggettoSala(ID,()=>apri(),'La contromina ha fermato la galleria. Ora nella roccia c\'è silenzio.')},
-  cartellino('minePl1','mine_denti',2,3,COL,C.mine_denti.title),
-  cartellino('minePl2','mine_guerra',6,3,COL,C.mine_guerra.title),
+  cartellinoMuro('minePl1','mine_denti','L',2,COL,C.mine_denti.title),
+  cartellinoMuro('minePl2','mine_guerra','L',4,COL,C.mine_guerra.title),
   {id:'puntelli',x:3,y:0,h:36,draw:drawPuntelli},
   {id:'carrello',x:6,y:6,h:12,draw:drawCarrello},
   {id:'sassi',x:1,y:1,h:8,draw:drawSassi}

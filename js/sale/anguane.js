@@ -59,9 +59,9 @@ const OGGETTI_SALA=[
   {id:'fonte',x:4,y:3,h:22,name:'La fonte',draw:drawFonte,light:1,
     act:oggettoSala(ID,()=>apri(),'L\'anguana è tornata alla sua fonte. Il cesto di vimini è ancora qui, vuoto.')},
   {id:'cesto',x:6,y:2,h:10,name:'Un cesto di vimini',draw:drawCesto,act:()=>say('Cesto di vimini',['Un cesto di vimini, bucato da tutte le parti. A cosa servirà, accanto a una fonte?'])},
-  cartellino('angPl1','ang_chi',2,4,COL,C.ang_chi.title),
-  cartellino('angPl2','ang_storie',5,6,COL,C.ang_storie.title),
-  cartellino('angPl3','ang_oggi',1,1,COL,C.ang_oggi.title),
+  cartellinoMuro('angPl1','ang_chi','R',1,COL,C.ang_chi.title),
+  cartellinoMuro('angPl2','ang_storie','R',3,COL,C.ang_storie.title),
+  cartellinoMuro('angPl3','ang_oggi','L',2,COL,C.ang_oggi.title),
   {id:'canne',x:7,y:5,h:28,draw:drawCanne}
 ];
 

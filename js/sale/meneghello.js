@@ -59,9 +59,9 @@ const OGGETTI_SALA=[
     act:oggettoSala(ID,()=>apri(),'Le carte sono in fila: da Malo a Malo, una parola-amo dopo l\'altra.')},
   {id:'libreria',x:6,y:1,h:32,draw:drawLibreria},
   {id:'valigia',x:6,y:4,h:12,name:'Una valigia',draw:drawValigia,act:()=>say('Valigia',['Un\'etichetta sbiadita: «Reading, 1947».'])},
-  cartellino('menPl1','men_vita',2,4,COL,C.men_vita.title),
-  cartellino('menPl2','men_libro',5,6,COL,C.men_libro.title),
-  cartellino('menPl3','men_maestri',1,1,COL,C.men_maestri.title)
+  cartellinoMuro('menPl1','men_vita','L',2,COL,C.men_vita.title),
+  cartellinoMuro('menPl2','men_libro','R',1,COL,C.men_libro.title),
+  cartellinoMuro('menPl3','men_maestri','R',5,COL,C.men_maestri.title)
 ];
 
 /* ---------- Rompicapo: le parole-amo ---------- */

@@ -57,8 +57,8 @@ const STANZA={w:8,h:8,ox:160,oy:70,
 const OGGETTI_SALA=[
   {id:'omo',x:4,y:3,h:34,name:'Il Tessitore e le otto formelle',draw:drawOmo,light:1,
     act:oggettoSala(ID,()=>apri(),'Le otto formelle sono di nuovo intere. L\'Omo guarda la sua navetta, come dal 1879.')},
-  cartellino('tesPl1','tes_omo',2,5,COL,C.tes_omo.title),
-  cartellino('tesPl2','tes_storia',6,5,COL,C.tes_storia.title),
+  cartellinoMuro('tesPl1','tes_omo','L',4,COL,C.tes_omo.title),
+  cartellinoMuro('tesPl2','tes_storia','R',3,COL,C.tes_storia.title),
   {id:'rotolo1',x:7,y:1,h:14,draw:drawRotolo},
   {id:'rotolo2',x:1,y:1,h:14,draw:drawRotolo},
   {id:'panca',x:6,y:7,h:8,draw:drawBench}

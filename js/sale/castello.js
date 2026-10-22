@@ -49,9 +49,9 @@ const STANZA={w:8,h:8,ox:160,oy:70,
 const OGGETTI_SALA=[
   {id:'castello',x:4,y:3,h:28,name:'Plastico del castello di Thiene',draw:drawCastello,light:1,
     act:oggettoSala(ID,()=>apri(),'Il plastico ora ha due cartellini: «sembra un castello» sulle torri, «era un fondaco» sugli archi.')},
-  cartellino('casPl1','cas_fondaco',2,4,COL,C.cas_fondaco.title),
-  cartellino('casPl2','cas_famiglie',5,6,COL,C.cas_famiglie.title),
-  cartellino('casPl3','cas_scuderia',6,2,COL,C.cas_scuderia.title),
+  cartellinoMuro('casPl1','cas_fondaco','L',3,COL,C.cas_fondaco.title),
+  cartellinoMuro('casPl2','cas_famiglie','L',4,COL,C.cas_famiglie.title),
+  cartellinoMuro('casPl3','cas_scuderia','R',5,COL,C.cas_scuderia.title),
   {id:'stallo',x:1,y:1,h:26,draw:drawStallo,name:'Uno stallo della scuderia',act:()=>say('Stallo',['Uno dei 32 stalli della scuderia, 16 per lato. Le colonne sono di marmo rosso.'])}
 ];
 

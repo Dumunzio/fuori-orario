@@ -52,9 +52,9 @@ const OGGETTI_SALA=[
   {id:'monte',x:4,y:3,h:30,name:'Plastico del Monte Cimone',draw:drawMonte,light:1,
     act:oggettoSala(ID,()=>apri(),'Il registro dell\'ossario è completo: 23 settembre 1916, ore 5:45.')},
   {id:'orologio',x:6,y:2,h:38,name:'Orologio fermo',draw:drawOrologio,act:()=>say('Orologio fermo',['Le lancette sono ferme su un\'ora del mattino. Quale? Il cartellino della galleria lo dice.'])},
-  cartellino('cimPl1','cim_vetta',2,4,COL,C.cim_vetta.title),
-  cartellino('cimPl2','cim_mina',5,5,COL,C.cim_mina.title),
-  cartellino('cimPl3','cim_ossario',2,1,COL,C.cim_ossario.title),
+  cartellinoMuro('cimPl1','cim_vetta','L',1,COL,C.cim_vetta.title),
+  cartellinoMuro('cimPl2','cim_mina','L',5,COL,C.cim_mina.title),
+  cartellinoMuro('cimPl3','cim_ossario','R',7,COL,C.cim_ossario.title),
   {id:'cippo',x:6,y:6,h:20,draw:drawCippo}
 ];
 

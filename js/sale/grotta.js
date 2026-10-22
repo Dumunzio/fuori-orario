@@ -56,9 +56,9 @@ const OGGETTI_SALA=[
     act:oggettoSala(ID,()=>apri(),'La grotta è tornata buia e silenziosa. I tuoi tre fossili sono nella vetrina.')},
   {id:'vetrina',x:6,y:4,h:22,name:'Vetrina dei fossili',draw:drawVetrina,light:1,
     act:()=>say('Vetrina dei fossili',tessereS()[ID]?['Un granchio, una nummulite e un dente di squalo: animali di mare dentro una montagna.']:['La vetrina è vuota. I fossili sono ancora nella grotta.'])},
-  cartellino('groPl1','gro_buso',2,4,COL,C.gro_buso.title),
-  cartellino('groPl2','gro_fossili',5,6,COL,C.gro_fossili.title),
-  cartellino('groPl3','gro_sicurezza',1,1,COL,C.gro_sicurezza.title),
+  cartellinoMuro('groPl1','gro_buso','L',2,COL,C.gro_buso.title),
+  cartellinoMuro('groPl2','gro_fossili','L',4,COL,C.gro_fossili.title),
+  cartellinoMuro('groPl3','gro_sicurezza','R',2,COL,C.gro_sicurezza.title),
   {id:'stalagmite',x:7,y:1,h:18,draw:drawStalagmite}
 ];
 
