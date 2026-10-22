@@ -114,7 +114,8 @@ function disegnaScritteMappa(){
   const k5=5*mappaPx;g.fillStyle='#15111f';g.fillRect(10,h-18,k5+2,6);g.fillStyle='#f0e6cf';g.fillRect(11,h-17,k5,4);scrivi('5 km',16+k5,h-11,'#f0e6cf');
   return c;
 }
-function disegnaMappa(tela,scelto){
+// nuovi: luoghi scoperti da quando hai aperto la mappa l'ultima volta; t: tempo dell'animazione (anello che si allarga piano).
+function disegnaMappa(tela,scelto,nuovi=[],t=0){
   const g=tela.getContext('2d');mappaFondo=mappaFondo||disegnaFondoMappa();mappaScritte=mappaScritte||disegnaScritteMappa();
   g.drawImage(mappaFondo,0,0);
   mappaVille().forEach(l=>{
@@ -128,6 +129,8 @@ function disegnaMappa(tela,scelto){
     if(l.spost){g.strokeStyle='#15111f';g.lineWidth=2;g.beginPath();g.moveTo(vx,vy);g.lineTo(x,y);g.stroke();g.fillStyle='#15111f';g.fillRect(vx-2,vy-2,4,4)}
     const r=sel?10:7,rombo=(r,c)=>{g.fillStyle=c;g.beginPath();g.moveTo(x,y-r);g.lineTo(x+r,y);g.lineTo(x,y+r);g.lineTo(x-r,y);g.fill()};
     if(sel)rombo(r+4,'#fff3c4');
+    if(nuovi.includes(l)){const f=(t%1500)/1500;g.globalAlpha=1-f;g.strokeStyle='#fff3c4';g.lineWidth=2;
+      const R=r+4+f*12;g.beginPath();g.moveTo(x,y-R);g.lineTo(x+R,y);g.lineTo(x,y+R);g.lineTo(x-R,y);g.closePath();g.stroke();g.globalAlpha=1}
     rombo(r+2,'#15111f');rombo(r,sc?'#e0b04f':'#4b3f6e');
     if(!sc){g.fillStyle='#a99cc4';g.fillRect(x-1,y-1,2,2)}
   });
@@ -145,12 +148,15 @@ function schedaLuogo(l){
   return `<span class="eyebrow">${l.comune} · nel museo: ${dove}</span><h3>${l.nome}</h3>
     ${sc?`${foto?`<figure class="mp-foto"><img src="${foto.file}" alt="${foto.alt}"><figcaption>Foto: ${foto.autore} · ${foto.licenza} · <a href="${foto.pagina}" target="_blank" rel="noopener">Wikimedia Commons</a></figcaption></figure>`:''}<p>${testo}</p>`
       :`<p>Non l'hai ancora scoperto. La sua storia ti aspetta nel museo: ${dove}.</p>`}
-    ${link}`;
+    ${link}${sc&&l.sala&&typeof entraInSala==='function'?`<div class="row"><button type="button" data-sala="${l.sala}">Vai alla sala</button></div>`:''}`;
 }
 // Apre la mappa; id facoltativo (ID Wikidata del luogo o id della sala) per partire da quel luogo.
 // Per esempio, dalla scheda di una tessera: apriMappa('tessitore').
 function apriMappa(id){
   const M=mappaVisibili(),n=M.filter(mappaScoperto).length,V=mappaVille(),L=[...M,...V];
+  // i luoghi scoperti dall'ultima apertura pulsano qualche secondo; S.mappaViste li ricorda (si salva con il resto di S)
+  const viste=S.mappaViste||(S.mappaViste={}),nuovi=M.filter(l=>mappaScoperto(l)&&!viste[l.id]);nuovi.forEach(l=>viste[l.id]=true);
+  let scelto=null;
   openModal(`<div class="eyebrow">Mappa · ${n} luoghi scoperti su ${M.length}</div><h2>L'Alto Vicentino</h2>
     <p>Ogni rombo è un luogo vero da cui viene una storia del museo. Quelli dorati li hai già scoperti: tocca un rombo, o un nome qui sotto, per leggerne la scheda.</p>
     <canvas class="mp-tela" id="mpTela" width="${MAPPA_BOX.w}" height="${MAPPA_BOX.h}" role="img" aria-label="Mappa dell'Alto Vicentino con i luoghi del museo"></canvas>
@@ -161,14 +167,19 @@ function apriMappa(id){
     <p class="eyebrow">Coordinate da Wikidata · monti e fiumi disegnati a mano, indicativi</p>
     <div class="row end">${closeBtn}</div>`);
   const tela=$('mpTela');
-  const scegli=l=>{disegnaMappa(tela,l);$('mpScheda').innerHTML=schedaLuogo(l);
+  const scegli=l=>{scelto=l;disegnaMappa(tela,l);$('mpScheda').innerHTML=schedaLuogo(l);
     $('mpLista').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',L[b.dataset.i]===l))};
   // sulla tela vince il rombo più vicino; i pallini delle ville contano solo se nessun rombo è vicino
   $('mpLista').onclick=e=>{const b=e.target.closest('button');if(b)scegli(L[b.dataset.i])};
   tela.onclick=e=>{const r=tela.getBoundingClientRect(),k=MAPPA_BOX.w/r.width,x=(e.clientX-r.left)*k,y=(e.clientY-r.top)*k;
     const vicino=(P,max)=>{let best=null,d=max*max;P.forEach(l=>{const [px,py]=mappaPunto(l),q=(px-x)**2+(py-y)**2;if(q<d){d=q;best=l}});return best};
     const l=vicino(M,14)||vicino(V,12)||vicino(M,24);if(l)scegli(l)};
-  scegli(L.find(l=>id&&(l.id===id||l.sala===id))||M.find(mappaScoperto)||L[0]);
+  $('mpScheda').onclick=e=>{const b=e.target.closest('[data-sala]');if(b){closeModal();entraInSala(b.dataset.sala)}};
+  scegli(L.find(l=>id&&(l.id===id||l.sala===id))||nuovi[0]||M.find(mappaScoperto)||L[0]);
+  // 4,5 secondi di pulsazione lenta (meno di un ciclo al secondo), niente se il sistema chiede meno movimento
+  if(nuovi.length&&!matchMedia('(prefers-reduced-motion: reduce)').matches){const t0=performance.now();
+    const passo=now=>{if($('mpTela')!==tela||$('modal').hidden)return;const t=now-t0;disegnaMappa(tela,scelto,t<4500?nuovi:[],t);if(t<4500)requestAnimationFrame(passo)};
+    requestAnimationFrame(passo)}
 }
 // Stile della mappa (classi .mp-*): grafica-motore può ridisegnarle da style.css. Pulsante «Mappa» accanto al Diario.
 {
