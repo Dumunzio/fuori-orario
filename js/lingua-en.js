@@ -1016,5 +1016,16 @@ const LINGUA_EN={
 "Traiettorie":"Paths",
 "Traiettorie: visibili":"Paths: shown",
 "Traiettorie: nascoste":"Paths: hidden",
-"Mostra a puntini la strada che il personaggio sta per fare quando tocchi il pavimento, e le orme dei suoi ultimi passi.":"Shows, as a dotted line, the route your character is about to take when you tap the floor, and the footprints of their last steps."
+"Mostra a puntini la strada che il personaggio sta per fare quando tocchi il pavimento, e le orme dei suoi ultimi passi.":"Shows, as a dotted line, the route your character is about to take when you tap the floor, and the footprints of their last steps.",
+"Portaombrelli":"Umbrella stand",
+"Un ombrello nero, dimenticato da un visitatore. Fuori, a quest'ora, piove sempre.":"A black umbrella, forgotten by a visitor. Outside, at this hour, it always rains.",
+"Espositore di dépliant":"Leaflet stand",
+"Dépliant su sentieri, ville e musei della valle. Uno ha la piantina del museo disegnata a mano.":"Leaflets about the valley's trails, villas and museums. One has a hand-drawn plan of the museum.",
+"Attaccapanni":"Coat stand",
+"Il cappotto blu del custode, con le chiavi in tasca. No, non sono quelle della porta.":"The custodian's blue coat, with keys in the pocket. No, they are not the ones for the door.",
+"Libro delle firme":"Visitors' book",
+"Pagine di firme e disegni: «Bellissimo!», «Torneremo», un omino con il casco da speleologo.":"Pages of signatures and doodles: «Beautiful!», «We'll be back», a little man in a caver's helmet.",
+"In fondo c'è spazio anche per te, quando uscirai.":"At the bottom there is room for you too, when you get out.",
+"Tavolo dei disegni":"Drawing table",
+"Piante di ville disegnate a inchiostro. Piega un foglio a metà: le due parti combaciano.":"Plans of villas drawn in ink. Fold a sheet in half: the two sides match."
 };

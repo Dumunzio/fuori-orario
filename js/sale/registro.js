@@ -193,6 +193,33 @@ function drawBarile(o){const [bx,by]=base(o);diamond(ctx,bx,by+1,5,2,'rgba(0,0,0
 function drawFieno(o){const [bx,by]=base(o);box(ctx,bx,by+1,7,3,9,'#d9b860','#b89a48','#9a7e38');R(ctx,bx-7,by-4,14,1,'#8a6a2a');[[-5,-11],[0,-12],[4,-10]].forEach(([x,y])=>R(ctx,bx+x,by+y,2,2,'#e8cc78'))}
 function drawElica(o,t){const [bx,by]=base(o);R(ctx,bx-1,by-16,2,16,'#5a4228');R(ctx,bx-4,by-1,8,2,'#3a2818');
   R(ctx,bx-11,by-20,22,3,'#8a5a3a');R(ctx,bx-10,by-19,20,1,'#a87a54');R(ctx,bx-1,by-21,3,5,'#3e2e1c')}
+// Arredi da museo, per ingresso, villa e uscita (js/stanza.js li usa con una freccia, perché registro.js si carica dopo).
+// Colonnina d'ottone con il cordone rosso, come davanti alle opere.
+function drawColonnina(o){const [bx,by]=base(o);
+  [[-7,2],[7,-2]].forEach(([x,y])=>{diamond(ctx,bx+x,by+y,3,1,'#2b2416');R(ctx,bx+x-1,by+y-14,2,14,'#c9a65a');R(ctx,bx+x-2,by+y-16,4,2,'#e0b04f')});
+  for(let k=0;k<=14;k++){const x=bx-7+k,y=by-12+Math.round(k*-4/14)+Math.round(Math.sin(k/14*Math.PI)*3);R(ctx,x,y,1,2,'#8f3229')}}
+// Portaombrelli di ottone con un ombrello nero.
+function drawPortaombrelli(o){const [bx,by]=base(o);diamond(ctx,bx,by+1,4,2,'rgba(0,0,0,.3)');
+  R(ctx,bx-3,by-10,6,10,'#a8843e');R(ctx,bx-3,by-10,6,1,'#e0b04f');R(ctx,bx-1,by-20,1,10,'#2b2a2e');R(ctx,bx-3,by-21,4,2,'#2b2a2e');R(ctx,bx+1,by-16,1,6,'#5a3a26')}
+// Espositore di dépliant: un leggio basso con le tasche colorate.
+function drawEspositore(o){const [bx,by]=base(o);R(ctx,bx-1,by-8,2,8,'#3d3320');R(ctx,bx-4,by-1,8,2,'#2b2416');
+  R(ctx,bx-6,by-22,12,14,'#5a3e2a');['#c2493c','#4a7aa8','#5f8a6b','#e0b04f'].forEach((c,k)=>R(ctx,bx-5+(k%2)*6,by-21+((k/2)|0)*7,4,5,c))}
+// Colonna palladiana: base, fusto chiaro con le scanalature, capitello.
+function drawColonna(o){const [bx,by]=base(o);diamond(ctx,bx,by+1,5,2,'rgba(0,0,0,.3)');
+  box(ctx,bx,by+1,5,2,3,'#d9cfb4','#b8ad92','#9a907a');R(ctx,bx-3,by-30,6,28,'#e8dfc6');
+  for(let k=0;k<3;k++)R(ctx,bx-2+k*2,by-29,1,26,'#c9bea2');box(ctx,bx,by-29,5,2,3,'#efe6cc','#c9bea2','#b3a585')}
+// Tavolo con i disegni delle ville: fogli con piante simmetriche.
+function drawTavoloDisegni(o){const [bx,by]=base(o);box(ctx,bx,by+1,10,5,9,'#7a5236','#5a3a26','#46301f');
+  R(ctx,bx-7,by-12,9,5,'#efe2c4');R(ctx,bx+1,by-11,7,4,'#e8dfc6');
+  [[-6,-11],[-3,-11],[-6,-9],[-3,-9],[2,-10],[5,-10]].forEach(([x,y])=>R(ctx,bx+x,by+y,2,1,'#3a4a6a'))}
+// Attaccapanni con un cappotto da custode.
+function drawAttaccapanni(o){const [bx,by]=base(o);diamond(ctx,bx,by+1,4,2,'rgba(0,0,0,.3)');
+  R(ctx,bx-3,by-1,6,2,'#3a2818');R(ctx,bx,by-30,1,30,'#5a3a26');R(ctx,bx-3,by-30,7,1,'#5a3a26');
+  R(ctx,bx-4,by-28,5,13,'#24345a');R(ctx,bx-3,by-27,3,2,'#2d3a5e');R(ctx,bx+2,by-29,3,3,'#3a2a1a')}
+// Leggio con il libro delle firme dei visitatori.
+function drawLibroFirme(o){const [bx,by]=base(o);diamond(ctx,bx,by+1,4,2,'rgba(0,0,0,.3)');
+  R(ctx,bx-3,by-1,6,2,'#2b2416');R(ctx,bx-1,by-12,2,11,'#3d3320');R(ctx,bx-7,by-17,14,5,'#5a3e2a');
+  R(ctx,bx-6,by-18,6,5,'#efe2c4');R(ctx,bx,by-18,6,5,'#e8dfc6');R(ctx,bx-5,by-16,4,1,'#3a2a1a');R(ctx,bx+1,by-15,4,1,'#3a2a1a');R(ctx,bx+3,by-21,1,4,'#2b2a2e')}
 // Cartellino appeso alla parete (lato 'R' o 'L', casella t): si legge dalla casella davanti, come un varco.
 // Con il motore di grafica-motore usa la sua targa (pareteCartellino, hitCartellino) e la sua luce (light:1),
 // così il gioco ha un solo stile di cartellino; senza, usa la targa qui sotto.
