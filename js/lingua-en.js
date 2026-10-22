@@ -777,6 +777,7 @@ const LINGUA_EN={
 "{} barra non torna. Ricontrolla i cartellini.":"{} bar is wrong. Check the labels again.",
 "{} barre non tornano. Ricontrolla i cartellini.":"{} bars are wrong. Check the labels again.",
 "sigilli da ritrovare":"seals to find",
+"15 sigilli da ritrovare":"15 seals to find",
 "gennaio":"January",
 "febbraio":"February",
 "marzo":"March",

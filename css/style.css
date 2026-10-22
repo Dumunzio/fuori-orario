@@ -139,3 +139,5 @@ a{color:var(--brass)}
 @media (pointer:coarse){#pad{display:flex}#dialog:not([hidden])~#pad{display:none}}
 @media (prefers-reduced-motion:reduce){.shake,#dialog .next{animation:none}}
 @media (max-width:520px){.brand small{display:none}.hud{gap:8px}button{font-size:13px;padding:5px 8px}}
+/* schermi bassi (telefono in orizzontale): titolo più piccolo, così «Entra nel museo» si vede senza scorrere */
+@media (max-height:520px){.tcard{gap:8px}.tcard h1{font-size:clamp(30px,13vh,56px)}.tcard p{font-size:16px}.controls{display:none}}
