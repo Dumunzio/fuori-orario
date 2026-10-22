@@ -191,9 +191,13 @@ function win(){
     ${typeof riepilogoTessere==='function'?riepilogoTessere():''}
     <p class="eyebrow">Fonti per la versione completa</p>
     <ul class="src"><li>Wikidata: luoghi, persone e beni culturali collegati tra loro</li><li>Europeana: foto e oggetti per le teche</li><li>Catalogo generale dei beni culturali (MiC)</li><li>Rete Museale Alto Vicentino ed Ecomuseo della Grande Guerra</li></ul>
+    <div id="slImmagine"></div>
     <div class="msg" id="msg">&nbsp;</div>
-    <div class="row end"><button type="button" id="share">Copia risultato</button><button class="primary" type="button" id="again">Gioca ancora</button></div>`);
-  const txt=`Ho risolto FUORI ORARIO in ${tm}: ${lettere(NTOT())} sigilli nascosti nella storia dell'Alto Vicentino. Ci provi?`;
+    <div class="row end">${typeof apriImmagineFinale==='function'?'<button type="button" id="immagine">Crea l\'immagine da condividere</button>':''}<button type="button" id="share">Copia risultato</button><button class="primary" type="button" id="again">Gioca ancora</button></div>`);
+  // l'immagine con tempo e sigilli (js/condividi.js, area sale)
+  if($('immagine'))$('immagine').onclick=()=>{$('immagine').disabled=true;apriImmagineFinale()};
+  // il testo da copiare non passa dallo schermo: in inglese lo traduce tr() di lingua.js
+  const it=`Ho risolto FUORI ORARIO in ${tm}: ${lettere(NTOT())} sigilli nascosti nella storia dell'Alto Vicentino. Ci provi?`,txt=typeof tr==='function'?tr(it):it;
   $('share').onclick=()=>{navigator.clipboard?.writeText(txt).then(()=>{$('msg').textContent='Copiato negli appunti.';$('msg').className='msg good'}).catch(fallback)||fallback()};
   function fallback(){$('msg').textContent=txt;$('msg').className='msg';const r=document.createRange();r.selectNodeContents($('msg'));getSelection().removeAllRanges();getSelection().addRange(r)}
   // si vince nell'uscita: per ricominciare si torna davvero all'ingresso, con la sua stanza e i suoi oggetti

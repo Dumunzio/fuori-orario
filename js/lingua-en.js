@@ -1028,5 +1028,18 @@ const LINGUA_EN={
 "Pagine di firme e disegni: «Bellissimo!», «Torneremo», un omino con il casco da speleologo.":"Pages of signatures and doodles: «Beautiful!», «We'll be back», a little man in a caver's helmet.",
 "In fondo c'è spazio anche per te, quando uscirai.":"At the bottom there is room for you too, when you get out.",
 "Tavolo dei disegni":"Drawing table",
-"Piante di ville disegnate a inchiostro. Piega un foglio a metà: le due parti combaciano.":"Plans of villas drawn in ink. Fold a sheet in half: the two sides match."
+"Piante di ville disegnate a inchiostro. Piega un foglio a metà: le due parti combaciano.":"Plans of villas drawn in ink. Fold a sheet in half: the two sides match.",
+// immagine da condividere a fine partita (js/condividi.js)
+"Crea l'immagine da condividere":"Create an image to share",
+"Preparo l'immagine…":"Preparing the image…",
+"Scarica l'immagine":"Download the image",
+"Condividi":"Share",
+"Aperto da file locale il browser non lascia mettere le foto nell'immagine: online ci sono.":"Opened from a local file, the browser won't let the photos into the image: online they are there.",
+"Immagine della partita: tempo e 15 sigilli":"Image of the game: time and 15 seals",
+"UN'ESCAPE ROOM NEL MUSEO DEL TERRITORIO":"AN ESCAPE ROOM IN THE MUSEUM OF THE TERRITORY",
+"Fuga dal museo dopo la chiusura":"Escape from the museum after closing time",
+"Tutti i 15 sigilli della storia dell'Alto Vicentino":"All 15 seals of the history of the Alto Vicentino",
+"Ci provi anche tu?":"Can you do it too?",
+"Foto da Wikimedia Commons: autori e licenze nel gioco":"Photos from Wikimedia Commons: authors and licences in the game",
+"Storia vera, fonti aperte: Wikidata, Wikipedia, Wikimedia Commons":"True history, open sources: Wikidata, Wikipedia, Wikimedia Commons"
 };
