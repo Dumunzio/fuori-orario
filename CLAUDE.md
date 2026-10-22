@@ -41,7 +41,13 @@ Si comincia nell'**ingresso** (custode e piantina interattiva). Dall'ingresso si
 - `PIANTA.collegamenti`, `PIANTA.posti`, `PIANTA.rami`, `PIANTA.inizio`, `PIANTA.vicini(id)`;
 - `PIANTA.porte[stanza][vicino]={lato,t}`: ogni area scrive le porte delle sue stanze;
 - `vaiVerso(da,a)`, `vaiInStanzaPianta(id)` (davanti alla porta verso il genitore), `varchiPianta(id)` e `pareteVarchiPianta(g,id)` per oggetti e disegno dei varchi, `completata(id)`, `apriPianta()`.
-- Un file può usare a caricamento solo ciò che è definito nei file prima di lui. Dentro le funzioni invece puoi usare tutto, perché vengono chiamate quando la pagina è già caricata. Per questo in `stanza.js` le azioni sono scritte come `act:()=>openLoom()`.
+- Un file può usare a caricamento solo ciò che è definito nei file prima di lui. Dentro le funzioni invece puoi usare tutto, perché vengono chiamate quando la pagina è già caricata. Per questo in `stanza.js` le azioni sono scritte come `act:()=>openLoom()`, e i disegni di `registro.js` come `draw:o=>drawPanchina(o)`.
+
+### Inquadratura, traiettorie, oggetti di contorno
+- **Inquadratura** (motore.js): si disegna sempre nelle coordinate di sempre (`iso`, `OX`, `OY`, fondo `VW`×`VH`), ma la tela mostra solo `VISTA`, il riquadro della stanza corrente, che `inquadra()` calcola in `entraStanza()`. `fit()` ingrandisce la tela fino a riempire la finestra. `render()` sposta il disegno con `setTransform`, `toCanvas()` riporta il mouse. Non disegnare fuori dalla stanza: non si vede.
+- **Traiettorie** (motore.js, si accendono nelle impostazioni): `TRAIETTORIE` {on, scia}, `traiettorie(on)`; `disegnaTraiettorie()` (orme, sotto gli oggetti) e `disegnaStrada()` (strada da fare, sopra la luce).
+- **Oggetti di contorno** (sale/registro.js): `contorno(id,x,y,h,draw,nome,frasi)` crea un oggetto illuminato, da esaminare se ha un nome. Disegni pronti: drawPanchina, drawSacchi, drawCassa, drawFilo, drawElmetto, drawBarella, drawLanterna, drawMatasse, drawRocchetti, drawArcolaio, drawBalla, drawRoccia, drawFelce, drawArmatura, drawScaffaleLibri, drawElica, drawBarile, drawFieno, drawColonnina, drawPortaombrelli, drawEspositore, drawColonna, drawTavoloDisegni, drawAttaccapanni, drawLibroFirme. Ogni stanza ha tra 7 e 10 oggetti a terra: è la misura che ha chiesto jackjack-lab.
+- **Sigilli**: le tessere non ci sono più, ogni sala vinta dà un sigillo. Nei dati restano i nomi `S.tessere`, `SALA[id].tessera` e la voce `'tessera-'+id`; a schermo si dice sempre «sigillo». Conteggio unico: `sigilliPresi()` / `sigilliTotali()` (15).
 
 ### Interfacce comuni (cambiarle rompe il lavoro degli altri)
 Prima di rinominare o cambiare il comportamento di questi, scrivi in bacheca:
