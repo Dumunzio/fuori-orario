@@ -215,7 +215,7 @@ function buildBg(){
 // Assegna dimensioni, oggetti e sfondo della stanza id, senza dissolvenza.
 function entraStanza(id){
   const st=STANZE[id];if(!st)return;S.room=id;MW=st.w;MH=st.h;OX=st.ox;OY=st.oy;OBJ=OGGETTI[id]||[];buildBg();
-  inquadra();
+  inquadra();TRAIETTORIE.scia=[];
   if(typeof suonaStanza==='function')suonaStanza(id); // js/musica.js
 }
 // Inquadratura (compito 4): la tela mostra solo il riquadro della stanza corrente, non tutto il fondo VW×VH,
@@ -393,12 +393,12 @@ function frame(now){
 function render(t){
   ctx.setTransform(1,0,0,1,-VISTA.x,-VISTA.y);
   ctx.fillStyle='#0b0814';ctx.fillRect(VISTA.x,VISTA.y,VISTA.w,VISTA.h);
-  ctx.drawImage(sfondi[S.room],0,0);drawDoor(t);
+  ctx.drawImage(sfondi[S.room],0,0);drawDoor(t);disegnaTraiettorie();
   const accesi=OBJ.filter(o=>o.acceso&&o.hit&&o.acceso());accesi.forEach(o=>varcoAcceso(o,t));
   const list=OBJ.filter(o=>o.draw).map(o=>({d:o.x+o.y,f:()=>o.draw(o,t)}));
   list.push({d:P.px+P.py+.01,f:()=>drawPlayer(t)});
   list.sort((a,b)=>a.d-b.d).forEach(e=>e.f());
-  drawMotes(t);drawLight(t);
+  drawMotes(t);drawLight(t);disegnaStrada();
   accesi.forEach(o=>{const [x,y,w]=o.hit();sparkle(x+Math.floor(w/2),y-14,t)});
   if(S.fade>0){ctx.fillStyle=`rgba(11,8,20,${S.fade})`;ctx.fillRect(0,0,VW,VH)}
   if(target&&!blocked()){let x,y;if(target.hit){const [hx,hy,hw]=target.hit();x=hx+Math.floor(hw/2);y=hy-8}else{[x,y]=base(target);y-=target.h+5}
@@ -421,7 +421,31 @@ function update(dt){
   if(target&&!blocked()){pr.innerHTML='<b>E</b> · '+target.name;pr.hidden=false}else pr.hidden=true;
   if(blocked())etichetta.hidden=true; // un dialogo o una finestra che si apre col mouse fermo copre il nome
 }
-function stepTo(nx,ny){P.fx=nx-P.x;P.fy=ny-P.y;P.x=P.tx=nx;P.y=P.ty=ny;P.moving=true}
+function stepTo(nx,ny){TRAIETTORIE.scia.push([P.x,P.y]);if(TRAIETTORIE.scia.length>14)TRAIETTORIE.scia.shift();
+  P.fx=nx-P.x;P.fy=ny-P.y;P.x=P.tx=nx;P.y=P.ty=ny;P.moving=true}
+/* ---------- Traiettorie (compito 6, si accendono nelle impostazioni) ---------- */
+// La strada che il personaggio sta per fare (P.path, dopo un clic) a puntini dorati fino alla meta,
+// e dietro di lui le ultime orme. Si ricorda in localStorage (fuoriOrario.traiettorie); la scia si svuota cambiando stanza.
+const TRAIETTORIE={on:(()=>{try{return localStorage.getItem('fuoriOrario.traiettorie')==='1'}catch(e){return false}})(),scia:[]};
+function disegnaTraiettorie(){
+  if(!TRAIETTORIE.on)return;
+  const centro=(x,y)=>{const [cx,cy]=iso(x,y);return [cx,cy+6]};
+  // orme: due puntini per casella, sempre più chiari verso il personaggio
+  TRAIETTORIE.scia.forEach(([x,y],i,a)=>{const [cx,cy]=centro(x,y),k=(i+1)/a.length;
+    ctx.fillStyle=`rgba(240,230,207,${(.12+.4*k).toFixed(2)})`;ctx.fillRect(cx-3,cy-1,2,1);ctx.fillRect(cx+1,cy+1,2,1)});
+}
+// La strada da fare si disegna dopo la luce, sopra tutto, così si vede anche sui tappeti e al buio:
+// puntini dorati con un bordo scuro lungo i segmenti tra i centri delle caselle, poi un rombo sulla meta.
+function disegnaStrada(){
+  if(!TRAIETTORIE.on||!P.path.length)return;
+  const punti=[[P.x,P.y],...P.path].map(([x,y])=>{const [cx,cy]=iso(x,y);return [cx,cy+6]});
+  const punto=(x,y)=>{ctx.fillStyle='rgba(20,14,28,.85)';ctx.fillRect(x-2,y-1,4,3);ctx.fillStyle='#e0b04f';ctx.fillRect(x-1,y,2,1)};
+  for(let i=1;i<punti.length;i++){const [ax,ay]=punti[i-1],[bx,by]=punti[i],n=Math.max(1,Math.round(Math.hypot(bx-ax,by-ay)/5));
+    for(let k=1;k<=n;k++)punto(Math.round(ax+(bx-ax)*k/n),Math.round(ay+(by-ay)*k/n))}
+  const [mx,my]=punti[punti.length-1];
+  diamond(ctx,mx,my,10,5,'rgba(20,14,28,.6)');diamond(ctx,mx,my,8,4,'#e0b04f');diamond(ctx,mx,my,6,3,'rgba(20,14,28,.85)');
+}
+function traiettorie(on){TRAIETTORIE.on=!!on;TRAIETTORIE.scia=[];try{localStorage.setItem('fuoriOrario.traiettorie',on?'1':'0')}catch(e){}}
 const adj=o=>Math.abs(o.x-P.x)+Math.abs(o.y-P.y)===1;
 function nearest(){const c=OBJ.filter(o=>o.act&&adj(o));if(!c.length)return null;return c.find(o=>o.x-P.x===P.fx&&o.y-P.y===P.fy)||c[0]}
 function interact(o){if(o&&o.act)o.act()}

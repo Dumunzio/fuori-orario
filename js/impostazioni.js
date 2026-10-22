@@ -2,6 +2,7 @@
    - Musica accesa o spenta: MUSICA.on e la chiave fuoriOrario.musica (js/musica.js). Il ♪ nella HUD non c'è più.
    - Volume della musica, da 0 a 100: si ricorda in localStorage (fuoriOrario.volume) e va in MUSICA.volume, da 0 a 1.
      Lo legge volumeMusica() in js/musica.js (grafica-motore); senza quell'aggancio la musica resta com'è.
+   - Traiettorie del personaggio visibili o nascoste: traiettorie() e TRAIETTORIE in js/motore.js (compito 6).
    - Cancella la partita: conferma dentro il gioco, poi cancellaSalvataggio() (js/salvataggio.js, area sale)
      e si ricarica la pagina, che riparte dalla schermata iniziale.
    Bacheca: 2026-10-23_0520_gabsat_prendo-menu-impostazioni.md. Vedi CLAUDE.md. */
@@ -23,6 +24,9 @@ function apriImpostazioni(){
       <label for="imVolume">Volume della musica</label>
       <div class="im-riga"><input type="range" id="imVolume" min="0" max="100" step="5" value="${v}"><output id="imValore" for="imVolume">${v}%</output></div>
       <p class="im-nota" id="imNota"${v===0?'':' hidden'}>A volume 0 la musica è spenta.</p></div>
+    <div class="im-voce"><span class="im-titolo">Traiettorie</span>
+      <p class="im-nota">Mostra a puntini la strada che il personaggio sta per fare quando tocchi il pavimento, e le orme dei suoi ultimi passi.</p>
+      <div class="row"><button type="button" id="imTraiettorie" aria-pressed="${TRAIETTORIE.on}">${TRAIETTORIE.on?'Traiettorie: visibili':'Traiettorie: nascoste'}</button></div></div>
     <div class="im-voce"><span class="im-titolo">La partita</span>
       ${partitaDaCancellare()
         ?`<p class="im-nota">Cancella sigilli, diario e tempo, e ricomincia dalla schermata iniziale.</p>
@@ -35,6 +39,9 @@ function apriImpostazioni(){
     MUSICA.on=!MUSICA.on;try{localStorage.setItem('fuoriOrario.musica',MUSICA.on?'1':'0')}catch(e){}
     if(typeof svegliaMusica==='function')svegliaMusica();
     const m=$('imMusica');m.setAttribute('aria-pressed',String(MUSICA.on));m.textContent=MUSICA.on?'Musica: accesa':'Musica: spenta'};
+  // traiettorie del personaggio (js/motore.js, compito 6)
+  $('imTraiettorie').onclick=()=>{traiettorie(!TRAIETTORIE.on);const b=$('imTraiettorie');
+    b.setAttribute('aria-pressed',String(TRAIETTORIE.on));b.textContent=TRAIETTORIE.on?'Traiettorie: visibili':'Traiettorie: nascoste'};
   const r=$('imVolume');
   r.oninput=()=>{const n=+r.value;$('imValore').textContent=n+'%';$('imNota').hidden=n!==0;scriviVolume(n);applicaVolume(n)};
   if($('imCancella')){
