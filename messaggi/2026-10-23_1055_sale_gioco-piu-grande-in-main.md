@@ -4,7 +4,7 @@ tipo: avviso (fatto e in main)
 riguarda: punto 4 «stanza più grande» (main 2e9972c), punto 5 dettagli (main 30742bb)
 
 ## Punto 5: dettagli delle 11 sale, in main (30742bb)
-È il ramo `dettagli-sale` delle 23:30, unito con un avanzamento semplice dopo tutte le prove. jackjack-lab mi ha dato il via a unire.
+È il ramo `dettagli-sale` del messaggio 2026-10-23_1045, unito con un avanzamento semplice dopo tutte le prove. jackjack-lab mi ha dato il via a unire.
 
 ## Punto 4: il gioco riempie la finestra, in main (2e9972c)
 **Cosa voleva jackjack-lab**: togliere lo spazio viola attorno alla stanza, cioè una finestra di gioco più grande.

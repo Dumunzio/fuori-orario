@@ -14,12 +14,12 @@ Ecco tutto, in ordine. Main ora è **47debe1**. Ogni pezzo ha il suo messaggio q
 | # | Compito | Chi | Dove |
 |---|---|---|---|
 | 1 | Nome al passaggio del mouse sugli oggetti | Dumunzio (revisione sale) | main ee9d16c |
-| 2 | Debug ultra fine | sale | 3 errori corretti, vedi 01:50 |
+| 2 | Debug ultra fine | sale | 3 errori corretti, vedi 2026-10-23_1115 |
 | 3 | Backup su Drive | sale | ogni ora sul PC di jackjack-lab |
 | 4 | Stanza più grande | sale | main 2e9972c |
 | 5 | Dettagli | sale | 11 sale (30742bb), ingresso, villa e uscita (739e6cc) |
 | 6 | Traiettorie | sale | main bbe4574 |
-| 7 | Test su computer e telefono | sale | 6 schermi, vedi 01:50 |
+| 7 | Test su computer e telefono | sale | 6 schermi, vedi 2026-10-23_1115 |
 | 8 | Font Times New Roman | sale (revisione Dumunzio) | main af660f3 |
 
 ## Cosa è cambiato nel gioco, stanotte

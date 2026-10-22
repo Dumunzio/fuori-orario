@@ -20,6 +20,6 @@ Se il compito tocca file di un'altra area, fallo su un ramo tuo e scrivilo nel m
 
 6. Mostrare le traiettorie del personaggio (abilitabile dalle impostazioni)   [FATTO, in main (sale, notte del 23/10)]
 
-7. Test su computer e su telefono   [FATTO (sale, notte del 23/10): 6 schermi, vedi bacheca 01:50]
+7. Test su computer e su telefono   [FATTO (sale, notte del 23/10): 6 schermi, vedi bacheca 2026-10-23_1115]
 
 8. Cambiare il font (Times New Roman)   [FATTO, in main (sale; revisione di grafica-motore)]
