@@ -1,5 +1,10 @@
 /* Rompicapi, sigilli, custode, porta, fine partita e diario.
    Area: enigmi-storia. Vedi CLAUDE.md prima di modificare. */
+// Quanti sigilli servono, e come si scrive un numero piccolo in lettere.
+const NSEALS=()=>Object.keys(SEALS).length;
+const lettere=n=>['zero','uno','due','tre','quattro','cinque','sei'][n]??String(n);
+// Dove si trova ogni rompicapo, per gli aiuti del custode.
+const DOVE={loom:'Il telaio, nella sala del Lanificio.',chest:'La cassetta del Genio, nella sala della Grande Guerra.',archive:'L\'armadio dell\'archivio.'};
 function note(id,title,where,text,seal){if(S.journal.some(j=>j.id===id))return false;S.journal.push({id,title,where,text,seal:!!seal});return true}
 function readPlaque(k){const p=PLAQUES[k];say('Cartellino · '+p.title,p.lines,()=>{if(note(k,p.title,p.where,p.lines.join(' ')))toast('Annotato nel diario')})}
 
@@ -11,7 +16,7 @@ function solved(id,msg){
 function grant(id){
   S.seals[id]=true;const s=SEALS[id];note('seal-'+id,s.title,'Sigillo',s.text,true);hud();
   const n=sealCount();
-  say(s.title,[s.text,n<3?`Sigilli: ${n} su 3.`:'Hai tutti e tre i sigilli. La porta d\'uscita è sulla parete in fondo a destra.']);
+  say(s.title,[s.text,n<NSEALS()?`Sigilli: ${n} su ${NSEALS()}.`:'Hai tutti i sigilli. La porta d\'uscita è nel museo, sulla parete in fondo a destra.']);
 }
 
 function openLoom(){
@@ -80,21 +85,20 @@ function openTimeline(){
 
 function talkKeeper(){
   const n=sealCount();
-  if(n===3)return say('Custode',['Tre sigilli! La porta d\'uscita è sulla parete in fondo, a destra. Buona serata.']);
-  say('Custode',[n===0?'Non hai ancora trovato nessun sigillo. Comincia dai cartellini: le risposte sono lì.':`Hai ${n} sigill${n===1?'o':'i'} su 3. Vuoi chiedermi qualcosa? Per un indizio c'è il pulsante Aiuto.`],()=>typeof apriDomandeCustode==='function'?apriDomandeCustode():hint());
+  if(n===NSEALS())return say('Custode',['Tutti i sigilli! La porta d\'uscita è sulla parete in fondo, a destra. Buona serata.']);
+  say('Custode',[n===0?'Non hai ancora trovato nessun sigillo. Comincia dai cartellini: le risposte sono lì.':`Hai ${n} sigill${n===1?'o':'i'} su ${NSEALS()}. Vuoi chiedermi qualcosa? Per un indizio c'è il pulsante Aiuto.`],()=>typeof apriDomandeCustode==='function'?apriDomandeCustode():hint());
 }
 function hint(){
   if(!S.started||S.done)return;
-  const id=['loom','chest','archive'].find(k=>!S.seals[k]);
+  const id=Object.keys(SEALS).find(k=>!S.seals[k]);
   if(!id)return say('Custode',['Hai tutto. Vai alla porta d\'uscita.']);
-  const where={loom:'Il telaio, nella sala del Lanificio.',chest:'La cassetta del Genio, nella sala della Grande Guerra.',archive:'L\'armadio dell\'archivio.'}[id];
   const lv=S.hint[id];S.hint[id]=Math.min(lv+1,HINTS[id].length-1);
-  say('Custode',[where,HINTS[id][lv]]);
+  say('Custode',[DOVE[id],HINTS[id][lv]]);
 }
 function tryDoor(){
   const n=sealCount();
-  if(n<3)return say('Porta d\'uscita',[`È chiusa. Sulla serratura ci sono tre incavi a forma di sigillo: ne hai ${n}.`]);
-  if(S.door===0){S.door=.01;say('Porta d\'uscita',['Metti i tre sigilli negli incavi. La serratura gira da sola.'],()=>setTimeout(win,600))}
+  if(n<NSEALS())return say('Porta d\'uscita',[`È chiusa. Sulla serratura ci sono ${lettere(NSEALS())} incavi a forma di sigillo: ne hai ${n}.`]);
+  if(S.door===0){S.door=.01;say('Porta d\'uscita',[`Metti i ${lettere(NSEALS())} sigilli negli incavi. La serratura gira da sola.`],()=>setTimeout(win,600))}
 }
 
 /* ---------- Fine ---------- */
@@ -103,12 +107,12 @@ function win(){
   S.done=true;const tm=fmt(S.elapsed);
   openModal(`<div class="eyebrow">Uscita · ${tm}</div><h2>Sei fuori dal museo</h2>
     <p>In ${tm} hai attraversato un secolo di storia dell'Alto Vicentino. Ecco cosa ti porti a casa:</p>
-    <div class="journal">${['loom','chest','archive'].map(k=>`<article class="seal"><span class="tag">Sigillo</span><h3>${SEALS[k].title}</h3><p>${SEALS[k].text}</p></article>`).join('')}</div>
+    <div class="journal">${Object.keys(SEALS).map(k=>`<article class="seal"><span class="tag">Sigillo</span><h3>${SEALS[k].title}</h3><p>${SEALS[k].text}</p></article>`).join('')}</div>
     <p class="eyebrow">Fonti per la versione completa</p>
     <ul class="src"><li>Wikidata: luoghi, persone e beni culturali collegati tra loro</li><li>Europeana: foto e oggetti per le teche</li><li>Catalogo generale dei beni culturali (MiC)</li><li>Rete Museale Alto Vicentino ed Ecomuseo della Grande Guerra</li></ul>
     <div class="msg" id="msg">&nbsp;</div>
     <div class="row end"><button type="button" id="share">Copia risultato</button><button class="primary" type="button" id="again">Gioca ancora</button></div>`);
-  const txt=`Ho risolto FUORI ORARIO in ${tm}: telaio Jacquard, 52 gallerie del Pasubio e l'archivio di Schio. Ci provi?`;
+  const txt=`Ho risolto FUORI ORARIO in ${tm}: ${lettere(NSEALS())} sigilli nascosti nella storia dell'Alto Vicentino. Ci provi?`;
   $('share').onclick=()=>{navigator.clipboard?.writeText(txt).then(()=>{$('msg').textContent='Copiato negli appunti.';$('msg').className='msg good'}).catch(fallback)||fallback()};
   function fallback(){$('msg').textContent=txt;$('msg').className='msg';const r=document.createRange();r.selectNodeContents($('msg'));getSelection().removeAllRanges();getSelection().addRange(r)}
   $('again').onclick=()=>{closeModal();fresh();hud();S.started=true;intro()};
@@ -127,6 +131,6 @@ $('btnHint').onclick=()=>{if(blocked())return;hint()};
 /* ---------- Avvio ---------- */
 function intro(){say('Custode',[
   'Ehi! Il museo ha chiuso alle sei. Come sei rimasto qui dentro?',
-  'La porta d\'uscita si apre solo con tre sigilli: uno nel telaio, uno nella cassetta del Genio, uno nell\'armadio dell\'archivio.',
+  `La porta d'uscita si apre solo con i sigilli nascosti nelle sale. Ne servono ${lettere(NSEALS())}.`,
   'Le combinazioni le trova chi legge la storia di queste sale. I cartellini sono lì apposta.',
   'Se ti blocchi, vieni da me o premi Aiuto.'])}
