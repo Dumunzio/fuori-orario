@@ -126,8 +126,11 @@ function entraStanza(id){
   const st=STANZE[id];if(!st)return;S.room=id;MW=st.w;MH=st.h;OX=st.ox;OY=st.oy;OBJ=OGGETTI[id]||[];buildBg();
 }
 // Porta il giocatore nella stanza id, in (x,y). Il cambio è immediato; la dissolvenza è solo visiva.
+// ultimoCambio evita i rimbalzi (tasto tenuto, doppio tocco) anche senza dissolvenza
+let ultimoCambio=-1e9;
 function vaiInStanza(id,x,y){
-  if(S.fade)return;
+  if(S.fade||performance.now()-ultimoCambio<400)return;
+  ultimoCambio=performance.now();
   held=null;P.path=[];P.pending=null;P.moving=false;
   entraStanza(id);P.x=P.tx=P.px=x;P.y=P.ty=P.py=y;
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches)S.fade=1;
@@ -318,12 +321,13 @@ addEventListener('keydown',e=>{
   if(!$('modal').hidden){if(e.key==='Escape')closeModal();else if(modalKey)modalKey(e);return}
   if(!$('dialog').hidden&&['e','E',' ','Enter'].includes(e.key)){e.preventDefault();advance();return}
   if(KEYS[e.key]){e.preventDefault();held=KEYS[e.key];P.path=[];P.pending=null;return}
-  if(['e','E',' ','Enter'].includes(e.key)&&!blocked()){e.preventDefault();interact(nearest())}
+  if(['e','E',' ','Enter'].includes(e.key)&&!e.repeat&&!blocked()){e.preventDefault();interact(nearest())}
 });
 addEventListener('keyup',e=>{if(KEYS[e.key]&&held===KEYS[e.key])held=null});
 function toCanvas(e){const r=cv.getBoundingClientRect();return [(e.clientX-r.left)/r.width*VW,(e.clientY-r.top)/r.height*VH]}
 function hitObj(mx,my){
-  return OBJ.filter(o=>o.act).sort((a,b)=>(b.x+b.y)-(a.x+a.y)).find(o=>{
+  // porte e varchi (con hit) prima degli oggetti che stanno davanti alla parete
+  return OBJ.filter(o=>o.act).sort((a,b)=>(!!b.hit-!!a.hit)||(b.x+b.y)-(a.x+a.y)).find(o=>{
     const [x,y,w,h]=o.hit?o.hit():(()=>{const [bx,by]=base(o);return [bx-11,by-o.h,22,o.h+5]})();
     return mx>=x&&mx<x+w&&my>=y&&my<y+h});
 }
