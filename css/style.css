@@ -9,8 +9,9 @@
   --brass:#e0b04f;   /* plaque brass, the one accent */
   --wool:#c2493c;    /* Schio wool red, for errors and the hero */
   --ok:#86c98f;
-  --display:"Pixelify Sans","Courier New",monospace;
-  --body:"Jersey 10","VT323","Courier New",monospace;  /* leggibile ma pixel; VT323 resta come riserva */
+  /* "Jersey 15" contiene solo le 10 cifre (vedi index.html): i numeri vengono da lì, più leggibili, tutto il resto dal font di sempre */
+  --display:"Jersey 15","Pixelify Sans","Courier New",monospace;
+  --body:"Jersey 15","Jersey 10","VT323","Courier New",monospace;  /* leggibile ma pixel; VT323 resta come riserva */
   color-scheme:dark;
 }
 [hidden]{display:none!important}
