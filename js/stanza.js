@@ -16,5 +16,15 @@ const OGGETTI={museo:[
   {id:'bench',x:10,y:6,h:8,name:'Panca',draw:drawBench},
   {id:'plant1',x:5,y:0,h:20,draw:drawPlant},
   {id:'plant2',x:11,y:9,h:20,draw:drawPlant},
-  {id:'door',x:10,y:-1,name:'Porta d\'uscita',act:()=>tryDoor(),hit:()=>{const [cx,cy]=iso(10,0);return [cx+2,cy-32,10,36]}}
+  {id:'door',x:10,y:-1,name:'Porta d\'uscita',act:()=>tryDoor(),hit:()=>{const [cx,cy]=iso(10,0);return [cx+2,cy-32,10,36]}},
+  {id:'varcoVilla',x:-1,y:4,name:'Varco: Sala delle Ville',act:()=>vaiInStanza('villa',0,6),hit:()=>hitVarco('L',4)}
+],
+villa:[
+  {id:'modelVilla',x:4,y:3,h:26,name:'Plastico di Villa Godi',draw:drawVilla,act:()=>openFacade(),light:1},
+  {id:'plaqueGodi',x:2,y:2,h:20,name:'Cartellino: Villa Godi',draw:drawLectern,act:()=>readPlaque('godi'),light:1},
+  {id:'plaquePalladio',x:6,y:2,h:20,name:'Cartellino: Andrea Palladio',draw:drawLectern,act:()=>readPlaque('palladio'),light:1},
+  {id:'bust',x:6,y:5,h:24,name:'Busto',draw:drawBust,act:()=>say('Busto',['Un busto di marmo con una targhetta consumata: «A. P., architetto».'])},
+  {id:'plant3',x:0,y:0,h:20,draw:drawPlant},
+  {id:'plant4',x:7,y:7,h:20,draw:drawPlant},
+  {id:'varcoMuseo',x:-1,y:6,name:'Varco: torna al museo',act:()=>vaiInStanza('museo',0,4),hit:()=>hitVarco('L',6)}
 ]};

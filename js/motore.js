@@ -32,12 +32,14 @@ function faceR(cx,cy,a,b,fn){for(let i=0;i<a;i++)fn(cx+i,cy+b-Math.round(i*b/a),
 function spr(rows,pal,x,y){rows.forEach((row,j)=>{for(let i=0;i<row.length;i++){const c=pal[row[i]];if(c)R(ctx,x+i,y+j,1,1,c)}})}
 
 /* ---------- Sfondo statico: pavimento e pareti ---------- */
-function wallCol(g,px,fy,lit){
-  const top=fy-WH;
-  g.fillStyle=lit?'#3b3058':'#2b2343';g.fillRect(px,top,1,WH);
-  g.fillStyle=lit?'#2a1f3a':'#1f182e';g.fillRect(px,fy-14,1,14);
-  g.fillStyle='#8a6a34';g.fillRect(px,fy-15,1,1);
-  g.fillStyle=lit?'#54487e':'#3e3460';g.fillRect(px,top,1,3);
+// colori delle pareti: [in ombra, illuminata] per fondo, zoccolo e cornice in alto; fascia = listello sopra lo zoccolo
+const MURO_MUSEO={fondo:['#2b2343','#3b3058'],zoccolo:['#1f182e','#2a1f3a'],cornice:['#3e3460','#54487e'],fascia:'#8a6a34'};
+function wallCol(g,px,fy,lit,m=MURO_MUSEO){
+  const top=fy-WH,k=lit?1:0;
+  g.fillStyle=m.fondo[k];g.fillRect(px,top,1,WH);
+  g.fillStyle=m.zoccolo[k];g.fillRect(px,fy-14,1,14);
+  g.fillStyle=m.fascia;g.fillRect(px,fy-15,1,1);
+  g.fillStyle=m.cornice[k];g.fillRect(px,top,1,3);
   g.fillStyle='#120e1c';g.fillRect(px,fy-2,1,2);
 }
 // pittura su parete: side 'R' (fila y=0) o 'L' (colonna x=0); fn(u,v,W,H) -> colore o null
@@ -49,6 +51,23 @@ function onWall(g,side,t,i0,i1,top,h,fn){
   }
 }
 const framed=(inner,fr='#b8892f')=>(u,v,W,H)=>(u===0||u===W||v===0||v===H-1)?fr:inner(u,v,W,H);
+// varco ad arco tra due stanze, sulla parete side alla casella t
+function pareteVarco(g,side,t){
+  onWall(g,side,t,2,10,34,34,(u,v,W)=>{const r=W/2,dx=u-r,d=v<r?Math.hypot(dx,r-v):Math.abs(dx);
+    return d>r+.5?null:d>r-1.2?'#b8892f':v>27?'#2a2133':'#0d0a14'});
+}
+// riquadro cliccabile del varco: [x,y,larghezza,altezza]
+function hitVarco(side,t){const [cx,cy]=side==='R'?iso(t,0):iso(0,t);return side==='R'?[cx+2,cy-33,9,36]:[cx-10,cy-33,9,36]}
+// veduta di Villa Godi su due caselle di parete: off sposta la seconda metà
+const vedutaVilla=off=>(u,v)=>{const U=u+off,W=20,H=15;
+  if(U===0||U===W||v===0||v===H)return '#b8892f';
+  if(v<4)return '#2d3a5e';if(v===4)return U>1&&U<W-1?'#7a4a32':'#2d3a5e';
+  if(v===14)return '#3f5a34';if(U<2||U>W-2)return '#2d3a5e';
+  const centro=U>=8&&U<=12;
+  if(centro&&v>=6&&v<=8&&U%2===0)return '#241c2c';
+  if(centro&&v>=9&&U>=9&&U<=11)return '#efe6cc';
+  if(!centro&&(v===6||v===10)&&U%2===1)return '#3a2a1a';
+  return centro?'#c9bea2':'#d9cfb4'};
 /* ---------- Stanze ---------- */
 // Come è fatta ogni stanza: dimensioni, origine del disegno, pavimento, pareti e luci fisse.
 // Gli oggetti di ogni stanza sono in OGGETTI (stanza.js).
@@ -69,17 +88,29 @@ const STANZE={
       onWall(g,'L',3,2,10,42,18,framed((u,v,W)=>v<6?'#3d4d74':v<9+Math.round(Math.sin(u)*1.5)?'#4f6b3f':'#7a8a4a'));
       onWall(g,'L',6,2,10,44,22,framed((u,v,W,H)=>(u===Math.floor(W/2)||v===Math.floor(H/2))?'#4a3b2c':(u===2&&v===3?'#f4f0d8':'#24345a'),'#4a3b2c'));
       onWall(g,'L',8,3,9,36,7,framed((u,v)=>v===3&&u%2?'#3a2a1a':'#c9a65a','#6b5226'));
+      pareteVarco(g,'L',4);
     },
     // lanterna del custode e finestra
     luci(){const l=[],[wx,wy]=iso(0,6),k=OBJ.find(o=>o.id==='keeper');l.push([wx-6,wy-30,20,.5]);
-      if(k){const [kx,ky]=base(k);l.push([kx+5,ky-4,22,.7])}return l}}
+      if(k){const [kx,ky]=base(k);l.push([kx+5,ky-4,22,.7])}return l}},
+  // Sala delle Ville: pavimento alla veneziana, intonaco chiaro, veduta di Villa Godi
+  villa:{w:8,h:8,ox:160,oy:82,porta:false,
+    zona:()=>'villa',
+    pav:{villa:['#c9b99a','#bfae8e','#9a8a6c','#8e5a4a']},
+    muro:{fondo:['#7d7362','#968a74'],zoccolo:['#564d40','#655b4b'],cornice:['#8f846f','#ada08a'],fascia:'#b8892f'},
+    pareti(g){
+      onWall(g,'R',3,1,11,44,16,vedutaVilla(0));onWall(g,'R',4,0,9,44,16,vedutaVilla(11));
+      [2,5].forEach(t=>onWall(g,'L',t,3,9,46,22,framed((u,v,W,H)=>(u===Math.floor(W/2)||v===Math.floor(H/2))?'#5a4e3e':(u===1&&v===2?'#f4f0d8':'#24345a'),'#5a4e3e')));
+      pareteVarco(g,'L',6);
+    },
+    luci(){return [2,5].map(t=>{const [wx,wy]=iso(0,t);return [wx-6,wy-34,20,.5]})}}
 };
 const sfondi={};
 function buildBg(){
   if(sfondi[S.room])return;
   const st=STANZE[S.room],c=document.createElement('canvas');c.width=VW;c.height=VH;const g=c.getContext('2d');
-  for(let x=0;x<MW;x++){const [cx,cy]=iso(x,0);for(let i=0;i<12;i++)wallCol(g,cx+i,cy+Math.floor(i/2),false)}
-  for(let y=0;y<MH;y++){const [cx,cy]=iso(0,y);for(let i=0;i<12;i++)wallCol(g,cx-12+i,cy+6-Math.floor(i/2),true)}
+  for(let x=0;x<MW;x++){const [cx,cy]=iso(x,0);for(let i=0;i<12;i++)wallCol(g,cx+i,cy+Math.floor(i/2),false,st.muro)}
+  for(let y=0;y<MH;y++){const [cx,cy]=iso(0,y);for(let i=0;i<12;i++)wallCol(g,cx-12+i,cy+6-Math.floor(i/2),true,st.muro)}
   g.fillStyle='#0f0b18';g.fillRect(OX,OY-WH,1,WH);
   for(let s=0;s<MW+MH;s++)for(let x=0;x<MW;x++){const y=s-x;if(y<0||y>=MH)continue;
     const [cx,cy]=iso(x,y),p=st.pav[st.zona(x,y)],base=(x+y)%2?p[0]:p[1];
@@ -92,11 +123,14 @@ function buildBg(){
 }
 // Assegna dimensioni, oggetti e sfondo della stanza id, senza dissolvenza.
 function entraStanza(id){
-  const st=STANZE[id];S.room=id;MW=st.w;MH=st.h;OX=st.ox;OY=st.oy;OBJ=OGGETTI[id]||[];buildBg();
+  const st=STANZE[id];if(!st)return;S.room=id;MW=st.w;MH=st.h;OX=st.ox;OY=st.oy;OBJ=OGGETTI[id]||[];buildBg();
 }
 // Porta il giocatore nella stanza id, in (x,y). Il cambio è immediato; la dissolvenza è solo visiva.
+// ultimoCambio evita i rimbalzi (tasto tenuto, doppio tocco) anche senza dissolvenza
+let ultimoCambio=-1e9;
 function vaiInStanza(id,x,y){
-  if(S.fade)return;
+  if(S.fade||performance.now()-ultimoCambio<400)return;
+  ultimoCambio=performance.now();
   held=null;P.path=[];P.pending=null;P.moving=false;
   entraStanza(id);P.x=P.tx=P.px=x;P.y=P.ty=P.py=y;
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches)S.fade=1;
@@ -155,6 +189,22 @@ function drawVitrine(o){const [bx,by]=base(o);
   R(ctx,bx-3,by-17,7,4,'#6b6f4a');R(ctx,bx-4,by-14,9,1,'#55593a');R(ctx,bx-2,by-12,3,2,'#8a8f9a');
   box(ctx,bx,by-9,8,4,13,'rgba(170,210,230,.18)','rgba(170,210,230,.12)','rgba(170,210,230,.08)');
   R(ctx,bx-8,by-22,1,13,'rgba(220,240,255,.35)');
+}
+// plastico di Villa Godi: ali con finestre, loggia a tre archi al piano nobile, scalinata all'arco centrale
+function drawVilla(o){const [bx,by]=base(o);
+  box(ctx,bx,by+1,11,5,8,'#6b4a33','#4f3625','#3e2a1c');
+  box(ctx,bx,by-7,9,4,10,'#a0583c','#d9cfb4','#c4b896');
+  faceL(bx,by-7,9,4,(x,y,i)=>{if(i%2)[8,4].forEach(d=>R(ctx,x,y-d,1,2,'#3a2a1a'))});
+  faceR(bx,by-7,9,4,(x,y,i)=>{
+    if(i>=3&&i<=7){if(i%2)R(ctx,x,y-9,1,3,'#241c2c');R(ctx,x,y-6,1,1,'#b8b0a0')}
+    else if(i%2===0)[8,4].forEach(d=>R(ctx,x,y-d,1,2,'#3a2a1a'));
+    if(i===5)for(let k=0;k<5;k++)R(ctx,x-1+Math.floor(k/2),y-1-k,2,1,'#efe6cc')});
+  R(ctx,bx-6,by-24,2,3,'#c4b896');R(ctx,bx+5,by-22,2,3,'#c4b896');
+}
+// busto di marmo su colonna
+function drawBust(o){const [bx,by]=base(o);
+  diamond(ctx,bx,by+1,5,2,'rgba(0,0,0,.3)');box(ctx,bx,by+1,4,2,13,'#d8d2c4','#b8b0a0','#9a9284');
+  R(ctx,bx-4,by-16,8,3,'#d8d2c4');R(ctx,bx-2,by-22,4,6,'#e6e0d2');R(ctx,bx-2,by-23,4,2,'#cfc8b8');R(ctx,bx+1,by-19,1,1,'#9a9284');
 }
 function drawBench(o){const [bx,by]=base(o);box(ctx,bx,by+1,10,5,5,'#7a5236','#5a3a26','#46301f')}
 function drawPlant(o,t){const [bx,by]=base(o);
@@ -271,12 +321,13 @@ addEventListener('keydown',e=>{
   if(!$('modal').hidden){if(e.key==='Escape')closeModal();else if(modalKey)modalKey(e);return}
   if(!$('dialog').hidden&&['e','E',' ','Enter'].includes(e.key)){e.preventDefault();advance();return}
   if(KEYS[e.key]){e.preventDefault();held=KEYS[e.key];P.path=[];P.pending=null;return}
-  if(['e','E',' ','Enter'].includes(e.key)&&!blocked()){e.preventDefault();interact(nearest())}
+  if(['e','E',' ','Enter'].includes(e.key)&&!e.repeat&&!blocked()){e.preventDefault();interact(nearest())}
 });
 addEventListener('keyup',e=>{if(KEYS[e.key]&&held===KEYS[e.key])held=null});
 function toCanvas(e){const r=cv.getBoundingClientRect();return [(e.clientX-r.left)/r.width*VW,(e.clientY-r.top)/r.height*VH]}
 function hitObj(mx,my){
-  return OBJ.filter(o=>o.act).sort((a,b)=>(b.x+b.y)-(a.x+a.y)).find(o=>{
+  // porte e varchi (con hit) prima degli oggetti che stanno davanti alla parete
+  return OBJ.filter(o=>o.act).sort((a,b)=>(!!b.hit-!!a.hit)||(b.x+b.y)-(a.x+a.y)).find(o=>{
     const [x,y,w,h]=o.hit?o.hit():(()=>{const [bx,by]=base(o);return [bx-11,by-o.h,22,o.h+5]})();
     return mx>=x&&mx<x+w&&my>=y&&my<y+h});
 }
