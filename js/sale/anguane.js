@@ -65,7 +65,12 @@ const OGGETTI_SALA=[
   cartellinoMuro('angPl1','ang_chi','R',1,COL,C.ang_chi.title),
   cartellinoMuro('angPl2','ang_storie','R',3,COL,C.ang_storie.title),
   cartellinoMuro('angPl3','ang_oggi','L',2,COL,C.ang_oggi.title),
-  {id:'canne',x:7,y:5,h:28,draw:drawCanne}
+  {id:'canne',x:7,y:5,h:28,draw:drawCanne},
+  // dettagli di contorno (compito 5)
+  contorno('felceA1',1,3,12,drawFelce),
+  contorno('felceA2',6,7,12,drawFelce),
+  contorno('rocciaA1',2,7,12,drawRoccia,'Sasso del ruscello',['Un sasso liscio e bagnato. Dicono che le anguane ci stendessero i panni.']),
+  contorno('rocciaA2',7,3,12,drawRoccia)
 ];
 
 /* ---------- Rompicapo: le domande dell'anguana ---------- */

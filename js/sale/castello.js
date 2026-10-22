@@ -55,7 +55,12 @@ const OGGETTI_SALA=[
   cartellinoMuro('casPl1','cas_fondaco','L',3,COL,C.cas_fondaco.title),
   cartellinoMuro('casPl2','cas_famiglie','L',4,COL,C.cas_famiglie.title),
   cartellinoMuro('casPl3','cas_scuderia','R',5,COL,C.cas_scuderia.title),
-  {id:'stallo',x:1,y:1,h:26,draw:drawStallo,name:'Uno stallo della scuderia',act:()=>say('Stallo',['Uno dei 32 stalli della scuderia, 16 per lato. Le colonne sono di marmo rosso.'])}
+  {id:'stallo',x:1,y:1,h:26,draw:drawStallo,name:'Uno stallo della scuderia',act:()=>say('Stallo',['Uno dei 32 stalli della scuderia, 16 per lato. Le colonne sono di marmo rosso.'])},
+  // dettagli di contorno (compito 5)
+  contorno('armatura1',6,1,32,drawArmatura,'Armatura',['Un\'armatura con l\'elmo chiuso. Qualcuno le ha messo una piuma rossa.']),
+  contorno('armatura2',1,6,32,drawArmatura),
+  contorno('baule',7,6,12,drawCassa,'Baule',['Un baule di legno con le borchie. Dentro, solo paglia: forse serviva per le selle.']),
+  contorno('lanternaCa',6,6,12,drawLanterna)
 ];
 
 /* ---------- Rompicapo: castello o fondaco? ---------- */

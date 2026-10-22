@@ -71,7 +71,12 @@ const OGGETTI_SALA=[
   {id:'rotolo1',x:7,y:1,h:14,draw:drawRotolo},
   {id:'rotolo2',x:1,y:1,h:14,draw:drawRotolo},
   {id:'panca',x:6,y:7,h:8,draw:drawBench},
-  {id:'telaio',x:2,y:6,h:22,name:'Un telaio a mano',draw:drawTelaio,act:()=>say('Telaio a mano',['La navetta passa il filo da una parte all\'altra dell\'ordito: è lei che l\'Omo tiene in mano.'])}
+  {id:'telaio',x:2,y:6,h:22,name:'Un telaio a mano',draw:drawTelaio,act:()=>say('Telaio a mano',['La navetta passa il filo da una parte all\'altra dell\'ordito: è lei che l\'Omo tiene in mano.'])},
+  // dettagli di contorno (compito 5)
+  contorno('matasse',6,4,12,drawMatasse,'Cesto di matasse',['Matasse di lana tinta: rosso, giallo, blu, verde. Pronte per il telaio.']),
+  contorno('rocchetti',5,1,16,drawRocchetti,'Rocchetti',['Rocchetti di filo allineati sul banco, come li lasciavano gli operai a fine turno.']),
+  contorno('balla',7,4,14,drawBalla,'Balla di lana',['Lana grezza pressata e legata con lo spago. Odora ancora di pecora.']),
+  contorno('arcolaio',1,4,20,drawArcolaio,'Arcolaio',['Un arcolaio di legno: serviva a dipanare le matasse prima della filatura.'])
 ];
 
 /* ---------- Rompicapo: le otto formelle ---------- */

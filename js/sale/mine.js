@@ -57,7 +57,12 @@ const OGGETTI_SALA=[
   cartellinoMuro('minePl2','mine_guerra','L',4,COL,C.mine_guerra.title),
   {id:'puntelli',x:3,y:0,h:36,draw:drawPuntelli},
   {id:'carrello',x:6,y:6,h:12,draw:drawCarrello},
-  {id:'sassi',x:1,y:1,h:8,draw:drawSassi}
+  {id:'sassi',x:1,y:1,h:8,draw:drawSassi},
+  // dettagli di contorno (compito 5)
+  contorno('lanternaMi',2,5,12,drawLanterna,'Lanterna da galleria',['Una lanterna a olio. Nelle gallerie del Pasubio si scavava al buio, per mesi.']),
+  contorno('cassaMi',7,3,12,drawCassa,'Cassa del genio',['Una cassa del Genio minatori: picconi, punte, un martello. L\'esplosivo non c\'è più.']),
+  contorno('sacchiMi',1,6,14,drawSacchi),
+  contorno('elmettoMi',6,3,6,drawElmetto)
 ];
 
 /* ---------- Rompicapo: ascolta la roccia ---------- */

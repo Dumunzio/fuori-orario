@@ -141,6 +141,54 @@ function leggio(colore){return o=>{const [bx,by]=base(o);
   diamond(ctx,bx,by+1,4,2,'rgba(0,0,0,.3)');R(ctx,bx-3,by-1,6,2,'#2b2416');R(ctx,bx-1,by-11,2,10,'#3d3320');
   R(ctx,bx-6,by-18,12,7,colore);R(ctx,bx-5,by-17,10,5,'#efe2c4');R(ctx,bx-4,by-16,8,1,'#8a7350');R(ctx,bx-4,by-14,6,1,'#8a7350')}}
 function cartellino(id,k,x,y,colore,titolo){return {id,x,y,h:20,name:'Cartellino: '+titolo,draw:leggio(colore),act:()=>readPlaque(k),light:1}}
+
+/* ---------- Dettagli di contorno (compito 5): oggetti che riempiono le sale come nel museo ---------- */
+// Un oggetto di contorno: senza nome è solo decoro; con nome e frasi si può esaminare.
+const contorno=(id,x,y,h,draw,nome,frasi)=>nome?{id,x,y,h,name:nome,draw,act:()=>say(nome,frasi)}:{id,x,y,h,draw};
+// Panchina con schienale a listelli e gambe di ferro.
+function drawPanchina(o){const [bx,by]=base(o);
+  diamond(ctx,bx,by+2,7,3,'rgba(0,0,0,.25)');
+  [[-6,0],[5,0],[-6,-3],[5,-3]].forEach(([x,y])=>R(ctx,bx+x,by+y-4,1,5,'#2b2a2e'));
+  for(let k=0;k<3;k++)R(ctx,bx-7,by-6-k*2,15,1,k%2?'#8a5a3a':'#9a6a44');
+  R(ctx,bx-7,by-5,15,1,'#5a3a26');R(ctx,bx-6,by-15,1,9,'#2b2a2e');R(ctx,bx+6,by-15,1,9,'#2b2a2e');
+  for(let k=0;k<3;k++)R(ctx,bx-7,by-15+k*3,15,2,k%2?'#8a5a3a':'#9a6a44')}
+// Grande Guerra: sacchi di sabbia, cassa, filo spinato, elmetto, barella, lanterna.
+function drawSacchi(o){const [bx,by]=base(o);
+  [[-7,-3],[0,-3],[-4,-7],[3,-7],[-1,-11]].forEach(([x,y],k)=>{R(ctx,bx+x,by+y,7,4,k%2?'#a8946a':'#b8a47a');R(ctx,bx+x,by+y+3,7,1,'#7a6a4e');R(ctx,bx+x+3,by+y,1,4,'#8a7a5a')})}
+function drawCassa(o){const [bx,by]=base(o);box(ctx,bx,by+1,7,3,9,'#8a6a44','#6e5236','#5a4228');
+  R(ctx,bx-6,by-4,6,1,'#4e3a24');R(ctx,bx+1,by-4,6,1,'#3e2e1c');R(ctx,bx-2,by-8,4,2,'#c9b98a')}
+function drawFilo(o){const [bx,by]=base(o);
+  R(ctx,bx-8,by-10,1,10,'#5a4630');R(ctx,bx+8,by-10,1,10,'#5a4630');
+  for(let k=0;k<17;k++){const y=by-4-Math.round(Math.sin(k*1.3)*3);R(ctx,bx-8+k,y,1,1,'#8a8d95');if(k%3===0)R(ctx,bx-8+k,y-1,1,3,'#b0b4bc')}}
+function drawElmetto(o){const [bx,by]=base(o);diamond(ctx,bx,by,5,2,'rgba(0,0,0,.25)');
+  R(ctx,bx-5,by-2,10,1,'#4a5a3a');R(ctx,bx-4,by-5,8,3,'#5f6b4a');R(ctx,bx-2,by-6,4,1,'#6f7b5a')}
+function drawBarella(o){const [bx,by]=base(o);
+  R(ctx,bx-9,by-3,18,1,'#6e5236');R(ctx,bx-9,by-6,18,1,'#6e5236');R(ctx,bx-7,by-6,14,3,'#a8a07a');R(ctx,bx-1,by-6,2,3,'#c2493c');R(ctx,bx-6,by-2,1,2,'#3a2a1a');R(ctx,bx+5,by-2,1,2,'#3a2a1a')}
+function drawLanterna(o,t){const [bx,by]=base(o),f=(Math.floor(tAnim(t)/180)%3);
+  R(ctx,bx-3,by-1,6,1,'#2b2a2e');R(ctx,bx-3,by-9,6,8,'#3a3a40');R(ctx,bx-2,by-8,4,6,['#ffd27a','#ffe39c','#ffc85a'][f]);R(ctx,bx-1,by-12,2,3,'#3a3a40')}
+// Lana: cesto di matasse, rocchetti, arcolaio, balla di lana.
+function drawMatasse(o){const [bx,by]=base(o);box(ctx,bx,by+1,6,3,6,'#8a6a44','#6e5236','#5a4228');
+  [['#c2493c',-5],['#e0b04f',-1],['#4a7aa8',3],['#5f8a6b',-3]].forEach(([c,x],k)=>{R(ctx,bx+x,by-9-(k===3?2:0),4,3,c);R(ctx,bx+x+1,by-8-(k===3?2:0),2,1,'rgba(0,0,0,.2)')})}
+function drawRocchetti(o){const [bx,by]=base(o);box(ctx,bx,by+1,7,3,8,'#7a5236','#5a3a26','#46301f');
+  ['#c2493c','#e0b04f','#4a7aa8','#efe2c4'].forEach((c,k)=>{const x=bx-6+k*3;R(ctx,x,by-14,2,1,'#8a6a44');R(ctx,x,by-13,2,4,c);R(ctx,x,by-9,2,1,'#8a6a44')})}
+function drawArcolaio(o){const [bx,by]=base(o);
+  R(ctx,bx-6,by-2,12,2,'#6e5236');R(ctx,bx-5,by-8,1,6,'#5a4228');R(ctx,bx+3,by-12,1,10,'#5a4228');
+  for(let k=0;k<8;k++){const a=k*Math.PI/4;R(ctx,bx+3+Math.round(Math.cos(a)*6),by-18+Math.round(Math.sin(a)*6),1,1,'#8a6a44')}
+  R(ctx,bx+2,by-19,3,3,'#3e2e1c');R(ctx,bx-7,by-10,4,3,'#efe2c4')}
+function drawBalla(o){const [bx,by]=base(o);box(ctx,bx,by+1,7,3,10,'#e8dfc6','#c9bea2','#b3a585');R(ctx,bx-7,by-5,14,1,'#7a6a4e');R(ctx,bx-1,by-11,2,10,'#7a6a4e')}
+// Acque della montagna: roccia con muschio, felce, bottiglia.
+function drawRoccia(o){const [bx,by]=base(o);box(ctx,bx,by+1,7,3,6,'#7a7a72','#5f5f58','#4e4e48');
+  R(ctx,bx-5,by-9,6,3,'#8a8a82');R(ctx,bx+1,by-10,4,3,'#6f6f68');R(ctx,bx-6,by-7,4,1,'#5f8a4e');R(ctx,bx+2,by-11,3,1,'#5f8a4e')}
+function drawFelce(o){const [bx,by]=base(o);
+  [[-6,-6,-1],[-3,-11,0],[2,-10,1],[5,-5,1]].forEach(([x,y,d])=>{for(let k=0;k<6;k++)R(ctx,bx+x+d*k,by+y+k*1,2,1,k%2?'#4f7a3e':'#5f8a4e')})}
+// Storia e lettere: armatura, libreria, elica, valigia.
+function drawArmatura(o){const [bx,by]=base(o);diamond(ctx,bx,by+1,4,2,'rgba(0,0,0,.3)');
+  R(ctx,bx-3,by-2,6,2,'#3a3a40');R(ctx,bx-2,by-12,1,10,'#8a8d95');R(ctx,bx+1,by-12,1,10,'#8a8d95');R(ctx,bx-4,by-22,8,10,'#a0a4ac');
+  R(ctx,bx-3,by-20,6,1,'#c9cdd4');R(ctx,bx-6,by-21,2,8,'#8a8d95');R(ctx,bx+4,by-21,2,8,'#8a8d95');R(ctx,bx-2,by-28,4,6,'#a0a4ac');R(ctx,bx-1,by-26,2,1,'#2b2a2e');R(ctx,bx,by-31,1,3,'#c2493c')}
+function drawScaffaleLibri(o){const [bx,by]=base(o);box(ctx,bx,by+1,7,3,28,'#5a3e2a','#46301f','#3a2818');
+  for(let r=0;r<4;r++)for(let k=0;k<5;k++)R(ctx,bx-6+k*2,by-26+r*6,1,4,['#c2493c','#4a7aa8','#e0b04f','#5f8a6b','#efe2c4'][(r+k)%5])}
+function drawElica(o,t){const [bx,by]=base(o);R(ctx,bx-1,by-16,2,16,'#5a4228');R(ctx,bx-4,by-1,8,2,'#3a2818');
+  R(ctx,bx-11,by-20,22,3,'#8a5a3a');R(ctx,bx-10,by-19,20,1,'#a87a54');R(ctx,bx-1,by-21,3,5,'#3e2e1c')}
 // Cartellino appeso alla parete (lato 'R' o 'L', casella t): si legge dalla casella davanti, come un varco.
 // Con il motore di grafica-motore usa la sua targa (pareteCartellino, hitCartellino) e la sua luce (light:1),
 // così il gioco ha un solo stile di cartellino; senza, usa la targa qui sotto.

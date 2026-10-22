@@ -67,7 +67,12 @@ const OGGETTI_SALA=[
   {id:'bottiglie',x:6,y:5,h:22,name:'Banco delle bottiglie',draw:drawBottiglie,act:()=>say('Bottiglie',['Acqua minerale, Gingerino, Acqua brillante.'])},
   cartellinoMuro('recPl1','rec_acque','R',1,COL,C.rec_acque.title),
   cartellinoMuro('recPl2','rec_terme','R',3,COL,C.rec_terme.title),
-  cartellinoMuro('recPl3','rec_bibite','L',2,COL,C.rec_bibite.title)
+  cartellinoMuro('recPl3','rec_bibite','L',2,COL,C.rec_bibite.title),
+  // dettagli di contorno (compito 5)
+  contorno('panchinaRe',7,3,16,drawPanchina,'Panchina delle terme',['Una panchina di ferro e legno. Qui i villeggianti aspettavano il loro bicchiere d\'acqua.']),
+  contorno('panchinaRe2',2,6,16,drawPanchina),
+  contorno('piantaRe1',1,1,20,drawPlant),
+  contorno('piantaRe2',7,7,20,drawPlant)
 ];
 
 /* ---------- Rompicapo: dalla fonte alla bottiglia ---------- */

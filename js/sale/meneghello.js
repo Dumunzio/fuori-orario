@@ -64,7 +64,12 @@ const OGGETTI_SALA=[
   {id:'valigia',x:6,y:4,h:12,name:'Una valigia',draw:drawValigia,act:()=>say('Valigia',['Un\'etichetta sbiadita: «Reading, 1947».'])},
   cartellinoMuro('menPl1','men_vita','L',2,COL,C.men_vita.title),
   cartellinoMuro('menPl2','men_libro','R',1,COL,C.men_libro.title),
-  cartellinoMuro('menPl3','men_maestri','R',5,COL,C.men_maestri.title)
+  cartellinoMuro('menPl3','men_maestri','R',5,COL,C.men_maestri.title),
+  // dettagli di contorno (compito 5)
+  contorno('scaffale',1,1,30,drawScaffaleLibri,'Libreria',['Libri di ogni colore, in italiano e in inglese. Qualcuno è sottolineato a matita.']),
+  contorno('cassaLibri',7,6,12,drawCassa,'Cassa di libri',['Una cassa con l\'etichetta «Reading». Dentro, libri e quaderni pronti per un viaggio.']),
+  contorno('lanternaMe',2,6,12,drawLanterna),
+  contorno('piantaMe',7,7,20,drawPlant)
 ];
 
 /* ---------- Rompicapo: le parole-amo ---------- */

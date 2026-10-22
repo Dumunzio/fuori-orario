@@ -63,7 +63,12 @@ const OGGETTI_SALA=[
   cartellinoMuro('groPl1','gro_buso','L',2,COL,C.gro_buso.title),
   cartellinoMuro('groPl2','gro_fossili','L',4,COL,C.gro_fossili.title),
   cartellinoMuro('groPl3','gro_sicurezza','R',2,COL,C.gro_sicurezza.title),
-  {id:'stalagmite',x:7,y:1,h:18,draw:drawStalagmite}
+  {id:'stalagmite',x:7,y:1,h:18,draw:drawStalagmite},
+  // dettagli di contorno (compito 5)
+  contorno('rocciaG1',1,6,12,drawRoccia),
+  contorno('rocciaG2',7,6,12,drawRoccia),
+  contorno('felceG',2,7,12,drawFelce),
+  contorno('lanternaGr',5,6,12,drawLanterna,'Lanterna da speleologo',['Una lanterna a carburo. Gli speleologi la portavano sul casco per esplorare i cunicoli.'])
 ];
 
 /* ---------- Rompicapo: con la torcia ---------- */

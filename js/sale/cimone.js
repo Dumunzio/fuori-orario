@@ -57,7 +57,12 @@ const OGGETTI_SALA=[
   cartellinoMuro('cimPl1','cim_vetta','L',1,COL,C.cim_vetta.title),
   cartellinoMuro('cimPl2','cim_mina','L',5,COL,C.cim_mina.title),
   cartellinoMuro('cimPl3','cim_ossario','R',7,COL,C.cim_ossario.title),
-  {id:'cippo',x:6,y:6,h:20,draw:drawCippo}
+  {id:'cippo',x:6,y:6,h:20,draw:drawCippo},
+  // dettagli di contorno (compito 5)
+  contorno('roccia1',1,3,12,drawRoccia),
+  contorno('roccia2',7,4,12,drawRoccia,'Roccia del Cimone',['Un pezzo di roccia del monte. Dopo la mina del 1916 la cima non era più la stessa.']),
+  contorno('filoCi',3,7,10,drawFilo),
+  contorno('lanternaCi',2,6,12,drawLanterna)
 ];
 
 /* ---------- Rompicapo: il registro dell'ossario ---------- */

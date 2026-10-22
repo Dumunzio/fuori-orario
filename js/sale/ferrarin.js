@@ -58,7 +58,12 @@ const OGGETTI_SALA=[
     act:oggettoSala(ID,()=>apri(),'La rotta è tracciata: 14 febbraio, Roma. 31 maggio, Tokyo.')},
   cartellinoMuro('ferPl1','fer_raid','L',1,COL,C.fer_raid.title),
   cartellinoMuro('ferPl2','fer_rotta','L',5,COL,C.fer_rotta.title),
-  cartellinoMuro('ferPl3','fer_vita','R',2,COL,C.fer_vita.title)
+  cartellinoMuro('ferPl3','fer_vita','R',2,COL,C.fer_vita.title),
+  // dettagli di contorno (compito 5)
+  contorno('elica',7,5,22,drawElica,'Elica di legno',['Un\'elica di legno lucidato, lunga quanto una persona. Girava davanti al motore.']),
+  contorno('cassaFe',1,3,12,drawCassa,'Cassa degli attrezzi',['Chiavi, cacciaviti e un libretto di manutenzione con le pagine unte d\'olio.']),
+  contorno('lanternaFe',2,7,12,drawLanterna),
+  contorno('piantaFe',7,7,20,drawPlant)
 ];
 
 /* ---------- Rompicapo: traccia la rotta ---------- */

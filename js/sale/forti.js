@@ -77,7 +77,13 @@ const OGGETTI_SALA=[
   cartellinoMuro('fortiPl1','forti_ratti','L',1,COL,C.forti_ratti.title),
   cartellinoMuro('fortiPl2','forti_maso','L',5,COL,C.forti_maso.title),
   cartellinoMuro('fortiPl3','forti_campomolon','R',5,COL,C.forti_campomolon.title),
-  {id:'obice',x:6,y:5,h:16,draw:drawObice}
+  {id:'obice',x:6,y:5,h:16,draw:drawObice},
+  // dettagli di contorno (compito 5)
+  contorno('sacchiFo',1,3,14,drawSacchi,'Sacchi di sabbia',['Sacchi di sabbia impilati: proteggevano dai colpi. Sono duri come la pietra.']),
+  contorno('cassaFo',2,6,12,drawCassa,'Cassa di munizioni',['Una cassa vuota con la scritta sbiadita. Il coperchio è inchiodato.']),
+  contorno('filoFo',6,7,10,drawFilo),
+  contorno('elmettoFo',3,7,6,drawElmetto,'Elmetto',['Un elmetto ammaccato, verde-grigio. Era di qualcuno.']),
+  contorno('lanternaFo',7,3,12,drawLanterna)
 ];
 
 /* ---------- Rompicapo: bugie e verità ---------- */
