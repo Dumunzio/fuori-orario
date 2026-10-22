@@ -121,20 +121,26 @@ function openFacade(){
   };
 }
 
+// Se ci sono le sale a tema (js/sale/registro.js), per uscire servono anche tutte le tessere:
+// bloccoUscita() restituisce le righe da dire se ne manca qualcuna, altrimenti null.
+const tessereMancanti=()=>typeof bloccoUscita==='function'&&bloccoUscita();
+const regolaTessere=()=>typeof bloccoUscita==='function'?' Servono anche le tessere delle sale del territorio, dietro l\'arco con la fascia dorata sulla parete destra.':'';
 function talkKeeper(){
   const n=sealCount();
-  if(n===NSEALS())return say('Custode',['Tutti i sigilli! La porta d\'uscita è sulla parete in fondo, a destra. Buona serata.']);
+  if(n===NSEALS()){const b=tessereMancanti();if(b)return say('Custode',['Tutti i sigilli, ottimo! Ma la porta vuole anche le tessere.',...b]);
+    return say('Custode',['Tutti i sigilli! La porta d\'uscita è sulla parete in fondo, a destra. Buona serata.'])}
   say('Custode',[n===0?'Non hai ancora trovato nessun sigillo. Comincia dai cartellini: le risposte sono lì.':`Hai ${n} sigill${n===1?'o':'i'} su ${NSEALS()}. Vuoi chiedermi qualcosa? Per un indizio c'è il pulsante Aiuto.`],()=>typeof apriDomandeCustode==='function'?apriDomandeCustode():hint());
 }
 function hint(){
   if(!S.started||S.done)return;
   if(typeof aiutoSala==='function'&&aiutoSala())return; // dentro una sala a tema: il suo aiuto (js/sale/registro.js)
   const id=Object.keys(SEALS).find(k=>!S.seals[k]);
-  if(!id)return say('Custode',['Hai tutto. Vai alla porta d\'uscita.']);
+  if(!id){const b=tessereMancanti();return say('Custode',b||['Hai tutto. Vai alla porta d\'uscita.'])}
   const lv=S.hint[id];S.hint[id]=Math.min(lv+1,HINTS[id].length-1);
   say('Custode',[DOVE[id],HINTS[id][lv]]);
 }
 function tryDoor(){
+  const b=tessereMancanti();if(b)return say('Porta d\'uscita',b);
   const n=sealCount();
   if(n<NSEALS())return say('Porta d\'uscita',[`È chiusa. Sulla serratura ci sono ${lettere(NSEALS())} incavi a forma di sigillo: ne hai ${n}.`]);
   if(S.door===0){S.door=.01;say('Porta d\'uscita',[`Metti i ${lettere(NSEALS())} sigilli negli incavi. La serratura gira da sola.`],()=>setTimeout(win,600))}
@@ -171,6 +177,6 @@ $('btnHint').onclick=()=>{if(blocked())return;hint()};
 /* ---------- Avvio ---------- */
 function intro(){say('Custode',[
   'Ehi! Il museo ha chiuso alle sei. Come sei rimasto qui dentro?',
-  `La porta d'uscita si apre solo con i sigilli nascosti nelle sale. Ne servono ${lettere(NSEALS())}.`,
+  `La porta d'uscita si apre solo con i sigilli nascosti nelle sale. Ne servono ${lettere(NSEALS())}.${regolaTessere()}`,
   'Le combinazioni le trova chi legge la storia di queste sale. I cartellini sono lì apposta.',
   'Se ti blocchi, vieni da me o premi Aiuto.'])}
