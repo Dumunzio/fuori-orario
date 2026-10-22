@@ -177,7 +177,11 @@ function apriGuida(){
   $('slGuida').onclick=e=>{const b=e.target.closest('button');if(b){closeModal();entraInSala(b.dataset.id)}};
   $('slColl').onclick=apriCollezione;
 }
-function hudTessere(){const b=$('btnTessere'),t=`Tessere ${tessereN()}/${SALE.length}`;if(b&&b.textContent!==t)b.textContent=t}
+// Riscrive il contatore solo quando cambia il numero: così non si rincorre con la traduzione inglese (js/lingua.js),
+// che sostituisce il testo italiano con quello tradotto.
+let _tessereMostrate=null;
+function hudTessere(){const b=$('btnTessere'),n=tessereN()+'/'+SALE.length;
+  if(b&&(n!==_tessereMostrate||!b.textContent)){_tessereMostrate=n;b.textContent=`Tessere ${n}`}}
 {
   const b=document.createElement('button');b.id='btnTessere';b.type='button';
   b.onclick=()=>{if(S.started&&$('modal').hidden&&$('dialog').hidden)apriCollezione()};
