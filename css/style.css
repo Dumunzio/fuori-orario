@@ -107,6 +107,9 @@ a{color:var(--brass)}
 .dpad button span{display:block;transform:rotate(-45deg)}
 #btnAct{width:56px;height:56px;border-radius:0;font-size:18px}
 /* pianta del museo nell'ingresso: carta crema, rami color ottone, stanze completate dorate */
+/* sul telefono la piantina resta grande e si scorre di lato, così i nomi si leggono */
+.pianta-scorri{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0}
+@media (max-width:560px){.pianta{min-width:600px;max-width:none}}
 .pianta{width:100%;max-width:520px;background:#efe2c4;border:2px solid var(--line);box-shadow:3px 3px 0 #000}
 /* stanze come rettangoli, corridoi ad angolo retto, zone tenui per i rami */
 .pianta .zona{fill:var(--c);fill-opacity:.12;stroke:var(--c);stroke-opacity:.5;stroke-dasharray:3 2}
