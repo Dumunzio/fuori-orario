@@ -69,7 +69,8 @@ const OGGETTI_SALA=[
   contorno('scaffale',1,1,30,drawScaffaleLibri,'Libreria',['Libri di ogni colore, in italiano e in inglese. Qualcuno è sottolineato a matita.']),
   contorno('cassaLibri',7,6,12,drawCassa,'Cassa di libri',['Una cassa con l\'etichetta «Reading». Dentro, libri e quaderni pronti per un viaggio.']),
   contorno('lanternaMe',2,6,12,drawLanterna),
-  contorno('piantaMe',7,7,20,drawPlant)
+  contorno('piantaMe',7,7,20,drawPlant),
+  contorno('scaffale2',7,3,30,drawScaffaleLibri)
 ];
 
 /* ---------- Rompicapo: le parole-amo ---------- */

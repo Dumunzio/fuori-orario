@@ -68,7 +68,8 @@ const OGGETTI_SALA=[
   contorno('rocciaG1',1,6,12,drawRoccia),
   contorno('rocciaG2',7,6,12,drawRoccia),
   contorno('felceG',2,7,12,drawFelce),
-  contorno('lanternaGr',5,6,12,drawLanterna,'Lanterna da speleologo',['Una lanterna a carburo. Gli speleologi la portavano sul casco per esplorare i cunicoli.'])
+  contorno('lanternaGr',5,6,12,drawLanterna,'Lanterna da speleologo',['Una lanterna a carburo. Gli speleologi la portavano sul casco per esplorare i cunicoli.']),
+  contorno('felceG2',1,1,12,drawFelce)
 ];
 
 /* ---------- Rompicapo: con la torcia ---------- */

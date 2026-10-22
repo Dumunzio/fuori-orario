@@ -62,7 +62,8 @@ const OGGETTI_SALA=[
   contorno('lanternaMi',2,5,12,drawLanterna,'Lanterna da galleria',['Una lanterna a olio. Nelle gallerie del Pasubio si scavava al buio, per mesi.']),
   contorno('cassaMi',7,3,12,drawCassa,'Cassa del genio',['Una cassa del Genio minatori: picconi, punte, un martello. L\'esplosivo non c\'è più.']),
   contorno('sacchiMi',1,6,14,drawSacchi),
-  contorno('elmettoMi',6,3,6,drawElmetto)
+  contorno('elmettoMi',6,3,6,drawElmetto),
+  contorno('barellaMi',2,7,8,drawBarella,'Barella',['Una barella di tela. Dalle gallerie non tutti uscivano sulle proprie gambe.'])
 ];
 
 /* ---------- Rompicapo: ascolta la roccia ---------- */

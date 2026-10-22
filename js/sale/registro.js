@@ -144,7 +144,8 @@ function cartellino(id,k,x,y,colore,titolo){return {id,x,y,h:20,name:'Cartellino
 
 /* ---------- Dettagli di contorno (compito 5): oggetti che riempiono le sale come nel museo ---------- */
 // Un oggetto di contorno: senza nome è solo decoro; con nome e frasi si può esaminare.
-const contorno=(id,x,y,h,draw,nome,frasi)=>nome?{id,x,y,h,name:nome,draw,act:()=>say(nome,frasi)}:{id,x,y,h,draw};
+// light:1 li fa illuminare dal motore, così si vedono chiari anche nelle sale più buie.
+const contorno=(id,x,y,h,draw,nome,frasi)=>nome?{id,x,y,h,name:nome,draw,light:1,act:()=>say(nome,frasi)}:{id,x,y,h,draw,light:1};
 // Panchina con schienale a listelli e gambe di ferro.
 function drawPanchina(o){const [bx,by]=base(o);
   diamond(ctx,bx,by+2,7,3,'rgba(0,0,0,.25)');
@@ -187,6 +188,9 @@ function drawArmatura(o){const [bx,by]=base(o);diamond(ctx,bx,by+1,4,2,'rgba(0,0
   R(ctx,bx-3,by-20,6,1,'#c9cdd4');R(ctx,bx-6,by-21,2,8,'#8a8d95');R(ctx,bx+4,by-21,2,8,'#8a8d95');R(ctx,bx-2,by-28,4,6,'#a0a4ac');R(ctx,bx-1,by-26,2,1,'#2b2a2e');R(ctx,bx,by-31,1,3,'#c2493c')}
 function drawScaffaleLibri(o){const [bx,by]=base(o);box(ctx,bx,by+1,7,3,28,'#5a3e2a','#46301f','#3a2818');
   for(let r=0;r<4;r++)for(let k=0;k<5;k++)R(ctx,bx-6+k*2,by-26+r*6,1,4,['#c2493c','#4a7aa8','#e0b04f','#5f8a6b','#efe2c4'][(r+k)%5])}
+// Barile di metallo e balla di fieno.
+function drawBarile(o){const [bx,by]=base(o);diamond(ctx,bx,by+1,5,2,'rgba(0,0,0,.25)');R(ctx,bx-4,by-12,8,12,'#5f6b4a');R(ctx,bx-4,by-9,8,1,'#3e4a2e');R(ctx,bx-4,by-4,8,1,'#3e4a2e');R(ctx,bx-3,by-13,6,1,'#7a8a5e');R(ctx,bx+1,by-12,2,10,'#6f7b5a')}
+function drawFieno(o){const [bx,by]=base(o);box(ctx,bx,by+1,7,3,9,'#d9b860','#b89a48','#9a7e38');R(ctx,bx-7,by-4,14,1,'#8a6a2a');[[-5,-11],[0,-12],[4,-10]].forEach(([x,y])=>R(ctx,bx+x,by+y,2,2,'#e8cc78'))}
 function drawElica(o,t){const [bx,by]=base(o);R(ctx,bx-1,by-16,2,16,'#5a4228');R(ctx,bx-4,by-1,8,2,'#3a2818');
   R(ctx,bx-11,by-20,22,3,'#8a5a3a');R(ctx,bx-10,by-19,20,1,'#a87a54');R(ctx,bx-1,by-21,3,5,'#3e2e1c')}
 // Cartellino appeso alla parete (lato 'R' o 'L', casella t): si legge dalla casella davanti, come un varco.

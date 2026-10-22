@@ -63,7 +63,9 @@ const OGGETTI_SALA=[
   contorno('elica',7,5,22,drawElica,'Elica di legno',['Un\'elica di legno lucidato, lunga quanto una persona. Girava davanti al motore.']),
   contorno('cassaFe',1,3,12,drawCassa,'Cassa degli attrezzi',['Chiavi, cacciaviti e un libretto di manutenzione con le pagine unte d\'olio.']),
   contorno('lanternaFe',2,7,12,drawLanterna),
-  contorno('piantaFe',7,7,20,drawPlant)
+  contorno('piantaFe',7,7,20,drawPlant),
+  contorno('barile',1,6,14,drawBarile,'Barile di carburante',['Un barile di benzina per aerei. Vuoto, per fortuna.']),
+  contorno('cassaRic',6,7,12,drawCassa,'Pezzi di ricambio',['Candele, cinghie e una tela per rattoppare le ali.'])
 ];
 
 /* ---------- Rompicapo: traccia la rotta ---------- */

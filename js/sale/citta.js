@@ -82,7 +82,6 @@ const OGGETTI_SALA=[
   cartellinoMuro('csPl1','cs_marzotto','L',1,COL,C.cs_marzotto.title),
   cartellinoMuro('csPl2','cs_citta','L',3,COL,C.cs_citta.title),
   cartellinoMuro('csPl3','cs_1968','L',7,COL,C.cs_1968.title),
-  {id:'pianta',x:7,y:7,h:20,draw:drawPlant},
   // il viale: alberi, lampioni, panchine e una bicicletta
   {id:'albero1',x:2,y:1,h:32,draw:drawAlbero},
   {id:'albero2',x:6,y:6,h:32,draw:drawAlbero},

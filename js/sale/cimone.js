@@ -62,7 +62,8 @@ const OGGETTI_SALA=[
   contorno('roccia1',1,3,12,drawRoccia),
   contorno('roccia2',7,4,12,drawRoccia,'Roccia del Cimone',['Un pezzo di roccia del monte. Dopo la mina del 1916 la cima non era più la stessa.']),
   contorno('filoCi',3,7,10,drawFilo),
-  contorno('lanternaCi',2,6,12,drawLanterna)
+  contorno('lanternaCi',2,6,12,drawLanterna),
+  contorno('sacchiCi',7,2,14,drawSacchi)
 ];
 
 /* ---------- Rompicapo: il registro dell'ossario ---------- */

@@ -72,7 +72,9 @@ const OGGETTI_SALA=[
   contorno('panchinaRe',7,3,16,drawPanchina,'Panchina delle terme',['Una panchina di ferro e legno. Qui i villeggianti aspettavano il loro bicchiere d\'acqua.']),
   contorno('panchinaRe2',2,6,16,drawPanchina),
   contorno('piantaRe1',1,1,20,drawPlant),
-  contorno('piantaRe2',7,7,20,drawPlant)
+  contorno('piantaRe2',7,7,20,drawPlant),
+  contorno('cassaBott',1,4,12,drawCassa,'Cassa di bottiglie',['Bottiglie vuote con l\'etichetta delle fonti, pronte per essere riempite.']),
+  contorno('felceRe',7,5,12,drawFelce)
 ];
 
 /* ---------- Rompicapo: dalla fonte alla bottiglia ---------- */

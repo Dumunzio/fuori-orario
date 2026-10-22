@@ -83,7 +83,8 @@ const OGGETTI_SALA=[
   contorno('cassaFo',2,6,12,drawCassa,'Cassa di munizioni',['Una cassa vuota con la scritta sbiadita. Il coperchio è inchiodato.']),
   contorno('filoFo',6,7,10,drawFilo),
   contorno('elmettoFo',3,7,6,drawElmetto,'Elmetto',['Un elmetto ammaccato, verde-grigio. Era di qualcuno.']),
-  contorno('lanternaFo',7,3,12,drawLanterna)
+  contorno('lanternaFo',7,3,12,drawLanterna),
+  contorno('barellaFo',1,5,8,drawBarella)
 ];
 
 /* ---------- Rompicapo: bugie e verità ---------- */

@@ -60,7 +60,9 @@ const OGGETTI_SALA=[
   contorno('armatura1',6,1,32,drawArmatura,'Armatura',['Un\'armatura con l\'elmo chiuso. Qualcuno le ha messo una piuma rossa.']),
   contorno('armatura2',1,6,32,drawArmatura),
   contorno('baule',7,6,12,drawCassa,'Baule',['Un baule di legno con le borchie. Dentro, solo paglia: forse serviva per le selle.']),
-  contorno('lanternaCa',6,6,12,drawLanterna)
+  contorno('lanternaCa',6,6,12,drawLanterna),
+  contorno('fieno',2,7,12,drawFieno,'Balla di fieno',['Fieno per i cavalli delle scuderie: il palazzo ne ospitava molti.']),
+  contorno('forziere',7,2,12,drawCassa,'Forziere',['Un forziere chiuso a chiave. La chiave non c\'è.'])
 ];
 
 /* ---------- Rompicapo: castello o fondaco? ---------- */

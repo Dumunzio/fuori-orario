@@ -70,7 +70,9 @@ const OGGETTI_SALA=[
   contorno('felceA1',1,3,12,drawFelce),
   contorno('felceA2',6,7,12,drawFelce),
   contorno('rocciaA1',2,7,12,drawRoccia,'Sasso del ruscello',['Un sasso liscio e bagnato. Dicono che le anguane ci stendessero i panni.']),
-  contorno('rocciaA2',7,3,12,drawRoccia)
+  contorno('rocciaA2',7,3,12,drawRoccia),
+  contorno('felceA3',1,6,12,drawFelce),
+  contorno('rocciaA3',5,7,12,drawRoccia)
 ];
 
 /* ---------- Rompicapo: le domande dell'anguana ---------- */
