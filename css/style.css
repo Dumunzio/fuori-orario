@@ -9,8 +9,9 @@
   --brass:#e0b04f;   /* plaque brass, the one accent */
   --wool:#c2493c;    /* Schio wool red, for errors and the hero */
   --ok:#86c98f;
-  --display:"Pixelify Sans","Courier New",monospace;
-  --body:"Jersey 10","VT323","Courier New",monospace;  /* leggibile ma pixel; VT323 resta come riserva */
+  /* "Jersey 15" contiene solo le 10 cifre (vedi index.html): i numeri vengono da lì, più leggibili, tutto il resto dal font di sempre */
+  --display:"Jersey 15","Pixelify Sans","Courier New",monospace;
+  --body:"Jersey 15","Jersey 10","VT323","Courier New",monospace;  /* leggibile ma pixel; VT323 resta come riserva */
   color-scheme:dark;
 }
 [hidden]{display:none!important}
@@ -39,6 +40,7 @@ button.primary{background:var(--brass);color:#1a1424;border-color:#1a1424}
 
 #stage{flex:1;min-height:0;position:relative;display:grid;place-items:center}
 #cv{image-rendering:pixelated;image-rendering:crisp-edges;display:block;box-shadow:0 0 0 2px var(--line),6px 6px 0 2px #000}
+#etichetta{position:absolute;pointer-events:none;transform:translate(-50%,calc(-100% - 14px));font-family:var(--display);font-size:13px;letter-spacing:.06em;white-space:nowrap;color:var(--ink);background:rgba(21,17,31,.92);border:2px solid var(--brass);padding:3px 8px;box-shadow:3px 3px 0 #000;z-index:4}
 #prompt{position:absolute;left:8px;top:8px;font-family:var(--display);font-size:13px;letter-spacing:.06em;background:rgba(21,17,31,.85);border:2px solid var(--line);padding:4px 8px;text-transform:uppercase}
 #prompt b{color:var(--brass)}
 #toast{position:absolute;top:8px;right:8px;font-family:var(--display);font-size:14px;background:var(--brass);color:#1a1424;padding:6px 10px;box-shadow:3px 3px 0 #000}
@@ -107,6 +109,9 @@ a{color:var(--brass)}
 .dpad button span{display:block;transform:rotate(-45deg)}
 #btnAct{width:56px;height:56px;border-radius:0;font-size:18px}
 /* pianta del museo nell'ingresso: carta crema, rami color ottone, stanze completate dorate */
+/* sul telefono la piantina resta grande e si scorre di lato, così i nomi si leggono */
+.pianta-scorri{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0}
+@media (max-width:560px){.pianta{min-width:600px;max-width:none}}
 .pianta{width:100%;max-width:520px;background:#efe2c4;border:2px solid var(--line);box-shadow:3px 3px 0 #000}
 /* stanze come rettangoli, corridoi ad angolo retto, zone tenui per i rami */
 .pianta .zona{fill:var(--c);fill-opacity:.12;stroke:var(--c);stroke-opacity:.5;stroke-dasharray:3 2}

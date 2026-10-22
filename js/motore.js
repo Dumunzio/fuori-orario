@@ -222,6 +222,7 @@ function entraStanza(id){
 let ultimoCambio=-1e9;
 function vaiInStanza(id,x,y){
   if(S.fade||performance.now()-ultimoCambio<400)return;
+  $('etichetta').hidden=true;
   ultimoCambio=performance.now();
   held=null;P.path=[];P.pending=null;P.moving=false;
   entraStanza(id);P.x=P.tx=P.px=x;P.y=P.ty=P.py=y;
@@ -446,7 +447,13 @@ cv.addEventListener('click',e=>{
   const dx=(mx-OX)/HW,dy=(my-OY)/HH,gx=Math.floor((dy+dx)/2),gy=Math.floor((dy-dx)/2);
   if(walkable(gx,gy)){const path=bfs(new Set([gx+','+gy]));if(path){P.path=path;P.pending=null}}
 });
-cv.addEventListener('mousemove',e=>{const [mx,my]=toCanvas(e);cv.style.cursor=hitObj(mx,my)?'pointer':'default'});
+// Con il mouse sopra un varco compare il nome della stanza dove porta (sul telefono no: c'è il nome in alto).
+const etichetta=document.createElement('div');etichetta.id='etichetta';etichetta.hidden=true;$('stage').appendChild(etichetta);
+const stanzaDelVarco=o=>o&&o.hit&&/^Varco: /.test(o.name)?o.name.replace(/^Varco: /,''):null;
+cv.addEventListener('pointermove',e=>{const [mx,my]=toCanvas(e),o=hitObj(mx,my);cv.style.cursor=o?'pointer':'default';
+  const nome=e.pointerType==='mouse'&&!blocked()&&stanzaDelVarco(o);etichetta.hidden=!nome;if(!nome)return;
+  const s=$('stage').getBoundingClientRect();etichetta.textContent=nome;etichetta.style.left=e.clientX-s.left+'px';etichetta.style.top=e.clientY-s.top+'px'});
+cv.addEventListener('pointerleave',()=>etichetta.hidden=true);
 document.querySelectorAll('.dpad button').forEach(b=>{
   const d=b.dataset.d.split(',').map(Number);
   b.addEventListener('pointerdown',e=>{e.preventDefault();held=d;P.path=[];P.pending=null});
@@ -478,8 +485,10 @@ const closeBtn='<button type="button" data-close>Chiudi</button>';
 $('card').addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeModal()});
 function bad(el,msg){const m=$('msg');m.textContent=msg;m.className='msg bad';el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}
 // Un'icona per ogni sigillo di SEALS, accese quelle già prese.
+// Con le sale a tema il conteggio di tutti i sigilli è il pulsante «Sigilli n/15» di js/sale/registro.js: le icone si nascondono.
 function hud(){
   const box=$('seals'),n=Object.keys(SEALS).length;
+  box.style.display=typeof sigilliTotali==='function'?'none':'';
   while(box.querySelectorAll('i').length<n)box.appendChild(document.createElement('i'));
   while(box.querySelectorAll('i').length>n)box.querySelector('i').remove();
   box.querySelectorAll('i').forEach((el,i)=>el.classList.toggle('on',i<sealCount()));

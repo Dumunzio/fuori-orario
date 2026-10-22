@@ -19,7 +19,7 @@ function schermoIntero(){
 const b=doc.createElement('button');b.id='btnSchermo';b.type='button';
 const mostra=()=>{const p=inPieno();b.textContent=p?'⤢':'⛶';b.title=p?'Esci dallo schermo intero (F)':'Schermo intero (F)';b.setAttribute('aria-pressed',p)};
 b.onclick=()=>schermoIntero();
-if(supportato){mostra();($('btnMusica')||$('btnHint')).after(b)}
+if(supportato){mostra();($('btnImpostazioni')||$('btnMusica')||$('btnHint')).after(b)}
 ['fullscreenchange','webkitfullscreenchange'].forEach(ev=>doc.addEventListener(ev,()=>{mostra();if(typeof fit==='function')fit()}));
 // tasto F: solo quando non stai scrivendo in un campo (per esempio la domanda al custode)
 addEventListener('keydown',e=>{

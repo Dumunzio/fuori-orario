@@ -1,4 +1,4 @@
-/* Sale a tema: l'atrio, il varco dal museo, le tessere del territorio e gli strumenti comuni dei rompicapi.
+/* Sale a tema: l'atrio, il varco dal museo, i sigilli delle sale e gli strumenti comuni dei rompicapi.
    Ogni sala sta in un file suo (js/sale/<nome>.js) e si aggancia al gioco con registraSala().
    Usa il motore a stanze (STANZE, OGGETTI, entraStanza, vaiInStanza) e le primitive di disegno di motore.js,
    senza cambiarle. Area: sale. Vedi CLAUDE.md prima di modificare. */
@@ -188,19 +188,25 @@ if(!MODO_PIANTA){
     const v=S.visitate||(S.visitate={});
     if(!v.atrio){v.atrio=true;say('Atrio delle sale',[
       `Qui comincia il museo del territorio: ${SALE.length} sale, una per ogni storia dell'Alto Vicentino.`,
-      'Ogni sala ha un rompicapo. Risolvilo e avrai la sua tessera, con la foto vera del luogo.',
+      'Ogni sala ha un rompicapo. Risolvilo e avrai il suo sigillo, con la foto vera del luogo.',
       'Ogni arco porta a una sala. Il leggio al centro è la guida: elenca tutte le sale e ti ci porta.',
-      tesserePerUscire()?`Attenzione: la porta d'uscita del museo si apre solo con tutte le ${SALE.length} tessere, oltre ai sigilli.`:'Le tessere sono la tua collezione.'])}
+      `La porta d'uscita si apre solo con tutti i ${sigilliTotali()} sigilli.`])}
   }));
 }
 
-/* ---------- Tessere del territorio ---------- */
+/* ---------- Sigilli delle sale ---------- */
+// Ogni sala vinta dà il suo sigillo, come le stanze del museo: per uscire servono tutti.
+// Nel codice e nel salvataggio i sigilli delle sale si chiamano ancora «tessera» (S.tessere, SALA[id].tessera,
+// voce del diario 'tessera-'+id): così la mappa, la pianta, la lingua e le partite salvate continuano a funzionare.
 const tessereS=()=>S.tessere||(S.tessere={});
 const tessereN=()=>SALE.filter(s=>tessereS()[s.id]).length;
+// Tutti i sigilli del gioco: quelli del museo (SEALS, enigmi.js) e uno per sala.
+const sigilliTotali=()=>Object.keys(SEALS).length+SALE.length;
+const sigilliPresi=()=>sealCount()+tessereN();
 function concediTessera(id){
   const s=SALA[id];if(tessereS()[id])return;
   tessereS()[id]=true;hudTessere();
-  note('tessera-'+id,s.tessera.titolo,'Tessera · '+s.nome,s.tessera.testo,true);
+  note('tessera-'+id,s.tessera.titolo,'Sigillo · '+s.nome,s.tessera.testo,true);
   mostraTessera(id,true);
 }
 function fotoCredito(f){return `Foto: ${f.autore} · ${f.licenza} · <a href="${f.pagina}" target="_blank" rel="noopener">Wikimedia Commons</a>`}
@@ -215,22 +221,28 @@ const caricaTessereImmagini=()=>Promise.all(tessereImmagini().map(t=>new Promise
   const img=new Image();img.onload=()=>fatto({...t,img});img.onerror=()=>fatto({...t,img:null});img.src=t.foto.file})));
 function mostraTessera(id,nuova){
   const s=SALA[id],T=s.tessera;
-  openModal(`<div class="eyebrow">${nuova?'Nuova tessera · ':''}Tessera ${SALE.indexOf(s)+1} di ${SALE.length}</div>
+  openModal(`<div class="eyebrow">${nuova?'Nuovo sigillo · ':'Sigillo · '}${s.nome}</div>
     <h2>${T.titolo}</h2>
     <figure class="sl-foto${nuova?' sl-nuova':''}"><img src="${T.foto.file}" alt="${T.foto.alt}"><figcaption>${fotoCredito(T.foto)}</figcaption></figure>
     <p>${T.testo}</p>
     ${fonteHtml('tessera-'+id)}
-    <div class="row end">${nuova?`<span class="eyebrow">Tessere: ${tessereN()} su ${SALE.length}</span>`:''}${typeof apriMappa==='function'?'<button type="button" id="slMappa">Vedi sulla mappa</button>':''}<button type="button" id="slColl">Collezione</button>${closeBtn}</div>`);
+    <div class="row end">${nuova?`<span class="eyebrow">Sigilli: ${sigilliPresi()} su ${sigilliTotali()}</span>`:''}${typeof apriMappa==='function'?'<button type="button" id="slMappa">Vedi sulla mappa</button>':''}<button type="button" id="slColl">Tutti i sigilli</button>${closeBtn}</div>`);
   $('slColl').onclick=apriCollezione;
   // la mappa del territorio (js/territorio.js) seleziona il luogo della sala, se apriMappa accetta l'id
   if($('slMappa'))$('slMappa').onclick=()=>apriMappa(id);
 }
 // Dove si trovano le sale: con la pianta partono dall'ingresso, senza dal varco del museo.
 const doveSale=()=>MODO_PIANTA?'Le trovi nei rami del museo che partono dall\'ingresso.':'Le trovi passando dal varco sulla parete destra del museo.';
+// I sigilli del museo nella collezione: senza foto, con il colore dell'ottone; si leggono dal diario.
+const sigilliMuseo=()=>Object.keys(SEALS).map(k=>S.seals[k]
+  ?`<div class="sl-t sl-museo" style="--c:#b8892f"><b>◆</b><span>${SEALS[k].title}</span></div>`
+  :`<div class="sl-t sl-chiusa" style="--c:#b8892f"><b>?</b><span>${DOVE_SIGILLO[k]||'Museo'}</span></div>`).join('');
+// Dove si trova un sigillo del museo ancora da prendere (come DOVE di enigmi.js, ma breve).
+const DOVE_SIGILLO={loom:'Museo · Lanificio',chest:'Museo · Grande Guerra',archive:'Museo · Archivio',facade:'Sala delle Ville'};
 function apriCollezione(){
-  openModal(`<div class="eyebrow">Tessere del territorio · ${tessereN()} su ${SALE.length}</div><h2>La tua collezione</h2>
-    <p>Ogni sala del territorio nasconde una tessera. ${doveSale()}${tesserePerUscire()?` Per uscire dal museo servono tutte e ${SALE.length}.`:''}</p>
-    <div class="sl-collezione">${SALE.map(s=>tessereS()[s.id]
+  openModal(`<div class="eyebrow">Sigilli · ${sigilliPresi()} su ${sigilliTotali()}</div><h2>I tuoi sigilli</h2>
+    <p>Ogni stanza con un rompicapo nasconde un sigillo: ${Object.keys(SEALS).length} nel museo e nella villa, uno in ogni sala del territorio. ${doveSale()} Per uscire servono tutti e ${sigilliTotali()}.</p>
+    <div class="sl-collezione">${sigilliMuseo()}${SALE.map(s=>tessereS()[s.id]
       ?`<button type="button" class="sl-t" data-id="${s.id}" style="--c:${s.colore}"><img src="${s.tessera.foto.file}" alt=""><span>${s.tessera.titolo}</span></button>`
       :`<div class="sl-t sl-chiusa" style="--c:${s.colore}"><b>?</b><span>${s.nome}</span></div>`).join('')}</div>
     <div class="row end">${closeBtn}</div>`);
@@ -238,20 +250,21 @@ function apriCollezione(){
 }
 // Elenco delle sale, con il colore del loro arco e un pulsante per entrare.
 function apriGuida(){
-  openModal(`<div class="eyebrow">Atrio · ${SALE.length} sale · tessere ${tessereN()} su ${SALE.length}</div><h2>Guida alle sale</h2>
+  openModal(`<div class="eyebrow">Atrio · ${SALE.length} sale · sigilli ${sigilliPresi()} su ${sigilliTotali()}</div><h2>Guida alle sale</h2>
     <p>Ogni arco dell'atrio porta a una sala: il colore della fascia sopra l'arco è quello qui accanto al nome. Puoi anche entrare da qui.</p>
-    <div class="sl-scelte" id="slGuida">${SALE.map(s=>`<button type="button" data-id="${s.id}" style="display:flex;gap:10px;align-items:center"><span style="width:14px;height:14px;background:${s.colore};flex:none"></span><span style="flex:1">${s.nome}</span><span class="eyebrow">${tessereS()[s.id]?'tessera presa':'da fare'} · Vai</span></button>`).join('')}</div>
-    <div class="row end"><button type="button" id="slColl">Collezione</button>${closeBtn}</div>`);
+    <div class="sl-scelte" id="slGuida">${SALE.map(s=>`<button type="button" data-id="${s.id}" style="display:flex;gap:10px;align-items:center"><span style="width:14px;height:14px;background:${s.colore};flex:none"></span><span style="flex:1">${s.nome}</span><span class="eyebrow">${tessereS()[s.id]?'sigillo preso':'da fare'} · Vai</span></button>`).join('')}</div>
+    <div class="row end"><button type="button" id="slColl">Tutti i sigilli</button>${closeBtn}</div>`);
   $('slGuida').onclick=e=>{const b=e.target.closest('button');if(b){closeModal();entraInSala(b.dataset.id)}};
   $('slColl').onclick=apriCollezione;
 }
 // Riscrive il contatore solo quando cambia il numero: così non si rincorre con la traduzione inglese (js/lingua.js),
 // che sostituisce il testo italiano con quello tradotto.
+// Un solo conteggio per tutti i sigilli, museo e sale: «Sigilli 3/15». Apre la collezione.
 let _tessereMostrate=null;
-function hudTessere(){const b=$('btnTessere'),n=tessereN()+'/'+SALE.length;
-  if(b&&(n!==_tessereMostrate||!b.textContent)){_tessereMostrate=n;b.textContent=`Tessere ${n}`}}
+function hudTessere(){const b=$('btnTessere'),n=sigilliPresi()+'/'+sigilliTotali();
+  if(b&&(n!==_tessereMostrate||!b.textContent)){_tessereMostrate=n;b.textContent=`Sigilli ${n}`}}
 {
-  const b=document.createElement('button');b.id='btnTessere';b.type='button';
+  const b=document.createElement('button');b.id='btnTessere';b.type='button';b.title='I tuoi sigilli';
   b.onclick=()=>{if(S.started&&$('modal').hidden&&$('dialog').hidden)apriCollezione()};
   $('btnJournal').before(b);
   // Il conteggio si aggiorna da solo: così resta giusto anche dopo "Gioca ancora" o una ricarica.
@@ -259,29 +272,28 @@ function hudTessere(){const b=$('btnTessere'),n=tessereN()+'/'+SALE.length;
 }
 
 /* ---------- Per gli altri file (enigmi.js) ---------- */
-// Per uscire dal museo servono tutte le tessere. Restituisce le righe da far dire alla porta se ne manca qualcuna,
+// Per uscire servono tutti i sigilli, del museo e delle sale. Restituisce le righe da far dire alla porta se ne manca qualcuno,
 // altrimenti null. Pensato per tryDoor(): const b=typeof bloccoUscita==='function'&&bloccoUscita();if(b)return say('Porta d\'uscita',b);
-// Vero quando la porta (tryDoor, in enigmi.js) controlla le tessere: i testi delle sale lo dicono solo allora.
-// (enigmi.js lo fa con tessereMancanti(), che chiama bloccoUscita; il secondo controllo copre una porta che la chiama direttamente)
-const tesserePerUscire=()=>typeof tessereMancanti==='function'||(typeof tryDoor==='function'&&String(tryDoor).includes('bloccoUscita'));
 function bloccoUscita(){
-  const mancano=SALE.filter(s=>!tessereS()[s.id]);if(!mancano.length)return null;
-  return [`Sulla porta c'è un'altra serratura: ha ${SALE.length} incavi, uno per ogni tessera del territorio. Ne hai ${SALE.length-mancano.length}.`,
-    mancano.length<=3?`Ti mancano: ${mancano.map(s=>s.nome).join(', ')}.`:`Ti mancano ${mancano.length} sale. ${doveSale()}`];
+  const tot=sigilliTotali(),n=sigilliPresi();if(n>=tot)return null;
+  const museo=Object.keys(SEALS).filter(k=>!S.seals[k]).length,sale=SALE.filter(s=>!tessereS()[s.id]);
+  const mancano=[museo===1?'1 sigillo nel museo o nella villa':museo?`${museo} sigilli nel museo e nella villa`:'',
+    sale.length<=3?sale.map(s=>s.nome).join(', '):`${sale.length} sale del territorio`].filter(Boolean).join(' e ');
+  return [`È chiusa. Sulla serratura ci sono ${tot} incavi a forma di sigillo: ne hai ${n}.`,`Ti mancano: ${mancano}.`];
 }
 // Se sei in una sala a tema, mostra il primo aiuto del suo rompicapo e restituisce true.
 // Pensato per hint(): if(typeof aiutoSala==='function'&&aiutoSala())return;
 function aiutoSala(){
   const s=SALA[S.room];if(!s)return false;
-  say(s.nome,tessereS()[s.id]?['Hai già la tessera di questa sala.',MODO_PIANTA?'Le porte accese portano alle stanze che hai già finito: segui le altre.':'Torna all\'atrio per le altre.']:[s.aiuti[0],'Nella finestra del rompicapo il pulsante Aiuto ti dà altri indizi.']);
+  say(s.nome,tessereS()[s.id]?['Hai già il sigillo di questa sala.',MODO_PIANTA?'Le porte accese portano alle stanze che hai già finito: segui le altre.':'Torna all\'atrio per le altre.']:[s.aiuti[0],'Nella finestra del rompicapo il pulsante Aiuto ti dà altri indizi.']);
   return true;
 }
-// Html con le tessere raccolte, per la schermata finale (win).
+// Html con i sigilli delle sale, per la schermata finale (win), dopo quelli del museo.
 function riepilogoTessere(){
   const prese=SALE.filter(s=>tessereS()[s.id]);
-  return `<p class="eyebrow">Tessere del territorio · ${prese.length} su ${SALE.length}</p>`+(prese.length
+  return `<p class="eyebrow">Sigilli delle sale del territorio · ${prese.length} su ${SALE.length}</p>`+(prese.length
     ?`<div class="sl-collezione">${prese.map(s=>`<div class="sl-t" style="--c:${s.colore}"><img src="${s.tessera.foto.file}" alt=""><span>${s.tessera.titolo}</span></div>`).join('')}</div>`
-    :`<p>Nessuna tessera, questa volta. ${doveSale()}</p>`);
+    :`<p>Nessun sigillo delle sale, questa volta. ${doveSale()}</p>`);
 }
 
 /* ---------- Rompicapi: finestra comune ---------- */
@@ -294,13 +306,13 @@ function finestraSala(id,titolo,corpo,monta){
   $('slAiuto').onclick=()=>{const m=$('msg');m.className='msg';m.textContent=s.aiuti[Math.min(aiuto,s.aiuti.length-1)];aiuto++};
   monta&&monta();
 }
-// Rompicapo risolto: messaggio e pulsante per prendere la tessera.
+// Rompicapo risolto: messaggio e pulsante per prendere il sigillo.
 function risoltoSala(id,msg){
   const m=$('msg');m.textContent=msg;m.className='msg good';
-  const row=$('card').querySelector('.row.end');row.innerHTML='<button class="primary" type="button" id="slPrendi">Prendi la tessera</button>';
+  const row=$('card').querySelector('.row.end');row.innerHTML='<button class="primary" type="button" id="slPrendi">Prendi il sigillo</button>';
   $('slPrendi').focus();$('slPrendi').onclick=()=>{closeModal();concediTessera(id)};
 }
-// Azione dell'oggetto principale di una sala: rompicapo se manca la tessera, altrimenti un ricordo.
+// Azione dell'oggetto principale di una sala: rompicapo se manca il sigillo, altrimenti un ricordo.
 const oggettoSala=(id,apri,fatto)=>()=>tessereS()[id]?say(SALA[id].nome,[fatto]):apri();
 // Mescola un array in modo ripetibile (stesso ordine a ogni partita): niente sorprese tra un tentativo e l'altro.
 function mescola(a,seme=7){a=a.slice();for(let i=a.length-1;i>0;i--){seme=(seme*9301+49297)%233280;const j=Math.floor(seme/233280*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -318,6 +330,7 @@ function mescola(a,seme=7){a=a.slice();for(let i=a.length-1;i>0;i--){seme=(seme*
 .sl-t span{position:relative;font-family:var(--body);font-size:17px;line-height:1;padding:4px 5px;background:linear-gradient(transparent,rgba(10,8,18,.9));text-align:left}
 .sl-chiusa b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:34px;color:var(--c)}
 .sl-chiusa span{color:var(--muted);background:none}
+.sl-museo b{position:absolute;inset:0;display:grid;place-items:center;font-size:44px;color:var(--c)}
 .sl-scelte{display:grid;gap:6px}
 .sl-scelte button{text-transform:none;font-family:var(--body);font-size:20px;letter-spacing:0;text-align:left;padding:7px 10px}
 .sl-scelte button.on{border-color:var(--brass);background:#3a2f12}
