@@ -874,5 +874,15 @@ const LINGUA_EN={
 "Scrittore":"Writer",
 "Acque":"Waters",
 "Ville":"Villas",
+"Impostazioni":"Settings",
+"Volume della musica":"Music volume",
+"A volume 0 la musica è spenta.":"At volume 0 the music is off.",
+"La partita":"Your game",
+"Cancella sigilli, tessere, diario e tempo, e ricomincia dalla schermata iniziale.":"Deletes seals, cards, journal and time, and starts again from the title screen.",
+"Cancella la partita":"Delete the game",
+"Sei sicuro? La partita non si potrà recuperare.":"Are you sure? The game cannot be recovered.",
+"Sì, cancella":"Yes, delete",
+"No, torna indietro":"No, go back",
+"Non c'è nessuna partita da cancellare.":"There is no game to delete.",
 "partita salvata":"game saved"
 };
