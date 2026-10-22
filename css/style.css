@@ -98,6 +98,13 @@ a{color:var(--brass)}
 .dpad button{padding:0;font-size:16px;opacity:.85}
 .dpad button span{display:block;transform:rotate(-45deg)}
 #btnAct{width:56px;height:56px;border-radius:0;font-size:18px}
+/* rompicapo della facciata: 7 colonne × 2 piani */
+.facade{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;width:100%;max-width:420px;background:#cfc3a6;border:2px solid var(--line);padding:6px}
+.facade>*{min-height:42px;display:grid;place-items:center;padding:0;font-family:var(--display);font-size:22px;letter-spacing:0;text-transform:none;color:#3a2a1a;background:#e8dfc6;border:2px solid #b3a585;box-shadow:none}
+.facade>.ala{border-left-color:var(--line);border-left-width:4px}
+.facade button{background:#fff7e0;border-color:var(--brass);cursor:pointer}
+.facade button:active{transform:none}
+.facade .telo{background:repeating-linear-gradient(45deg,#efe2c4 0 6px,#ddcda8 6px 12px)}
 @media (pointer:coarse){#pad{display:flex}#dialog:not([hidden])~#pad{display:none}}
 @media (prefers-reduced-motion:reduce){.shake,#dialog .next{animation:none}}
 @media (max-width:520px){.brand small{display:none}.hud{gap:8px}button{font-size:13px;padding:5px 8px}}
