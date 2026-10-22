@@ -14,7 +14,17 @@ Apri `index.html` nel browser, oppure la versione online su GitHub Pages.
 
 ## Struttura
 
-Tutto il gioco è in un solo file, `index.html`: grafica disegnata su canvas, nessuna libreria esterna. I testi storici sono negli oggetti `PLAQUES`, `SEALS` e `HINTS` all'inizio dello script.
+Grafica disegnata su canvas, nessuna libreria esterna e nessuna build: basta aprire `index.html`.
+
+- `css/style.css`: stile dell'interfaccia
+- `js/motore.js`, `js/avvio.js`: disegno, luce, movimento, comandi, dialoghi
+- `js/contenuti.js`, `js/stanza.js`, `js/enigmi.js`: testi storici, sala, rompicapi
+- `js/fonti.js`: fonti aperte dei fatti
+- `js/territorio.js`: luoghi reali collegati al museo
+
+## Lavorare in team
+
+Il progetto è diviso in 4 rami: `grafica-motore`, `enigmi-storia`, `dati-ai`, `territorio`. Ognuno lavora sul suo. Le regole, i file di ogni area e la bacheca dove i Claude si scambiano messaggi sono in `CLAUDE.md`, che Claude Code legge da solo all'avvio.
 
 ## Da fare
 
