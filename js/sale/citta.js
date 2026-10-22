@@ -90,7 +90,7 @@ const OGGETTI_SALA=[
   {id:'lampione2',x:5,y:6,h:34,draw:drawLampione},
   {id:'panchina1',x:2,y:6,h:16,name:'Panchina del viale',draw:drawPanchina,
     act:()=>say('Panchina del viale',['Una panchina all\'ombra degli alberi. Da qui si vedono il viale e le finestre tutte uguali delle case.'])},
-  {id:'panchina2',x:5,y:1,h:16,name:'Panchina',draw:drawPanchina,
+  {id:'panchina2',x:5,y:4,h:16,name:'Panchina',draw:drawPanchina,
     act:()=>say('Panchina',['Qualcuno ha dimenticato un giornale piegato. In prima pagina, una partita allo stadio della città.'])},
   {id:'bici',x:6,y:7,h:12,name:'Bicicletta',draw:drawBici,
     act:()=>say('Bicicletta',['Una bicicletta rossa, appoggiata all\'albero. Molti operai andavano in fabbrica così.'])}
