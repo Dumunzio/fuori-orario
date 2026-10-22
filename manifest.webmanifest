@@ -1,0 +1,16 @@
+{
+  "name": "Fuori Orario · Museo del Territorio",
+  "short_name": "Fuori Orario",
+  "description": "Escape room in pixel art nel museo dell'Alto Vicentino: storie vere, fonti aperte, sale da esplorare.",
+  "lang": "it",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#15111f",
+  "theme_color": "#15111f",
+  "icons": [
+    { "src": "img/icona.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <!-- Icona della web app: un sigillo d'ottone a rombo sul fondo notturno del museo -->
+  <rect width="16" height="16" fill="#15111f"/>
+  <path d="M8 2 L14 8 L8 14 L2 8 Z" fill="#000"/>
+  <path d="M8 3 L13 8 L8 13 L3 8 Z" fill="#e0b04f"/>
+  <path d="M8 5 L11 8 L8 11 L5 8 Z" fill="#b8892f"/>
+  <rect x="7" y="7" width="2" height="2" fill="#fff3c4"/>
+</svg>

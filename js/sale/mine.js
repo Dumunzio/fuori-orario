@@ -21,9 +21,12 @@ function drawAscolto(o,t){const [bx,by]=base(o);
   R(ctx,bx-2,by-20,5,1,'#1a1424');R(ctx,bx-3,by-19,2,3,'#3a3a3a');R(ctx,bx+2,by-19,2,3,'#3a3a3a');
   for(let k=0;k<4;k++)R(ctx,bx-5+k*3,by-12,2,2,tessereS()[ID]?'#e0b04f':(Math.floor(t/400+k)%4?'#5a5040':'#c9a65a'));
 }
-function drawPuntelli(o){const [bx,by]=base(o);
+function drawPuntelli(o,t){const [bx,by]=base(o),tt=tAnim(t);
   R(ctx,bx-8,by-34,3,34,'#7a5236');R(ctx,bx+5,by-34,3,34,'#5a3a26');R(ctx,bx-8,by-36,16,4,'#8a603f');
-  R(ctx,bx-1,by-30,2,3,'#fff1b8');R(ctx,bx-2,by-27,4,2,'#3a3a3a');
+  // la fiamma della lampada tremola
+  const f=Math.floor(tt/90)%5;R(ctx,bx-1,by-30-(f===2?1:0),2,3,f===4?'#ffd27a':'#fff1b8');R(ctx,bx-2,by-27,4,2,'#3a3a3a');
+  // un filo di polvere cade dalla trave
+  for(let k=0;k<3;k++){const y=(tt/30+k*13)%30;R(ctx,bx-5+k*4,by-32+y,1,1,'rgba(201,185,143,'+(.6-y/60)+')')}
 }
 function drawCarrello(o){const [bx,by]=base(o);
   diamond(ctx,bx,by+1,7,3,'rgba(0,0,0,.35)');
