@@ -18,7 +18,7 @@ function openLoom(){
   if(S.seals.loom)return say('Telaio Jacquard',['Il telaio è aperto. Sul cartone perforato restano i fori del disegno.']);
   const letters='URJADQAC'.split('');let pick=[];
   openModal(`<div class="eyebrow">Rompicapo · Sala del Lanificio</div><h2>Il telaio a schede</h2>
-    <p class="clue">Questo telaio legge schede di cartone perforate, un'invenzione presentata a Lione nel 1804. Alessandro Rossi dedicò all'inventore il giardino accanto alla sua fabbrica di Schio, disegnato da Antonio Caregaro Negrin.</p>
+    <p class="clue">Questo telaio legge schede di cartone perforate, un'invenzione di Joseph-Marie Jacquard, di Lione, presentata nel 1801. Alessandro Rossi dedicò all'inventore il giardino accanto alla sua fabbrica di Schio, disegnato da Antonio Caregaro Negrin.</p>
     <p>Ricomponi il cognome dell'inventore con le lettere incise sulle schede.</p>
     <div class="slots" id="slots">${'<div class="slot"></div>'.repeat(8)}</div>
     <div class="row keys" id="keys">${letters.map((l,i)=>`<button type="button" data-i="${i}">${l}</button>`).join('')}</div>
@@ -57,7 +57,7 @@ function openTimeline(){
   if(S.seals.archive)return say('Armadio dell\'archivio',['Le quattro schede sono in ordine. Il cassetto resta aperto.']);
   const cards=[
     {t:'A Schio si costruisce la Fabbrica Alta',y:1862},
-    {t:'A Lione viene presentato il telaio a schede perforate',y:1804},
+    {t:'Jacquard presenta il telaio a schede perforate',y:1801},
     {t:'I minatori scavano la Strada delle 52 Gallerie',y:1917},
     {t:'Francesco Rossi avvia l\'attività laniera a Schio',y:1817}];
   let order=[];
@@ -81,7 +81,7 @@ function openTimeline(){
 function talkKeeper(){
   const n=sealCount();
   if(n===3)return say('Custode',['Tre sigilli! La porta d\'uscita è sulla parete in fondo, a destra. Buona serata.']);
-  say('Custode',[n===0?'Non hai ancora trovato nessun sigillo. Comincia dai cartellini: le risposte sono lì.':`Hai ${n} sigill${n===1?'o':'i'} su 3. Ti do una mano?`],()=>hint());
+  say('Custode',[n===0?'Non hai ancora trovato nessun sigillo. Comincia dai cartellini: le risposte sono lì.':`Hai ${n} sigill${n===1?'o':'i'} su 3. Vuoi chiedermi qualcosa? Per un indizio c'è il pulsante Aiuto.`],()=>typeof apriDomandeCustode==='function'?apriDomandeCustode():hint());
 }
 function hint(){
   if(!S.started||S.done)return;
@@ -118,7 +118,7 @@ function win(){
 $('btnJournal').onclick=()=>{
   if(!S.started)return;
   openModal(`<div class="eyebrow">Diario · ${S.journal.length} ${S.journal.length===1?'voce':'voci'}</div><h2>Quello che hai scoperto</h2>
-    ${S.journal.length?`<div class="journal">${S.journal.map(j=>`<article class="${j.seal?'seal':''}"><span class="tag">${j.where}</span><h3>${j.title}</h3><p>${j.text}</p></article>`).join('')}</div>`
+    ${S.journal.length?`<div class="journal">${S.journal.map(j=>`<article class="${j.seal?'seal':''}"><span class="tag">${j.where}</span><h3>${j.title}</h3><p>${j.text}</p>${typeof fonteHtml==='function'?fonteHtml(j.id.replace('seal-','')):''}</article>`).join('')}</div>`
     :'<p>Ancora niente. Leggi i cartellini nelle sale: quello che scopri finisce qui.</p>'}
     <div class="row end">${closeBtn}</div>`);
 };
