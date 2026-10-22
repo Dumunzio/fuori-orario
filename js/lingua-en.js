@@ -811,5 +811,15 @@ const LINGUA_EN={
 "1963; gioco di parole tra «liberaci dal male» e Malo; infanzia e vita di Malo dagli anni Trenta ai Sessanta; ironia e veneto; «parole-amo»":"1963; a pun on “liberaci dal male” (deliver us from evil) and Malo; childhood and life in Malo from the 1930s to the 1960s; irony and Venetian dialect; “parole-amo” (hook-words)",
 "445 m, Conca di Smeraldo, piovosità oltre 2.000 mm la più alta del Veneto, rocce calcaree, acque scoperte nel 1689 da Lelio Piovene, fonte Lelia":"445 m, Conca di Smeraldo, rainfall over 2,000 mm, the highest in the Veneto, limestone rocks, waters discovered in 1689 by Lelio Piovene, fonte Lelia",
 "1879, Giulio Monteverde, «l'Omo», voluto da Rossi per i suoi tessitori, primo monumento in Italia ai lavoratori":"1879, Giulio Monteverde, “l'Omo”, commissioned by Rossi for his weavers, the first monument to workers in Italy",
+"Esci dallo schermo intero (F)":"Exit full screen (F)",
+"Schermo intero (F)":"Full screen (F)",
+"{} · non ancora nel museo":"{} · not in the museum yet",
+"Un'altra villa dell'Alto Vicentino che Wikidata attribuisce ad Andrea Palladio, come Villa Godi. Nel museo non c'è ancora una sala: puoi conoscerla dalle schede qui sotto.":"Another villa in the Alto Vicentino that Wikidata attributes to Andrea Palladio, like Villa Godi. There is no room for it in the museum yet: you can get to know it from the links below.",
+"Vai alla sala":"Go to the room",
+"Altre ville del Palladio, non ancora nel museo":"Other Palladio villas, not in the museum yet",
+"Vedi sulla mappa":"See on the map",
+"Un telaio a mano":"A hand loom",
+"Telaio a mano":"Hand loom",
+"La navetta passa il filo da una parte all'altra dell'ordito: è lei che l'Omo tiene in mano.":"The shuttle carries the thread from one side of the warp to the other: it is what the Omo holds in his hand.",
 "partita salvata":"game saved"
 };
