@@ -61,18 +61,47 @@ function pareteVarchiPianta(g,id){
 /* ---------- La piantina interattiva dell'ingresso ---------- */
 // Disegna la pianta con i collegamenti; le stanze completate sono dorate. Toccando una stanza si legge cosa contiene.
 // Se un'altra area definisce una sua apriPianta in un file caricato dopo, quella sostituisce questa.
+// Colore di ogni ramo nella piantina: le zone di sfondo e il bordo delle stanze del museo.
+const COLORI_RAMI={museo:'#6b5a7a',lana:'#a8483a',storia:'#8a6a34',guerra:'#5f6b4a',acque:'#3f6f8a'};
+// Disposizione ad albero: l'ingresso in basso, ogni porta un piano più su; le stanze senza figli in colonne,
+// ordinate come nel disegno di Dumunzio (PIANTA.posti.x); un genitore sta al centro dei suoi figli.
+function disposizionePianta(){
+  const P_=PIANTA.posti,d=distanzePianta();
+  const figli=id=>PIANTA.vicini(id).filter(v=>d[v]===d[id]+1&&genitorePianta(v)===id).sort((a,b)=>P_[a].x-P_[b].x);
+  const col={};let n=0;
+  const visita=id=>{const f=figli(id);if(!f.length)return col[id]=n++;f.forEach(visita);col[id]=(col[f[0]]+col[f[f.length-1]])/2};
+  visita(PIANTA.inizio);
+  return {col,riga:d,colonne:n,righe:Math.max(...Object.values(d))+1};
+}
 function apriPianta(){
   const P_=PIANTA.posti,ids=Object.keys(P_),fatte=ids.filter(completata).length;
-  // il disegno occupa tutta la finestra: scala dalle posizioni più esterne
-  const xs=ids.map(id=>P_[id].x),ys=ids.map(id=>P_[id].y),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
-  const sx=x=>78+(x-x0)/(x1-x0)*240,sy=y=>20+(y-y0)/(y1-y0)*220;
+  // stanze come rettangoli su una griglia, corridoi ad angolo retto tra una stanza e l'altra
+  const {col,riga,colonne,righe}=disposizionePianta(),CW=58,RH=58,W=52,H=30,M=8;
+  const vw=colonne*CW+M*2,vh=righe*RH+M*2+6; // in basso lo spazio per «sei qui» sotto l'ingresso
+  const cx=id=>M+col[id]*CW+CW/2,cy=id=>vh-M-6-riga[id]*RH-RH/2+4;
   const breve=id=>nomePianta(id).replace(/^Sala (delle |dei |del |della |dello |dell')/,'').replace(' del Territorio','');
-  const linee=PIANTA.collegamenti.map(([a,b])=>`<line x1="${sx(P_[a].x)}" y1="${sy(P_[a].y)}" x2="${sx(P_[b].x)}" y2="${sy(P_[b].y)}"/>`).join('');
-  const punti=ids.map(id=>{const c=completata(id),qui=S.room===id;
-    return `<g data-stanza="${id}" tabindex="0" role="button" aria-label="${nomePianta(id)}${c?', completata':''}"><circle cx="${sx(P_[id].x)}" cy="${sy(P_[id].y)}" r="${qui?8:6}" class="${c?'fatta':''}${qui?' qui':''}"/><text x="${sx(P_[id].x)+(P_[id].sinistra?-10:10)}" y="${sy(P_[id].y)+3}"${P_[id].sinistra?' text-anchor="end"':''}>${breve(id)}</text></g>`}).join('');
+  // nomi lunghi su due righe
+  const righeNome=id=>{const s=breve(id),i=s.indexOf(' ');return s.length<=9||i<0?[s]:[s.slice(0,i),s.slice(i+1)]};
+  const bordo=id=>typeof SALA!=='undefined'&&SALA[id]?SALA[id].colore:COLORI_RAMI[P_[id].ramo];
+  // zone dei rami (non il museo, che ha stanze sparse): un rettangolo tenue dietro le stanze dello stesso ramo, col nome
+  const zone=Object.keys(PIANTA.rami).filter(r=>r!=='museo').map(r=>{const st=ids.filter(id=>P_[id].ramo===r);if(!st.length)return '';
+    const x0=Math.min(...st.map(cx))-W/2-4,x1=Math.max(...st.map(cx))+W/2+4,y0=Math.min(...st.map(cy))-H/2-12,y1=Math.max(...st.map(cy))+H/2+4;
+    // un nome più largo della zona si stringe per starci
+    const largo=PIANTA.rami[r].length*4.3>x1-x0-6?` textLength="${x1-x0-6}" lengthAdjust="spacingAndGlyphs"`:'';
+    return `<rect class="zona" x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" style="--c:${COLORI_RAMI[r]}"/><text class="zona-nome" x="${x0+3}" y="${y0+8}"${largo} style="--c:${COLORI_RAMI[r]}">${PIANTA.rami[r]}</text>`}).join('');
+  // corridoio: dal lato alto della stanza più bassa sale a metà piano, va di lato e sale fino all'altra
+  const corridoi=PIANTA.collegamenti.map(([a,b])=>{if(riga[a]>riga[b])[a,b]=[b,a];const ym=(cy(a)-H/2+cy(b)+H/2)/2;
+    return `<path d="M${cx(a)} ${cy(a)-H/2}V${ym}H${cx(b)}V${cy(b)+H/2}"/>`}).join('');
+  const stanze=ids.map(id=>{const c=completata(id),qui=S.room===id,nr=righeNome(id);
+    return `<g data-stanza="${id}" tabindex="0" role="button" aria-label="${nomePianta(id)}${c?', completata':''}${qui?', sei qui':''}">`+
+      (qui?`<rect class="qui" x="${cx(id)-W/2-4}" y="${cy(id)-H/2-4}" width="${W+8}" height="${H+8}"/>`:'')+
+      `<rect class="stanza${c?' fatta':''}" x="${cx(id)-W/2}" y="${cy(id)-H/2}" width="${W}" height="${H}" style="--c:${bordo(id)}"/>`+
+      nr.map((t,i)=>`<text x="${cx(id)}" y="${cy(id)+3+(i-(nr.length-1)/2)*9}" text-anchor="middle">${t}</text>`).join('')+
+      (c&&id!=='ingresso'?`<text class="spunta" x="${cx(id)+W/2-5}" y="${cy(id)-H/2+8}" text-anchor="middle">✓</text>`:'')+
+      (qui?`<text class="sei-qui" x="${cx(id)}" y="${cy(id)+H/2+9}" text-anchor="middle">sei qui</text>`:'')+'</g>'}).join('');
   openModal(`<div class="eyebrow">Ingresso · ${fatte} ${fatte===1?'stanza':'stanze'} su ${ids.length} completat${fatte===1?'a':'e'}</div><h2>Pianta del museo</h2>
-    <svg class="pianta" viewBox="0 0 360 260" role="group" aria-label="Pianta del museo">${linee}${punti}</svg>
-    <p class="clue" id="pDettaglio">Tocca una stanza. Quelle dorate sono completate; il cerchio grande è dove sei.</p>
+    <svg class="pianta" viewBox="0 0 ${vw} ${vh}" role="group" aria-label="Pianta del museo">${zone}<g class="corridoi">${corridoi}</g>${stanze}</svg>
+    <p class="clue" id="pDettaglio">Tocca una stanza. Si entra dall'ingresso, in basso, e si sale di porta in porta. Le stanze dorate sono completate; la cornice tratteggiata è dove sei.</p>
     <div class="pianta-rami">${Object.entries(PIANTA.rami).map(([r,nome])=>`<div><b>${nome}</b> ${ids.filter(id=>P_[id].ramo===r).map(id=>`<span class="${completata(id)?'fatta':''}">${completata(id)?'✓ ':''}${nomePianta(id)}</span>`).join(' · ')}</div>`).join('')}</div>
     <div class="row end">${closeBtn}</div>`);
   const mostra=id=>{const c=completata(id),s=SIGILLI_STANZA[id];

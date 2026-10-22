@@ -368,13 +368,16 @@ function drawLight(t){
   ctx.globalCompositeOperation='source-over';
 }
 const motes=Array.from({length:26},(_,i)=>({x:(i*53)%VW,y:(i*97)%VH,s:.004+((i*7)%5)*.0015,p:i}));
-function drawMotes(t){motes.forEach(m=>{m.y-=m.s*16;if(m.y<0)m.y=VH;R(ctx,m.x+Math.sin(t/1400+m.p)*3,m.y,1,1,'rgba(240,230,207,.35)')})}
+function drawMotes(t){motes.forEach(m=>{if(!movimentoRidotto.matches){m.y-=m.s*16;if(m.y<0)m.y=VH}R(ctx,m.x+Math.sin(t/1400+m.p)*3,m.y,1,1,'rgba(240,230,207,.35)')})}
 
 /* ---------- Loop ---------- */
 let target=null,last=performance.now();
+// «Riduci movimento» (regola 4 di CLAUDE.md): il tempo delle animazioni resta fermo a 0 e il pulviscolo non cade.
+// Si muove solo quello che fa il giocatore.
+const movimentoRidotto=matchMedia('(prefers-reduced-motion: reduce)');
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;
-  update(dt);render(now);
+  update(dt);render(movimentoRidotto.matches?0:now);
   requestAnimationFrame(frame);
 }
 function render(t){
