@@ -181,7 +181,8 @@ function hudTessere(){const b=$('btnTessere'),t=`Tessere ${tessereN()}/${SALE.le
 // Per uscire dal museo servono tutte le tessere. Restituisce le righe da far dire alla porta se ne manca qualcuna,
 // altrimenti null. Pensato per tryDoor(): const b=typeof bloccoUscita==='function'&&bloccoUscita();if(b)return say('Porta d\'uscita',b);
 // Vero quando la porta (tryDoor, in enigmi.js) controlla le tessere: i testi delle sale lo dicono solo allora.
-const tesserePerUscire=()=>typeof tryDoor==='function'&&String(tryDoor).includes('bloccoUscita');
+// (enigmi.js lo fa con tessereMancanti(), che chiama bloccoUscita; il secondo controllo copre una porta che la chiama direttamente)
+const tesserePerUscire=()=>typeof tessereMancanti==='function'||(typeof tryDoor==='function'&&String(tryDoor).includes('bloccoUscita'));
 function bloccoUscita(){
   const mancano=SALE.filter(s=>!tessereS()[s.id]);if(!mancano.length)return null;
   return [`Sulla porta c'è un'altra serratura: ha ${SALE.length} incavi, uno per ogni tessera del territorio. Ne hai ${SALE.length-mancano.length}.`,
