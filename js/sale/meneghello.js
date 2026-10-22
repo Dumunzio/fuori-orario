@@ -31,7 +31,10 @@ const CARTE=[
 function drawScrivania(o,t){const [bx,by]=base(o);
   box(ctx,bx,by+1,10,5,9,'#6a4632','#4a2f22','#3a251b');
   // macchina da scrivere, fogli e libri
-  R(ctx,bx-3,by-15,8,5,'#2f2f33');R(ctx,bx-2,by-17,6,2,'#efe2c4');R(ctx,bx-2,by-12,6,1,'#8a8d95');
+  R(ctx,bx-3,by-15,8,5,'#2f2f33');R(ctx,bx-2,by-12,6,1,'#8a8d95');
+  // il foglio nella macchina da scrivere: il carrello avanza e le righe crescono
+  const tt=tAnim(t),c=Math.floor(tt/260)%6;R(ctx,bx-3+c,by-19,6,4,'#efe2c4');
+  for(let k=0;k<Math.min(c,4);k++)R(ctx,bx-2+c,by-18+((k%2)*2),k+1,1,'#5a5040');
   R(ctx,bx-9,by-13,5,3,'#efe2c4');R(ctx,bx+6,by-14,4,4,'#8f3229');R(ctx,bx+6,by-16,4,2,'#2d4a6b');
   if(tessereS()[ID])sparkle(bx,by-22,t);
 }

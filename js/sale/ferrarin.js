@@ -28,7 +28,10 @@ function drawAereo(o,t){const [bx,by]=base(o);
   R(ctx,bx-1,by-14,2,14,'#3d3320');diamond(ctx,bx,by+1,5,2,'rgba(0,0,0,.3)');
   const y=by-22+Math.round(Math.sin(t/600));
   R(ctx,bx-10,y-5,20,2,'#d9c38a');R(ctx,bx-10,y+2,20,2,'#c9b37a');R(ctx,bx-8,y-3,1,5,'#5a3e2a');R(ctx,bx+7,y-3,1,5,'#5a3e2a');
-  R(ctx,bx-4,y-1,14,3,'#a8916a');R(ctx,bx+10,y-2,2,5,'#3a3a3a');R(ctx,bx-7,y-3,3,2,'#c2493c');R(ctx,bx-7,y+1,3,1,'#2d4a6b');
+  R(ctx,bx-4,y-1,14,3,'#a8916a');R(ctx,bx+10,y-1,2,3,'#3a3a3a');R(ctx,bx-7,y-3,3,2,'#c2493c');R(ctx,bx-7,y+1,3,1,'#2d4a6b');
+  // l'elica gira: pala lunga, pala corta, disco sfocato
+  const f=Math.floor(tAnim(t)/70)%3;
+  if(f===0)R(ctx,bx+12,y-5,1,11,'#5a3e2a');else if(f===1)R(ctx,bx+12,y-2,1,5,'#5a3e2a');else R(ctx,bx+12,y-5,1,11,'rgba(90,62,42,.35)');
   if(tessereS()[ID])sparkle(bx,y-10,t);
 }
 function drawMappamondo(o){const [bx,by]=base(o);

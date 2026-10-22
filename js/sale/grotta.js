@@ -37,8 +37,12 @@ function drawVetrina(o){const [bx,by]=base(o);
   R(ctx,bx-5,by-15,4,3,'#c9b37a');R(ctx,bx,by-14,3,2,'#e6dcc4');R(ctx,bx+4,by-15,2,3,'#efe2c4');
   box(ctx,bx,by-9,8,4,12,'rgba(170,210,230,.18)','rgba(170,210,230,.12)','rgba(170,210,230,.08)');
 }
-function drawStalagmite(o){const [bx,by]=base(o);
+function drawStalagmite(o,t){const [bx,by]=base(o),tt=tAnim(t);
   for(let r=0;r<18;r++){const w=Math.max(1,Math.round(r*.3));R(ctx,bx-w,by-18+r,w*2,1,r%5?'#8a8070':'#a89c86')}
+  // una goccia cade dalla volta sulla punta, poi un piccolo schizzo
+  const f=(tt/1400)%1;
+  if(f<.7)R(ctx,bx,by-48+Math.round(f/.7*28),1,2,'#9fc8d8');
+  else{const s=Math.round((f-.7)/.3*3);R(ctx,bx-1-s,by-19,1,1,'#9fc8d8');R(ctx,bx+1+s,by-19,1,1,'#9fc8d8')}
 }
 const STANZA={w:8,h:8,ox:160,oy:70,
   zona:(x,y)=>x+y>9?'acqua':(x*3+y*5)%7===0?'ghiaia':'roccia',

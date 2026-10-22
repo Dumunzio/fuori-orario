@@ -32,6 +32,9 @@ function drawFonte(o,t){const [bx,by]=base(o);
   for(let k=0;k<5;k++){const f=(t/180+k*7)%20;R(ctx,bx-6+k*3,by-6-(f>10?20-f:f)/4,1,1,'#bfe6f0')}
   box(ctx,bx-1,by-4,2,1,14,'#9a9da5','#7d8088','#6a6d75');
   R(ctx,bx-1,by-20+Math.floor(t/150)%3,2,6,'#7fc4dc');
+  // lucciole che girano intorno alla fonte e si accendono a turno
+  const tt=tAnim(t);for(let k=0;k<6;k++){const a=tt/1800*(k%2?1:-1)+k*1.05,acc=Math.sin(tt/400+k*1.7)>.2;
+    if(acc||!tt)R(ctx,bx+Math.round(Math.cos(a)*(16+k%3*3)),by-14+Math.round(Math.sin(a*1.3)*7)-k%3*3,1,1,acc?'#e8f59a':'#7a8a4a')}
   if(tessereS()[ID])sparkle(bx+8,by-16,t);
 }
 function drawCesto(o){const [bx,by]=base(o);
