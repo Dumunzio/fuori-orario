@@ -21,7 +21,7 @@ function apriImpostazioni(){
       <p class="im-nota" id="imNota"${v===0?'':' hidden'}>A volume 0 la musica è spenta.</p></div>
     <div class="im-voce"><span class="im-titolo">La partita</span>
       ${partitaDaCancellare()
-        ?`<p class="im-nota">Cancella sigilli, tessere, diario e tempo, e ricomincia dalla schermata iniziale.</p>
+        ?`<p class="im-nota">Cancella sigilli, diario e tempo, e ricomincia dalla schermata iniziale.</p>
           <div class="row"><button type="button" id="imCancella">Cancella la partita</button></div>
           <div class="im-conferma" id="imConferma" hidden><p>Sei sicuro? La partita non si potrà recuperare.</p>
             <div class="row"><button type="button" id="imSi" class="primary">Sì, cancella</button><button type="button" id="imNo">No, torna indietro</button></div></div>`
