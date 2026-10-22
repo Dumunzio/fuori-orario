@@ -99,7 +99,7 @@ registraSala({id:ID,nome:'Sala del Tessitore',colore:COL,
     tes_storia:[{fatto:'Inaugurato il 21/9/1879, spostato negli anni Trenta, in piazza dal 1945, abbattuto da una gru nel 2003, restaurato nel 2004; basamento di Caregaro Negrin con otto motti',stato:'verificato',fonte:W.tessitore}],
     'tessera-tessitore':[{fatto:'In piazza dal 1945; abbattuto nel 2003, restaurato nel 2004',stato:'verificato',fonte:W.tessitore}]},
   schede:[
-    {id:'motti',chiavi:['motti','motto','formelle','formella','basamento','scritte','tessitore'],
+    {id:'mottiRossi',chiavi:['motti','motto','formelle','formella','basamento','scritte','tessitore'],
       testo:'Sul basamento del Tessitore, in otto formelle, ci sono i motti di Alessandro Rossi. Per esempio: «Dal telaio il risparmio, dal risparmio la proprietà» e «L\'avvenire è dei popoli lavoratori». Il basamento è di Antonio Caregaro Negrin.',fonte:W.tessitore},
     {id:'omoStoria',chiavi:['gru','2003','2004','abbattuto','caduto','spostato','piazza','duomo','1945'],
       testo:'L\'Omo ha viaggiato: inaugurato nel 1879 tra il lanificio e il quartiere operaio, spostato negli anni Trenta, è in piazza davanti al duomo dal 1945. Nel maggio 2003 una gru lo abbatté per sbaglio; restaurato, è tornato al suo posto nel 2004.',fonte:W.tessitore}],

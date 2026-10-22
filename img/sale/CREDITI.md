@@ -13,5 +13,5 @@ Foto da Wikimedia Commons, ridimensionate a 640 px. Le licenze CC BY-SA chiedono
 | `ferrarin.jpg` | Arturo Ferrarin (1932) | fotografo sconosciuto | Public domain | https://commons.wikimedia.org/wiki/File:WP_Arturo_Ferrarin.jpg |
 | `grotta.jpg` | Granchio fossile, Priabona | Ghedoghedo | CC BY-SA 4.0 | https://commons.wikimedia.org/wiki/File:Branchioplax_albertii_Priabona_Monte_di_Malo.JPG |
 | `anguane.jpg` | Torrente Leogra | Syrio | CC BY-SA 4.0 | https://commons.wikimedia.org/wiki/File:Torrente_Leogra.jpg |
-| `meneghello.jpg` | Luigi Meneghello (1944) | Linda Vignato | CC BY-SA 4.0 | https://commons.wikimedia.org/wiki/File:Luigi_Meneghello_1944_(cropped).jpg |
+| `malo.jpg` | Malo, chiesa di San Bernardino e palazzina municipale | Threecharlie | CC BY-SA 4.0 | https://commons.wikimedia.org/wiki/File:Chiesa_di_San_Bernardino_e_palazzina_municipale_(Malo).jpg |
 | `recoaro.jpg` | Terme di Recoaro | Lucamenini | CC BY-SA 3.0 | https://commons.wikimedia.org/wiki/File:Terme_recoaro1.jpg |

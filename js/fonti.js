@@ -103,7 +103,7 @@ const CONOSCENZA=[
     testo:'Joseph-Marie Jacquard nasce a Lione nel 1752 e muore nel 1834. All\'inizio la sua invenzione spaventò i tessitori, che temevano di perdere il lavoro: a Lione scoppiò la rivolta dei Canuts, i tessitori di seta. Poi il telaio si diffuse in tutta Europa.',fonte:W.telaio},
   {id:'gallerie',chiavi:['52 gallerie','gallerie','galleria','strada','mulattiera','1917','pasubio','costruita','scavata','minatori'],
     testo:'La Strada delle 52 gallerie è una mulattiera militare scavata sul Pasubio dal 6 febbraio al novembre 1917, dalla 33ª Compagnia minatori del Genio. Passa sul versante sud del monte, dove l\'artiglieria austro-ungarica non poteva colpire. Va da Bocchetta Campiglia (1.216 m) alle Porte del Pasubio.',fonte:W.gallerie},
-  {id:'motti',chiavi:['motti','ideatore','ideato','progettato','capitano','leopoldo','chi progettato','chi ideato','progettato gallerie','ideato gallerie'],
+  {id:'motti',chiavi:['motti','ideatore','ideato','progettato','capitano','leopoldo','chi progettato','chi ideato','progettato gallerie','ideato gallerie','progettato strada','ideato strada'],
     testo:'L\'ideatore della Strada delle 52 gallerie fu il capitano del Genio Leopoldo Motti, morto il 29 settembre 1917 nell\'esplosione della prima mina austriaca sul Dente Italiano.',fonte:W.gallerie},
   {id:'pasubio',chiavi:['pasubio','dente','denti','mine','mina','guerra','trincee','combattimenti','cima palon'],
     testo:'Sul Pasubio si è combattuto per tre anni e mezzo. Sui due «Denti» le trincee italiane e austriache erano vicinissime, e nell\'inverno 1917-18 si combatté una «guerra delle mine»: ognuno scavava gallerie per far saltare le postazioni nemiche. La cima più alta è Cima Palon, 2.232 metri.',fonte:W.pasubio},
