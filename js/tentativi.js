@@ -70,7 +70,8 @@ openModal=function(html){
   if(!SENZA_ERRORI.has(id)&&!rimasti(id))blocca();
 };
 const entraStanzaPrima=entraStanza;
-entraStanza=function(id){sbagli={};return entraStanzaPrima(id)};
+// solo se la stanza cambia davvero: «Vai alla sala» verso la stanza dove sei già non è uscire e rientrare
+entraStanza=function(id){if(id!==S.room)sbagli={};return entraStanzaPrima(id)};
 
 // Traduzioni in inglese (js/lingua.js le legge da LINGUA_EN quando si carica, dopo questo file).
 if(typeof LINGUA_EN!=='undefined')Object.assign(LINGUA_EN,{
