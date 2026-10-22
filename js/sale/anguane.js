@@ -15,7 +15,7 @@ const C={
   ang_oggi:{title:'Sigàr come n\'anguana',where:'Sala delle Anguane',lines:[
     'In Veneto si diceva «Sigàr come n\'anguana»: gridare come un\'anguana, perché nelle leggende lanciano grida fortissime.',
     'Il nome viene probabilmente dal latino anguis, serpente.',
-    'Le anguane non sono sparite: le cantano Patrizia Laquidara nell\'album «Il canto dell\'anguana» (2010) e Francesca Michielin in «Il canto delle anguane», nell\'album «Magia bianca» (2026).']}
+    'Le anguane non sono sparite: le cantano Patrizia Laquidara nell\'album «Il canto dell\'anguana» (2011, Targa Tenco) e Francesca Michielin in «Il canto delle anguane», nell\'album «Magia bianca» (2026).']}
 };
 // Le tre domande dell'anguana: [domanda, [risposte], indice giusto]
 const DOMANDE=[
@@ -98,7 +98,7 @@ registraSala({id:ID,nome:'Sala delle Anguane',colore:COL,
     ang_chi:[{fatto:'Creatura delle acque della mitologia alpina; Veronese, Vicentino, Friuli, valli ladine; vive presso fonti e ruscelli; caverne vicentine «Buso dell\'anguana»; piedi di gallina, anatra o capra, gambe squamate, schiena scavata',stato:'verificato',fonte:WN}],
     ang_storie:[{fatto:'Insegnano mestieri (filatura, formaggio) e se ne vanno se offese; non uccidono mai; il cesto di vimini da riempire fino all\'alba',stato:'verificato',fonte:WN,
       nota:'Il cesto davanti alla porta è un\'usanza attestata in Friuli; la storia del cesto ricorre in diverse tradizioni.'}],
-    ang_oggi:[{fatto:'Detto veneto «Sigàr come n\'anguana»; nome probabilmente da anguis; canzoni di Patrizia Laquidara (2010) e Francesca Michielin (2026)',stato:'verificato',fonte:WN}],
+    ang_oggi:[{fatto:'Detto veneto «Sigàr come n\'anguana»; nome probabilmente da anguis; canzoni di Patrizia Laquidara (2011) e Francesca Michielin (2026)',stato:'verificato',fonte:WN}],
     'tessera-anguane':[{fatto:'Le anguane vivono presso fonti e ruscelli; caverne vicentine con il loro nome',stato:'verificato',fonte:WN},
       {fatto:'La foto mostra il torrente Leogra: nessuna leggenda specifica è legata a questo torrente',stato:'verificato',fonte:{titolo:'Wikimedia Commons: la foto',url:'https://commons.wikimedia.org/wiki/File:Torrente_Leogra.jpg'}}]},
   schede:[
