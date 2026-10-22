@@ -6,14 +6,14 @@
 <title>Fuori Orario</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=VT323&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Jersey+10&family=VT323&display=swap">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div id="app">
   <header class="hud">
     <div class="brand">FUORI ORARIO<small>Museo del Territorio · Alto Vicentino</small></div>
-    <div class="seals" id="seals" aria-label="Sigilli raccolti"><span>Sigilli</span><i></i><i></i><i></i></div>
+    <div class="seals" id="seals" aria-label="Sigilli raccolti"><span>Sigilli</span></div>
     <div class="time" id="time">00:00</div>
     <button id="btnJournal" type="button">Diario</button>
     <button id="btnHint" type="button">Aiuto</button>
@@ -40,13 +40,14 @@
   <div class="tcard">
     <div class="sub">Un'escape room nel Museo del Territorio</div>
     <h1>FUORI<br>ORARIO</h1>
-    <p>Ti sei perso tra le sale e il museo ha chiuso. Le porte si sbloccano solo con tre sigilli, nascosti in un telaio, in una cassetta militare e in un armadio d'archivio.</p>
+    <p>Ti sei perso tra le sale e il museo ha chiuso. Le porte si sbloccano solo con i sigilli nascosti nelle sale del museo.</p>
     <p>Le combinazioni non si indovinano: stanno nella storia dell'Alto Vicentino, scritta sui cartellini delle sale.</p>
     <div class="controls">
       <b>MUOVITI</b><span>Frecce o WASD, oppure clicca un punto del pavimento</span>
       <b>ESAMINA</b><span>E, Spazio o Invio vicino a un oggetto, oppure cliccalo</span>
       <b>DIARIO</b><span>Raccoglie tutto quello che hai letto</span>
     </div>
+    <div class="promessa" aria-hidden="true"><i></i><i></i><i></i><i></i><span>sigilli da ritrovare</span></div>
     <div class="row"><button class="primary" id="btnStart" type="button">Entra nel museo</button></div>
     <p class="note">Prototipo. Il museo è immaginario, i fatti storici sono reali e vanno verificati sulle fonti aperte prima di una versione pubblica.</p>
   </div>
@@ -55,10 +56,26 @@
 <!-- Ordine di caricamento importante: vedi CLAUDE.md -->
 <script src="js/contenuti.js"></script>
 <script src="js/motore.js"></script>
+<script src="js/musica.js"></script>
 <script src="js/enigmi.js"></script>
 <script src="js/stanza.js"></script>
 <script src="js/fonti.js"></script>
 <script src="js/territorio.js"></script>
+<!-- Sale a tema (area sale): prima il registro, poi una riga per sala -->
+<script src="js/sale/registro.js"></script>
+<script src="js/sale/tessitore.js"></script>
+<script src="js/sale/mine.js"></script>
+<script src="js/sale/cimone.js"></script>
+<script src="js/sale/forti.js"></script>
+<script src="js/sale/citta.js"></script>
+<script src="js/sale/castello.js"></script>
+<script src="js/sale/ferrarin.js"></script>
+<script src="js/sale/grotta.js"></script>
+<script src="js/sale/anguane.js"></script>
+<script src="js/sale/meneghello.js"></script>
+<script src="js/sale/recoaro.js"></script>
+<!-- Salvataggio automatico (area sale) -->
+<script src="js/salvataggio.js"></script>
 <script src="js/avvio.js"></script>
 
 </body>

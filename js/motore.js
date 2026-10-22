@@ -1,7 +1,9 @@
 /* Motore del gioco: stato, disegno isometrico, luce, movimento, input, dialoghi e finestre.
    Area: grafica-motore. Vedi CLAUDE.md prima di modificare. */
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
-const VW=320,VH=210,HW=12,HH=6,MW=12,MH=10,WH=54,OX=148,OY=64;
+const VW=320,VH=210,HW=12,HH=6,WH=54;
+// Dimensioni e origine della stanza corrente, e i suoi oggetti: li assegna entraStanza().
+let MW=12,MH=10,OX=148,OY=64,OBJ=[];
 const iso=(x,y)=>[OX+(x-y)*HW,OY+(x+y)*HH];
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
 const $=id=>document.getElementById(id);
@@ -9,7 +11,8 @@ const $=id=>document.getElementById(id);
 /* ---------- Stato ---------- */
 let S,P;
 function fresh(){
-  S={seals:{loom:false,chest:false,archive:false},journal:[],hint:{loom:0,chest:0,archive:0},elapsed:0,started:false,done:false,door:0};
+  const k=Object.keys(SEALS);
+  S={seals:Object.fromEntries(k.map(id=>[id,false])),journal:[],hint:Object.fromEntries(k.map(id=>[id,0])),elapsed:0,started:false,done:false,door:0,room:'museo',fade:0};
   P={x:9,y:8,px:9,py:8,tx:9,ty:8,fx:0,fy:1,moving:false,walk:0,path:[],pending:null};
 }
 fresh();
@@ -29,15 +32,14 @@ function faceR(cx,cy,a,b,fn){for(let i=0;i<a;i++)fn(cx+i,cy+b-Math.round(i*b/a),
 function spr(rows,pal,x,y){rows.forEach((row,j)=>{for(let i=0;i<row.length;i++){const c=pal[row[i]];if(c)R(ctx,x+i,y+j,1,1,c)}})}
 
 /* ---------- Sfondo statico: pavimento e pareti ---------- */
-const bg=document.createElement('canvas');bg.width=VW;bg.height=VH;
-const zone=(x,y)=>x<6?(y<5?'lan':'arc'):(y<5?'war':'hall');
-const ZP={lan:['#6e4a31','#674529','#4e3220'],war:['#565d59','#4d5350','#3a3f3d'],arc:['#463a5e','#40355a','#2f2744'],hall:['#7a6e5c','#6e6351','#544a3b']};
-function wallCol(g,px,fy,lit){
-  const top=fy-WH;
-  g.fillStyle=lit?'#3b3058':'#2b2343';g.fillRect(px,top,1,WH);
-  g.fillStyle=lit?'#2a1f3a':'#1f182e';g.fillRect(px,fy-14,1,14);
-  g.fillStyle='#8a6a34';g.fillRect(px,fy-15,1,1);
-  g.fillStyle=lit?'#54487e':'#3e3460';g.fillRect(px,top,1,3);
+// colori delle pareti: [in ombra, illuminata] per fondo, zoccolo e cornice in alto; fascia = listello sopra lo zoccolo
+const MURO_MUSEO={fondo:['#2b2343','#3b3058'],zoccolo:['#1f182e','#2a1f3a'],cornice:['#3e3460','#54487e'],fascia:'#8a6a34'};
+function wallCol(g,px,fy,lit,m=MURO_MUSEO){
+  const top=fy-WH,k=lit?1:0;
+  g.fillStyle=m.fondo[k];g.fillRect(px,top,1,WH);
+  g.fillStyle=m.zoccolo[k];g.fillRect(px,fy-14,1,14);
+  g.fillStyle=m.fascia;g.fillRect(px,fy-15,1,1);
+  g.fillStyle=m.cornice[k];g.fillRect(px,top,1,3);
   g.fillStyle='#120e1c';g.fillRect(px,fy-2,1,2);
 }
 // pittura su parete: side 'R' (fila y=0) o 'L' (colonna x=0); fn(u,v,W,H) -> colore o null
@@ -49,28 +51,151 @@ function onWall(g,side,t,i0,i1,top,h,fn){
   }
 }
 const framed=(inner,fr='#b8892f')=>(u,v,W,H)=>(u===0||u===W||v===0||v===H-1)?fr:inner(u,v,W,H);
+// Emblemi 9×7 sopra i varchi a tema: '#' = colore del tema, '+' = scuro, '.' = niente.
+const EMBLEMI={
+  navetta:['.........','..#####..','.#+++++#.','#+++#+++#','.#+++++#.','..#####..','.........'],
+  mina:['......#..','.....#...','...###...','..#####..','..##+##..','..#####..','...###...'],
+  croce:['....#....','....#....','.#######.','....#....','....#....','....#....','...###...'],
+  torre:['.#.#.#.#.','.#######.','..#####..','..##+##..','..##+##..','..#####..','.#######.'],
+  case:['..#...#..','.###.###.','#########','#+#+#+#+#','#########','#+#+#+#+#','#########'],
+  merli:['#.#.#.#.#','#########','#########','###+++###','###+++###','###+++###','#########'],
+  aereo:['....#....','....#....','#########','.#.###.#.','....#....','...###...','.........'],
+  fossile:['..#####..','.#+++++#.','#+###++#.','#+#+#+#+#','#+#++#+#.','.#+++++#.','..#####..'],
+  onde:['.........','.##...##.','#..#.#..#','.........','.##...##.','#..#.#..#','.........'],
+  libro:['.........','###...###','#++#.#++#','#++#.#++#','#++#.#++#','.###.###.','.........'],
+  goccia:['....#....','...###...','..##+##..','.##+####.','.#######.','..#####..','...###...']
+};
+// schiarisce (k>0) o scurisce (k<0) un colore #rrggbb
+const tinta=(c,k)=>'#'+[1,3,5].map(i=>{const v=parseInt(c.slice(i,i+2),16);return Math.round(k>0?v+(255-v)*k:v*(1+k)).toString(16).padStart(2,'0')}).join('');
+// varco ad arco tra due stanze, sulla parete side alla casella t.
+// tema facoltativo {colore, motivo}: cornice del colore del tema ed emblema di EMBLEMI sopra l'arco.
+function pareteVarco(g,side,t,tema){
+  const cornice=tema?tema.colore:'#b8892f',fondo=tema?tinta(tema.colore,-.75):'#2a2133';
+  onWall(g,side,t,2,10,34,34,(u,v,W)=>{const r=W/2,dx=u-r,d=v<r?Math.hypot(dx,r-v):Math.abs(dx);
+    return d>r+.5?(tema&&d<=r+1.6&&v<30?tinta(cornice,-.35):null):d>r-1.2?cornice:v>27?fondo:'#0d0a14'});
+  const e=tema&&EMBLEMI[tema.motivo];
+  // targhetta scura con bordo del colore del tema, emblema sopra
+  if(e)onWall(g,side,t,1,11,46,10,(u,v,W,H)=>{if(u===0||u===W||v===0||v===H-1)return tinta(cornice,-.35);
+    const c=e[v-2]?.[u-1];return c==='#'?tinta(cornice,.35):c==='+'?tinta(cornice,-.55):tinta(cornice,-.8)});
+}
+// cartellino appeso alla parete side alla casella t: targa d'ottone con le righe del testo e una lampada sopra
+function pareteCartellino(g,side,t){
+  onWall(g,side,t,2,10,40,3,(u,v,W)=>v===0?(u>2&&u<W-2?'#3a2a1a':null):u>1&&u<W-1?(v===2?'#fff1b8':'#e0b04f'):null);
+  onWall(g,side,t,1,11,34,12,(u,v,W,H)=>u===0||u===W||v===0||v===H-1?'#8a6a34':v%3===1&&u>1&&u<W-1&&(u+v)%7?'#5a4426':'#e0b04f');
+}
+// riquadro cliccabile di un cartellino a parete
+function hitCartellino(side,t){const [cx,cy]=side==='R'?iso(t,0):iso(0,t);return side==='R'?[cx+1,cy-40,11,20]:[cx-11,cy-40,11,20]}
+// interno dell'arco acceso: disegnato a ogni fotogramma sopra lo sfondo, per i varchi con acceso() vero
+function varcoAcceso(o,t){
+  const side=o.x<0?'L':'R',tt=o.x<0?o.y:o.x,f=Math.floor(t/180)%3;
+  onWall(ctx,side,tt,2,10,34,34,(u,v,W)=>{const r=W/2,dx=u-r,d=v<r?Math.hypot(dx,r-v):Math.abs(dx);
+    return d>r-1.2?null:v>27?'#e0b04f':(v+u+f)%5===0?'#fff3c4':'#f7d98a'});
+}
+// riquadro cliccabile del varco: [x,y,larghezza,altezza]
+function hitVarco(side,t){const [cx,cy]=side==='R'?iso(t,0):iso(0,t);return side==='R'?[cx+2,cy-33,9,36]:[cx-10,cy-33,9,36]}
+// veduta di Villa Godi su due caselle di parete: off sposta la seconda metà
+const vedutaVilla=off=>(u,v)=>{const U=u+off,W=20,H=15;
+  if(U===0||U===W||v===0||v===H)return '#b8892f';
+  if(v<4)return '#2d3a5e';if(v===4)return U>1&&U<W-1?'#7a4a32':'#2d3a5e';
+  if(v===14)return '#3f5a34';if(U<2||U>W-2)return '#2d3a5e';
+  const centro=U>=8&&U<=12;
+  if(centro&&v>=6&&v<=8&&U%2===0)return '#241c2c';
+  if(centro&&v>=9&&U>=9&&U<=11)return '#efe6cc';
+  if(!centro&&(v===6||v===10)&&U%2===1)return '#3a2a1a';
+  return centro?'#c9bea2':'#d9cfb4'};
+/* ---------- Decori di stanza ---------- */
+// colora la casella (x,y) del pavimento: fn(r,c,w) -> colore per la riga r e la colonna c (da -w a w-1), o null
+function casella(g,x,y,fn){const [cx,cy]=iso(x,y);
+  for(let r=0;r<12;r++){const w=r<6?2*r+2:2*(11-r)+2;for(let c=-w;c<w;c++){const col=fn(r,c,w);if(col){g.fillStyle=col;g.fillRect(cx+c,cy+r,1,1)}}}}
+// tappeto su un rettangolo di caselle, con bordo dorato sul perimetro del rettangolo
+function tappeto(g,x0,y0,x1,y1,fondo,bordo,motivo){
+  for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++)casella(g,x,y,(r,c,w)=>{
+    const lato=(x===x0&&c<0&&r<6&&c<-w+3)||(y===y0&&c>=0&&r<6&&c>w-4)||(x===x1&&c>=0&&r>=6&&c>w-4)||(y===y1&&c<0&&r>=6&&c<-w+3);
+    return lato?bordo:motivo&&(r+Math.abs(c))%6===0?motivo:fondo});
+}
+// applique: lampada da muro con braccio d'ottone e paralume acceso
+function applique(g,side,t){onWall(g,side,t,4,8,46,7,(u,v,W)=>v<3?(u>0&&u<W?'#fff1b8':null):v<4?'#e0b04f':u===2?'#8a6a34':null)}
+const lampada=(side,t)=>{const [cx,cy]=side==='R'?iso(t,0):iso(0,t);return [side==='R'?cx+6:cx-6,cy-42,22,.55]};
+
+/* ---------- Stanze ---------- */
+// Come è fatta ogni stanza: dimensioni, origine del disegno, pavimento, pareti e luci fisse.
+// Gli oggetti di ogni stanza sono in OGGETTI (stanza.js).
+// pav: per ogni zona [colore pari, colore dispari, bordo, puntini (facoltativo)].
+const STANZE={
+  museo:{w:12,h:10,ox:148,oy:64,porta:true,
+    zona:(x,y)=>x<6?(y<5?'lan':'arc'):(y<5?'war':'hall'),
+    pav:{lan:['#6e4a31','#674529','#4e3220'],war:['#565d59','#4d5350','#3a3f3d'],arc:['#463a5e','#40355a','#2f2744','#5a4b78'],hall:['#7a6e5c','#6e6351','#544a3b']},
+    pareti(g){
+      // parete destra: manifesto, ritratto, Pasubio, foto d'epoca, cartello uscita
+      onWall(g,'R',2,2,10,42,22,framed((u,v)=>v%5<2?'#c2493c':'#efe2c4'));
+      onWall(g,'R',4,3,9,40,18,framed((u,v,W,H)=>{const dx=u-W/2,dy=v-7;return dx*dx+dy*dy*.6<6?'#e6c9a3':(v>11&&Math.abs(dx)<3?'#2d3a5e':'#2a2030')}));
+      onWall(g,'R',7,1,11,42,20,framed((u,v,W)=>{const m=Math.abs(u-W/2)*1.6+4;return v<m?'#5b6f8c':v<m+3?'#e9eef0':v<15?'#7d8a7a':'#556b45'}));
+      onWall(g,'R',8,4,10,38,14,framed((u,v)=>(u*7+v*3)%5===0?'#8a7350':'#b39b72','#5a4630'));
+      onWall(g,'R',10,4,8,44,5,(u,v,W,H)=>(u===0||u===W||v===0||v===H-1)?'#1c4a2c':'#4fd17e');
+      // parete sinistra: stendardo, paesaggio, finestra, targa archivio
+      onWall(g,'L',1,3,9,48,30,(u,v,W,H)=>v===H-1?(u%2?'#e0b04f':null):(u===3?'#8f3229':'#c2493c'));
+      onWall(g,'L',3,2,10,42,18,framed((u,v,W)=>v<6?'#3d4d74':v<9+Math.round(Math.sin(u)*1.5)?'#4f6b3f':'#7a8a4a'));
+      onWall(g,'L',6,2,10,44,22,framed((u,v,W,H)=>(u===Math.floor(W/2)||v===Math.floor(H/2))?'#4a3b2c':(u===2&&v===3?'#f4f0d8':'#24345a'),'#4a3b2c'));
+      onWall(g,'L',8,3,9,36,7,framed((u,v)=>v===3&&u%2?'#3a2a1a':'#c9a65a','#6b5226'));
+      pareteVarco(g,'L',4);
+      pareteCartellino(g,'R',3);
+      [['R',1],['R',5],['R',9],['L',2],['L',7]].forEach(([s_,t])=>applique(g,s_,t));
+    },
+    // passatoia rossa nell'ingresso, verso la porta d'uscita
+    decoro(g){tappeto(g,7,6,10,7,'#7a2a24','#c9a65a','#8f3229')},
+    // lanterna del custode, finestra e applique
+    luci(){const l=[['R',1],['R',5],['R',9],['L',2],['L',7]].map(([s_,t])=>lampada(s_,t)),[wx,wy]=iso(0,6),k=OBJ.find(o=>o.id==='keeper');l.push([wx-6,wy-30,20,.5]);
+      if(k){const [kx,ky]=base(k);l.push([kx+5,ky-4,22,.7])}return l}},
+  // Sala delle Ville: pavimento alla veneziana, intonaco chiaro, veduta di Villa Godi
+  villa:{w:8,h:8,ox:160,oy:82,porta:false,
+    zona:()=>'villa',
+    pav:{villa:['#c9b99a','#bfae8e','#9a8a6c','#8e5a4a']},
+    muro:{fondo:['#7d7362','#968a74'],zoccolo:['#564d40','#655b4b'],cornice:['#8f846f','#ada08a'],fascia:'#b8892f'},
+    pareti(g){
+      onWall(g,'R',3,1,11,44,16,vedutaVilla(0));onWall(g,'R',4,0,9,44,16,vedutaVilla(11));
+      [2,5].forEach(t=>onWall(g,'L',t,3,9,46,22,framed((u,v,W,H)=>(u===Math.floor(W/2)||v===Math.floor(H/2))?'#5a4e3e':(u===1&&v===2?'#f4f0d8':'#24345a'),'#5a4e3e')));
+      pareteVarco(g,'L',6);
+      pareteCartellino(g,'R',1);pareteCartellino(g,'R',6);
+      // lesene: pilastri chiari tra una casella e l'altra, come nelle facciate di Palladio
+      [0,2,5,7].forEach(t=>onWall(g,'R',t,0,1,WH-3,WH-17,(u,v)=>v<3?'#d6ccb4':u?'#b8ad94':'#cfc4aa'));
+      [0,3,7].forEach(t=>onWall(g,'L',t,10,11,WH-3,WH-17,(u,v)=>v<3?'#d6ccb4':u?'#b8ad94':'#cfc4aa'));
+      applique(g,'R',2);applique(g,'R',5);
+    },
+    decoro(g){tappeto(g,3,2,5,4,'#6b2a2a','#c9a65a','#8a3a32')},
+    // finestre, applique e un lampadario al centro
+    luci(){const [mx,my]=iso(4,4);return [...[2,5].map(t=>{const [wx,wy]=iso(0,t);return [wx-6,wy-34,20,.5]}),lampada('R',2),lampada('R',5),[mx,my-20,46,.45]]}}
+};
+const sfondi={};
 function buildBg(){
-  const g=bg.getContext('2d');g.clearRect(0,0,VW,VH);
-  for(let x=0;x<MW;x++){const [cx,cy]=iso(x,0);for(let i=0;i<12;i++)wallCol(g,cx+i,cy+Math.floor(i/2),false)}
-  for(let y=0;y<MH;y++){const [cx,cy]=iso(0,y);for(let i=0;i<12;i++)wallCol(g,cx-12+i,cy+6-Math.floor(i/2),true)}
+  if(sfondi[S.room])return;
+  const st=STANZE[S.room],c=document.createElement('canvas');c.width=VW;c.height=VH;const g=c.getContext('2d');
+  for(let x=0;x<MW;x++){const [cx,cy]=iso(x,0);for(let i=0;i<12;i++)wallCol(g,cx+i,cy+Math.floor(i/2),false,st.muro)}
+  for(let y=0;y<MH;y++){const [cx,cy]=iso(0,y);for(let i=0;i<12;i++)wallCol(g,cx-12+i,cy+6-Math.floor(i/2),true,st.muro)}
   g.fillStyle='#0f0b18';g.fillRect(OX,OY-WH,1,WH);
   for(let s=0;s<MW+MH;s++)for(let x=0;x<MW;x++){const y=s-x;if(y<0||y>=MH)continue;
-    const [cx,cy]=iso(x,y),p=ZP[zone(x,y)],base=(x+y)%2?p[0]:p[1];
+    const [cx,cy]=iso(x,y),p=st.pav[st.zona(x,y)],base=(x+y)%2?p[0]:p[1];
     for(let r=0;r<12;r++){const w=r<6?2*r+2:2*(11-r)+2;g.fillStyle=base;g.fillRect(cx-w,cy+r,w*2,1);
       if(r<6){g.fillStyle=p[2];g.fillRect(cx-w,cy+r,1,1);g.fillRect(cx+w-1,cy+r,1,1)}}
-    if(zone(x,y)==='arc'&&(x+y)%2===0){g.fillStyle='#5a4b78';g.fillRect(cx-1,cy+5,2,2)}
+    if(p[3]&&(x+y)%2===0){g.fillStyle=p[3];g.fillRect(cx-1,cy+5,2,2)}
   }
-  // parete destra: manifesto, ritratto, Pasubio, foto d'epoca, cartello uscita
-  onWall(g,'R',2,2,10,42,22,framed((u,v)=>v%5<2?'#c2493c':'#efe2c4'));
-  onWall(g,'R',4,3,9,40,18,framed((u,v,W,H)=>{const dx=u-W/2,dy=v-7;return dx*dx+dy*dy*.6<6?'#e6c9a3':(v>11&&Math.abs(dx)<3?'#2d3a5e':'#2a2030')}));
-  onWall(g,'R',7,1,11,42,20,framed((u,v,W)=>{const m=Math.abs(u-W/2)*1.6+4;return v<m?'#5b6f8c':v<m+3?'#e9eef0':v<15?'#7d8a7a':'#556b45'}));
-  onWall(g,'R',8,4,10,38,14,framed((u,v)=>(u*7+v*3)%5===0?'#8a7350':'#b39b72','#5a4630'));
-  onWall(g,'R',10,4,8,44,5,(u,v,W,H)=>(u===0||u===W||v===0||v===H-1)?'#1c4a2c':'#4fd17e');
-  // parete sinistra: stendardo, paesaggio, finestra, targa archivio
-  onWall(g,'L',1,3,9,48,30,(u,v,W,H)=>v===H-1?(u%2?'#e0b04f':null):(u===3?'#8f3229':'#c2493c'));
-  onWall(g,'L',3,2,10,42,18,framed((u,v,W)=>v<6?'#3d4d74':v<9+Math.round(Math.sin(u)*1.5)?'#4f6b3f':'#7a8a4a'));
-  onWall(g,'L',6,2,10,44,22,framed((u,v,W,H)=>(u===Math.floor(W/2)||v===Math.floor(H/2))?'#4a3b2c':(u===2&&v===3?'#f4f0d8':'#24345a'),'#4a3b2c'));
-  onWall(g,'L',8,3,9,36,7,framed((u,v)=>v===3&&u%2?'#3a2a1a':'#c9a65a','#6b5226'));
+  st.decoro&&st.decoro(g);
+  st.pareti(g);
+  sfondi[S.room]=c;
+}
+// Assegna dimensioni, oggetti e sfondo della stanza id, senza dissolvenza.
+function entraStanza(id){
+  const st=STANZE[id];if(!st)return;S.room=id;MW=st.w;MH=st.h;OX=st.ox;OY=st.oy;OBJ=OGGETTI[id]||[];buildBg();
+  if(typeof suonaStanza==='function')suonaStanza(id); // js/musica.js
+}
+// Porta il giocatore nella stanza id, in (x,y). Il cambio è immediato; la dissolvenza è solo visiva.
+// ultimoCambio evita i rimbalzi (tasto tenuto, doppio tocco) anche senza dissolvenza
+let ultimoCambio=-1e9;
+function vaiInStanza(id,x,y){
+  if(S.fade||performance.now()-ultimoCambio<400)return;
+  ultimoCambio=performance.now();
+  held=null;P.path=[];P.pending=null;P.moving=false;
+  entraStanza(id);P.x=P.tx=P.px=x;P.y=P.ty=P.py=y;
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)S.fade=1;
 }
 
 /* ---------- Oggetti ---------- */
@@ -127,6 +252,22 @@ function drawVitrine(o){const [bx,by]=base(o);
   box(ctx,bx,by-9,8,4,13,'rgba(170,210,230,.18)','rgba(170,210,230,.12)','rgba(170,210,230,.08)');
   R(ctx,bx-8,by-22,1,13,'rgba(220,240,255,.35)');
 }
+// plastico di Villa Godi: ali con finestre, loggia a tre archi al piano nobile, scalinata all'arco centrale
+function drawVilla(o){const [bx,by]=base(o);
+  box(ctx,bx,by+1,11,5,8,'#6b4a33','#4f3625','#3e2a1c');
+  box(ctx,bx,by-7,9,4,10,'#a0583c','#d9cfb4','#c4b896');
+  faceL(bx,by-7,9,4,(x,y,i)=>{if(i%2)[8,4].forEach(d=>R(ctx,x,y-d,1,2,'#3a2a1a'))});
+  faceR(bx,by-7,9,4,(x,y,i)=>{
+    if(i>=3&&i<=7){if(i%2)R(ctx,x,y-9,1,3,'#241c2c');R(ctx,x,y-6,1,1,'#b8b0a0')}
+    else if(i%2===0)[8,4].forEach(d=>R(ctx,x,y-d,1,2,'#3a2a1a'));
+    if(i===5)for(let k=0;k<5;k++)R(ctx,x-1+Math.floor(k/2),y-1-k,2,1,'#efe6cc')});
+  R(ctx,bx-6,by-24,2,3,'#c4b896');R(ctx,bx+5,by-22,2,3,'#c4b896');
+}
+// busto di marmo su colonna
+function drawBust(o){const [bx,by]=base(o);
+  diamond(ctx,bx,by+1,5,2,'rgba(0,0,0,.3)');box(ctx,bx,by+1,4,2,13,'#d8d2c4','#b8b0a0','#9a9284');
+  R(ctx,bx-4,by-16,8,3,'#d8d2c4');R(ctx,bx-2,by-22,4,6,'#e6e0d2');R(ctx,bx-2,by-23,4,2,'#cfc8b8');R(ctx,bx+1,by-19,1,1,'#9a9284');
+}
 function drawBench(o){const [bx,by]=base(o);box(ctx,bx,by+1,10,5,5,'#7a5236','#5a3a26','#46301f')}
 function drawPlant(o,t){const [bx,by]=base(o);
   box(ctx,bx,by+1,4,2,6,'#a0522d','#7d3f22','#62311a');
@@ -158,6 +299,7 @@ const solidAt=(x,y)=>OBJ.some(o=>o.x===x&&o.y===y);
 const walkable=(x,y)=>x>=0&&y>=0&&x<MW&&y<MH&&!solidAt(x,y);
 
 function drawDoor(t){
+  if(!STANZE[S.room].porta)return;
   const [cx,cy]=iso(10,0),open=S.door;
   for(let i=2;i<=11;i++){const px=cx+i,fy=cy+Math.floor(i/2);
     for(let v=0;v<32;v++){const y=fy-32+v,edge=i===2||i===11||v===0;
@@ -176,13 +318,15 @@ function drawLight(t){
   lx.globalCompositeOperation='source-over';lx.clearRect(0,0,VW,VH);lx.fillStyle='rgba(9,6,22,.64)';lx.fillRect(0,0,VW,VH);
   lx.globalCompositeOperation='destination-out';
   const [pcx,pcy]=iso(P.px,P.py);hole(pcx,pcy,62);
-  OBJ.forEach(o=>{if(o.light){const [bx,by]=base(o);hole(bx,by-o.h/2,24,.8)}});
-  const [kx,ky]=base(OBJ.find(o=>o.id==='keeper'));hole(kx+5,ky-4,22,.7);
-  const [dx,dy]=iso(10,0);hole(dx+7,dy-14,18+S.door*30,.6+S.door*.4);
-  const [wx,wy]=iso(0,6);hole(wx-6,wy-30,20,.5);
+  // centro della luce di un oggetto: sul riquadro se è appeso alla parete (hit), altrimenti a metà altezza
+  const centroLuce=o=>{if(o.hit){const [x,y,w,h]=o.hit();return [x+w/2,y+h/2]}const [bx,by]=base(o);return [bx,by-o.h/2]};
+  OBJ.forEach(o=>{if(o.light){const [lx_,ly_]=centroLuce(o);hole(lx_,ly_,24,.8)}});
+  OBJ.forEach(o=>{if(o.acceso&&o.hit&&o.acceso()){const [x,y,w,h]=o.hit();hole(x+w/2,y+h/2,30,.9)}});
+  STANZE[S.room].luci().forEach(l=>hole(...l));
+  if(STANZE[S.room].porta){const [dx,dy]=iso(10,0);hole(dx+7,dy-14,18+S.door*30,.6+S.door*.4)}
   ctx.drawImage(lc,0,0);
   ctx.globalCompositeOperation='lighter';
-  OBJ.forEach(o=>{if(o.light){const [bx,by]=base(o);const g=ctx.createRadialGradient(bx,by-o.h/2,0,bx,by-o.h/2,22);g.addColorStop(0,'rgba(224,176,79,.16)');g.addColorStop(1,'rgba(224,176,79,0)');ctx.fillStyle=g;ctx.fillRect(bx-22,by-o.h/2-22,44,44)}});
+  OBJ.forEach(o=>{if(o.light){const [bx,cy]=centroLuce(o);const g=ctx.createRadialGradient(bx,cy,0,bx,cy,22);g.addColorStop(0,'rgba(224,176,79,.16)');g.addColorStop(1,'rgba(224,176,79,0)');ctx.fillStyle=g;ctx.fillRect(bx-22,cy-22,44,44)}});
   ctx.globalCompositeOperation='source-over';
 }
 const motes=Array.from({length:26},(_,i)=>({x:(i*53)%VW,y:(i*97)%VH,s:.004+((i*7)%5)*.0015,p:i}));
@@ -197,18 +341,22 @@ function frame(now){
 }
 function render(t){
   ctx.fillStyle='#0b0814';ctx.fillRect(0,0,VW,VH);
-  ctx.drawImage(bg,0,0);drawDoor(t);
+  ctx.drawImage(sfondi[S.room],0,0);drawDoor(t);
+  const accesi=OBJ.filter(o=>o.acceso&&o.hit&&o.acceso());accesi.forEach(o=>varcoAcceso(o,t));
   const list=OBJ.filter(o=>o.draw).map(o=>({d:o.x+o.y,f:()=>o.draw(o,t)}));
   list.push({d:P.px+P.py+.01,f:()=>drawPlayer(t)});
   list.sort((a,b)=>a.d-b.d).forEach(e=>e.f());
   drawMotes(t);drawLight(t);
-  if(target&&!blocked()){let x,y;if(target.id==='door'){const [cx,cy]=iso(10,0);x=cx+7;y=cy-40}else{[x,y]=base(target);y-=target.h+5}
+  accesi.forEach(o=>{const [x,y,w]=o.hit();sparkle(x+Math.floor(w/2),y-14,t)});
+  if(S.fade>0){ctx.fillStyle=`rgba(11,8,20,${S.fade})`;ctx.fillRect(0,0,VW,VH)}
+  if(target&&!blocked()){let x,y;if(target.hit){const [hx,hy,hw]=target.hit();x=hx+Math.floor(hw/2);y=hy-8}else{[x,y]=base(target);y-=target.h+5}
     y+=Math.floor(t/300)%2;R(ctx,x-2,y,5,1,'#e0b04f');R(ctx,x-1,y+1,3,1,'#e0b04f');R(ctx,x,y+2,1,1,'#e0b04f')}
 }
-const blocked=()=>!S.started||!$('dialog').hidden||!$('modal').hidden||S.done;
+const blocked=()=>!S.started||!$('dialog').hidden||!$('modal').hidden||S.done||S.fade>0;
 function update(dt){
   if(S.started&&!S.done){S.elapsed+=dt;const s=Math.floor(S.elapsed);$('time').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
   if(S.door>0&&S.door<1)S.door=Math.min(1,S.door+dt*.8);
+  if(S.fade>0)S.fade=Math.max(0,S.fade-dt/.35);
   if(P.moving){const dx=P.tx-P.px,dy=P.ty-P.py,d=Math.hypot(dx,dy),sp=5*dt;P.walk+=dt;
     if(d<=sp){P.px=P.tx;P.py=P.ty;P.moving=false}else{P.px+=dx/d*sp;P.py+=dy/d*sp}}
   if(!P.moving&&!blocked()){
@@ -240,12 +388,13 @@ addEventListener('keydown',e=>{
   if(!$('modal').hidden){if(e.key==='Escape')closeModal();else if(modalKey)modalKey(e);return}
   if(!$('dialog').hidden&&['e','E',' ','Enter'].includes(e.key)){e.preventDefault();advance();return}
   if(KEYS[e.key]){e.preventDefault();held=KEYS[e.key];P.path=[];P.pending=null;return}
-  if(['e','E',' ','Enter'].includes(e.key)&&!blocked()){e.preventDefault();interact(nearest())}
+  if(['e','E',' ','Enter'].includes(e.key)&&!e.repeat&&!blocked()){e.preventDefault();interact(nearest())}
 });
 addEventListener('keyup',e=>{if(KEYS[e.key]&&held===KEYS[e.key])held=null});
 function toCanvas(e){const r=cv.getBoundingClientRect();return [(e.clientX-r.left)/r.width*VW,(e.clientY-r.top)/r.height*VH]}
 function hitObj(mx,my){
-  return OBJ.filter(o=>o.act).sort((a,b)=>(b.x+b.y)-(a.x+a.y)).find(o=>{
+  // porte e varchi (con hit) prima degli oggetti che stanno davanti alla parete
+  return OBJ.filter(o=>o.act).sort((a,b)=>(!!b.hit-!!a.hit)||(b.x+b.y)-(a.x+a.y)).find(o=>{
     const [x,y,w,h]=o.hit?o.hit():(()=>{const [bx,by]=base(o);return [bx-11,by-o.h,22,o.h+5]})();
     return mx>=x&&mx<x+w&&my>=y&&my<y+h});
 }
@@ -287,7 +436,13 @@ $('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
 const closeBtn='<button type="button" data-close>Chiudi</button>';
 $('card').addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeModal()});
 function bad(el,msg){const m=$('msg');m.textContent=msg;m.className='msg bad';el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}
-function hud(){document.querySelectorAll('#seals i').forEach((el,i)=>el.classList.toggle('on',i<sealCount()))}
+// Un'icona per ogni sigillo di SEALS, accese quelle già prese.
+function hud(){
+  const box=$('seals'),n=Object.keys(SEALS).length;
+  while(box.querySelectorAll('i').length<n)box.appendChild(document.createElement('i'));
+  while(box.querySelectorAll('i').length>n)box.querySelector('i').remove();
+  box.querySelectorAll('i').forEach((el,i)=>el.classList.toggle('on',i<sealCount()));
+}
 
 function fit(){
   const st=$('stage'),w=st.clientWidth,h=st.clientHeight;let s=Math.min(w/VW,h/VH);

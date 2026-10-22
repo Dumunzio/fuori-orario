@@ -10,17 +10,21 @@
   --wool:#c2493c;    /* Schio wool red, for errors and the hero */
   --ok:#86c98f;
   --display:"Pixelify Sans","Courier New",monospace;
-  --body:"VT323","Courier New",monospace;
+  --body:"Jersey 10","VT323","Courier New",monospace;  /* leggibile ma pixel; VT323 resta come riserva */
   color-scheme:dark;
 }
 [hidden]{display:none!important}
 html,body{height:100%}
-body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body);font-size:22px;line-height:1.15;overflow:hidden;box-sizing:border-box;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body);font-size:22px;line-height:1.25;letter-spacing:.01em;overflow:hidden;box-sizing:border-box;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 *,*::before,*::after{box-sizing:inherit}
 button{font-family:var(--display);font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:var(--panel);border:2px solid var(--line);padding:6px 12px;cursor:pointer;box-shadow:3px 3px 0 #000}
 button:hover{border-color:var(--brass)}
 button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
 button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+input{font:inherit;color:inherit;background:#120e1c;border:2px solid var(--line);padding:6px 10px}
+input:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+#btnMusica{min-width:38px;font-family:"Segoe UI Symbol",var(--display)}
+#btnMusica.spento{opacity:.55;text-decoration:line-through}
 button.primary{background:var(--brass);color:#1a1424;border-color:#1a1424}
 
 #app{height:100%;display:flex;flex-direction:column;gap:8px;padding-block:10px}
@@ -76,12 +80,19 @@ button.primary{background:var(--brass);color:#1a1424;border-color:#1a1424}
 .journal article{border:2px solid var(--line);padding:10px 12px;display:grid;gap:4px}
 .journal h3{margin:0;font-family:var(--display);font-size:16px;color:var(--brass)}
 .journal .tag{font-family:var(--display);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.journal article.seal{border-color:var(--brass)}
+.journal article.seal{border-color:var(--brass);position:relative;padding-left:44px}
+.journal article.seal::before{content:"";position:absolute;left:14px;top:14px;width:14px;height:14px;background:var(--brass);border:2px solid #fff3c4;transform:rotate(45deg);box-shadow:0 0 8px var(--brass)}
+.tcard .promessa{display:flex;gap:10px;align-items:center;font-family:var(--display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tcard .promessa i{width:16px;height:16px;border:2px solid var(--brass);background:#120e1c;transform:rotate(45deg);display:block;animation:luce 2.4s steps(2) infinite}
+.tcard .promessa i:nth-child(2){animation-delay:.6s}.tcard .promessa i:nth-child(3){animation-delay:1.2s}.tcard .promessa i:nth-child(4){animation-delay:1.8s}
+@keyframes luce{50%{background:var(--brass);box-shadow:0 0 8px var(--brass)}}
+@media (prefers-reduced-motion:reduce){.tcard .promessa i{animation:none}}
 ul.src{margin:0;padding-left:1.1em;display:grid;gap:2px}
 ul.src li::marker{color:var(--brass)}
 a{color:var(--brass)}
+.fonti{display:block;font-size:17px;color:var(--muted)}
 
-#title{position:fixed;inset:0;z-index:30;background:var(--night);display:grid;place-items:center;padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));overflow:auto}
+#title{position:fixed;inset:0;z-index:30;background:radial-gradient(ellipse at 50% 60%,rgba(21,17,31,.55),rgba(21,17,31,.94) 70%);backdrop-filter:blur(2px);display:grid;place-items:center;padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));overflow:auto}
 .tcard{width:min(620px,100%);display:flex;flex-direction:column;gap:14px}
 .tcard h1{font-family:var(--display);font-weight:700;font-size:clamp(44px,11vw,84px);line-height:.9;margin:0;color:var(--brass);letter-spacing:.04em;text-shadow:4px 4px 0 var(--wool),8px 8px 0 #000}
 .tcard .sub{font-family:var(--display);font-size:16px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -95,6 +106,13 @@ a{color:var(--brass)}
 .dpad button{padding:0;font-size:16px;opacity:.85}
 .dpad button span{display:block;transform:rotate(-45deg)}
 #btnAct{width:56px;height:56px;border-radius:0;font-size:18px}
-@media (pointer:coarse){#pad{display:flex}}
+/* rompicapo della facciata: 7 colonne × 2 piani */
+.facade{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;width:100%;max-width:420px;background:#cfc3a6;border:2px solid var(--line);padding:6px}
+.facade>*{min-height:42px;display:grid;place-items:center;padding:0;font-family:var(--display);font-size:22px;letter-spacing:0;text-transform:none;color:#3a2a1a;background:#e8dfc6;border:2px solid #b3a585;box-shadow:none}
+.facade>.ala{border-left-color:var(--line);border-left-width:4px}
+.facade button{background:#fff7e0;border-color:var(--brass);cursor:pointer}
+.facade button:active{transform:none}
+.facade .telo{background:repeating-linear-gradient(45deg,#efe2c4 0 6px,#ddcda8 6px 12px)}
+@media (pointer:coarse){#pad{display:flex}#dialog:not([hidden])~#pad{display:none}}
 @media (prefers-reduced-motion:reduce){.shake,#dialog .next{animation:none}}
 @media (max-width:520px){.brand small{display:none}.hud{gap:8px}button{font-size:13px;padding:5px 8px}}
