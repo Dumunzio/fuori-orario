@@ -884,5 +884,9 @@ const LINGUA_EN={
 "Sì, cancella":"Yes, delete",
 "No, torna indietro":"No, go back",
 "Non c'è nessuna partita da cancellare.":"There is no game to delete.",
+"sei qui":"you are here",
+"{}, sei qui":"{}, you are here",
+"{}, completata, sei qui":"{}, completed, you are here",
+"Tocca una stanza. Si entra dall'ingresso, in basso, e si sale di porta in porta. Le stanze dorate sono completate; la cornice tratteggiata è dove sei.":"Tap a room. You come in from the entrance, at the bottom, and go up from door to door. The golden rooms are completed; the dashed frame is where you are.",
 "partita salvata":"game saved"
 };
