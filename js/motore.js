@@ -51,10 +51,45 @@ function onWall(g,side,t,i0,i1,top,h,fn){
   }
 }
 const framed=(inner,fr='#b8892f')=>(u,v,W,H)=>(u===0||u===W||v===0||v===H-1)?fr:inner(u,v,W,H);
-// varco ad arco tra due stanze, sulla parete side alla casella t
-function pareteVarco(g,side,t){
+// Emblemi 9×7 sopra i varchi a tema: '#' = colore del tema, '+' = scuro, '.' = niente.
+const EMBLEMI={
+  navetta:['.........','..#####..','.#+++++#.','#+++#+++#','.#+++++#.','..#####..','.........'],
+  mina:['......#..','.....#...','...###...','..#####..','..##+##..','..#####..','...###...'],
+  croce:['....#....','....#....','.#######.','....#....','....#....','....#....','...###...'],
+  torre:['.#.#.#.#.','.#######.','..#####..','..##+##..','..##+##..','..#####..','.#######.'],
+  case:['..#...#..','.###.###.','#########','#+#+#+#+#','#########','#+#+#+#+#','#########'],
+  merli:['#.#.#.#.#','#########','#########','###+++###','###+++###','###+++###','#########'],
+  aereo:['....#....','....#....','#########','.#.###.#.','....#....','...###...','.........'],
+  fossile:['..#####..','.#+++++#.','#+###++#.','#+#+#+#+#','#+#++#+#.','.#+++++#.','..#####..'],
+  onde:['.........','.##...##.','#..#.#..#','.........','.##...##.','#..#.#..#','.........'],
+  libro:['.........','###...###','#++#.#++#','#++#.#++#','#++#.#++#','.###.###.','.........'],
+  goccia:['....#....','...###...','..##+##..','.##+####.','.#######.','..#####..','...###...']
+};
+// schiarisce (k>0) o scurisce (k<0) un colore #rrggbb
+const tinta=(c,k)=>'#'+[1,3,5].map(i=>{const v=parseInt(c.slice(i,i+2),16);return Math.round(k>0?v+(255-v)*k:v*(1+k)).toString(16).padStart(2,'0')}).join('');
+// varco ad arco tra due stanze, sulla parete side alla casella t.
+// tema facoltativo {colore, motivo}: cornice del colore del tema ed emblema di EMBLEMI sopra l'arco.
+function pareteVarco(g,side,t,tema){
+  const cornice=tema?tema.colore:'#b8892f',fondo=tema?tinta(tema.colore,-.75):'#2a2133';
   onWall(g,side,t,2,10,34,34,(u,v,W)=>{const r=W/2,dx=u-r,d=v<r?Math.hypot(dx,r-v):Math.abs(dx);
-    return d>r+.5?null:d>r-1.2?'#b8892f':v>27?'#2a2133':'#0d0a14'});
+    return d>r+.5?(tema&&d<=r+1.6&&v<30?tinta(cornice,-.35):null):d>r-1.2?cornice:v>27?fondo:'#0d0a14'});
+  const e=tema&&EMBLEMI[tema.motivo];
+  // targhetta scura con bordo del colore del tema, emblema sopra
+  if(e)onWall(g,side,t,1,11,46,10,(u,v,W,H)=>{if(u===0||u===W||v===0||v===H-1)return tinta(cornice,-.35);
+    const c=e[v-2]?.[u-1];return c==='#'?tinta(cornice,.35):c==='+'?tinta(cornice,-.55):tinta(cornice,-.8)});
+}
+// cartellino appeso alla parete side alla casella t: targa d'ottone con le righe del testo e una lampada sopra
+function pareteCartellino(g,side,t){
+  onWall(g,side,t,2,10,40,3,(u,v,W)=>v===0?(u>2&&u<W-2?'#3a2a1a':null):u>1&&u<W-1?(v===2?'#fff1b8':'#e0b04f'):null);
+  onWall(g,side,t,1,11,34,12,(u,v,W,H)=>u===0||u===W||v===0||v===H-1?'#8a6a34':v%3===1&&u>1&&u<W-1&&(u+v)%7?'#5a4426':'#e0b04f');
+}
+// riquadro cliccabile di un cartellino a parete
+function hitCartellino(side,t){const [cx,cy]=side==='R'?iso(t,0):iso(0,t);return side==='R'?[cx+1,cy-40,11,20]:[cx-11,cy-40,11,20]}
+// interno dell'arco acceso: disegnato a ogni fotogramma sopra lo sfondo, per i varchi con acceso() vero
+function varcoAcceso(o,t){
+  const side=o.x<0?'L':'R',tt=o.x<0?o.y:o.x,f=Math.floor(t/180)%3;
+  onWall(ctx,side,tt,2,10,34,34,(u,v,W)=>{const r=W/2,dx=u-r,d=v<r?Math.hypot(dx,r-v):Math.abs(dx);
+    return d>r-1.2?null:v>27?'#e0b04f':(v+u+f)%5===0?'#fff3c4':'#f7d98a'});
 }
 // riquadro cliccabile del varco: [x,y,larghezza,altezza]
 function hitVarco(side,t){const [cx,cy]=side==='R'?iso(t,0):iso(0,t);return side==='R'?[cx+2,cy-33,9,36]:[cx-10,cy-33,9,36]}
@@ -89,6 +124,7 @@ const STANZE={
       onWall(g,'L',6,2,10,44,22,framed((u,v,W,H)=>(u===Math.floor(W/2)||v===Math.floor(H/2))?'#4a3b2c':(u===2&&v===3?'#f4f0d8':'#24345a'),'#4a3b2c'));
       onWall(g,'L',8,3,9,36,7,framed((u,v)=>v===3&&u%2?'#3a2a1a':'#c9a65a','#6b5226'));
       pareteVarco(g,'L',4);
+      pareteCartellino(g,'R',3);
     },
     // lanterna del custode e finestra
     luci(){const l=[],[wx,wy]=iso(0,6),k=OBJ.find(o=>o.id==='keeper');l.push([wx-6,wy-30,20,.5]);
@@ -102,6 +138,7 @@ const STANZE={
       onWall(g,'R',3,1,11,44,16,vedutaVilla(0));onWall(g,'R',4,0,9,44,16,vedutaVilla(11));
       [2,5].forEach(t=>onWall(g,'L',t,3,9,46,22,framed((u,v,W,H)=>(u===Math.floor(W/2)||v===Math.floor(H/2))?'#5a4e3e':(u===1&&v===2?'#f4f0d8':'#24345a'),'#5a4e3e')));
       pareteVarco(g,'L',6);
+      pareteCartellino(g,'R',1);pareteCartellino(g,'R',6);
     },
     luci(){return [2,5].map(t=>{const [wx,wy]=iso(0,t);return [wx-6,wy-34,20,.5]})}}
 };
@@ -256,12 +293,15 @@ function drawLight(t){
   lx.globalCompositeOperation='source-over';lx.clearRect(0,0,VW,VH);lx.fillStyle='rgba(9,6,22,.64)';lx.fillRect(0,0,VW,VH);
   lx.globalCompositeOperation='destination-out';
   const [pcx,pcy]=iso(P.px,P.py);hole(pcx,pcy,62);
-  OBJ.forEach(o=>{if(o.light){const [bx,by]=base(o);hole(bx,by-o.h/2,24,.8)}});
+  // centro della luce di un oggetto: sul riquadro se è appeso alla parete (hit), altrimenti a metà altezza
+  const centroLuce=o=>{if(o.hit){const [x,y,w,h]=o.hit();return [x+w/2,y+h/2]}const [bx,by]=base(o);return [bx,by-o.h/2]};
+  OBJ.forEach(o=>{if(o.light){const [lx_,ly_]=centroLuce(o);hole(lx_,ly_,24,.8)}});
+  OBJ.forEach(o=>{if(o.acceso&&o.hit&&o.acceso()){const [x,y,w,h]=o.hit();hole(x+w/2,y+h/2,30,.9)}});
   STANZE[S.room].luci().forEach(l=>hole(...l));
   if(STANZE[S.room].porta){const [dx,dy]=iso(10,0);hole(dx+7,dy-14,18+S.door*30,.6+S.door*.4)}
   ctx.drawImage(lc,0,0);
   ctx.globalCompositeOperation='lighter';
-  OBJ.forEach(o=>{if(o.light){const [bx,by]=base(o);const g=ctx.createRadialGradient(bx,by-o.h/2,0,bx,by-o.h/2,22);g.addColorStop(0,'rgba(224,176,79,.16)');g.addColorStop(1,'rgba(224,176,79,0)');ctx.fillStyle=g;ctx.fillRect(bx-22,by-o.h/2-22,44,44)}});
+  OBJ.forEach(o=>{if(o.light){const [bx,cy]=centroLuce(o);const g=ctx.createRadialGradient(bx,cy,0,bx,cy,22);g.addColorStop(0,'rgba(224,176,79,.16)');g.addColorStop(1,'rgba(224,176,79,0)');ctx.fillStyle=g;ctx.fillRect(bx-22,cy-22,44,44)}});
   ctx.globalCompositeOperation='source-over';
 }
 const motes=Array.from({length:26},(_,i)=>({x:(i*53)%VW,y:(i*97)%VH,s:.004+((i*7)%5)*.0015,p:i}));
@@ -277,10 +317,12 @@ function frame(now){
 function render(t){
   ctx.fillStyle='#0b0814';ctx.fillRect(0,0,VW,VH);
   ctx.drawImage(sfondi[S.room],0,0);drawDoor(t);
+  const accesi=OBJ.filter(o=>o.acceso&&o.hit&&o.acceso());accesi.forEach(o=>varcoAcceso(o,t));
   const list=OBJ.filter(o=>o.draw).map(o=>({d:o.x+o.y,f:()=>o.draw(o,t)}));
   list.push({d:P.px+P.py+.01,f:()=>drawPlayer(t)});
   list.sort((a,b)=>a.d-b.d).forEach(e=>e.f());
   drawMotes(t);drawLight(t);
+  accesi.forEach(o=>{const [x,y,w]=o.hit();sparkle(x+Math.floor(w/2),y-14,t)});
   if(S.fade>0){ctx.fillStyle=`rgba(11,8,20,${S.fade})`;ctx.fillRect(0,0,VW,VH)}
   if(target&&!blocked()){let x,y;if(target.hit){const [hx,hy,hw]=target.hit();x=hx+Math.floor(hw/2);y=hy-8}else{[x,y]=base(target);y-=target.h+5}
     y+=Math.floor(t/300)%2;R(ctx,x-2,y,5,1,'#e0b04f');R(ctx,x-1,y+1,3,1,'#e0b04f');R(ctx,x,y+2,1,1,'#e0b04f')}
