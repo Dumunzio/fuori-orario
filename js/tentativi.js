@@ -1,7 +1,7 @@
 /* Tentativi: ogni rompicapo ha 5 tentativi. Al quinto sbaglio si blocca, e per riprovare bisogna uscire dalla stanza e rientrare.
    Non cambia i rompicapi degli altri file: conta gli sbagli agganciandosi a bad() (motore.js), mostra il contatore
    agganciandosi a openModal() e azzera tutto a ogni cambio di stanza agganciandosi a entraStanza().
-   Va caricato dopo lingua-en.js (aggiunge le sue traduzioni a LINGUA_EN) e prima di lingua.js.
+   Le frasi in inglese stanno in lingua-en.js (area lingua): se cambi un testo qui, avvisa lingua in bacheca.
    Tutto sta dentro una funzione: come nome globale esce solo TENTATIVI. Area: territorio. Vedi CLAUDE.md. */
 (()=>{
 const MAX=5;
@@ -72,12 +72,6 @@ openModal=function(html){
 const entraStanzaPrima=entraStanza;
 // solo se la stanza cambia davvero: «Vai alla sala» verso la stanza dove sei già non è uscire e rientrare
 entraStanza=function(id){if(id!==S.room)sbagli={};return entraStanzaPrima(id)};
-
-// Traduzioni in inglese (js/lingua.js le legge da LINGUA_EN quando si carica, dopo questo file).
-if(typeof LINGUA_EN!=='undefined')Object.assign(LINGUA_EN,{
-  'Tentativi rimasti: {} su {}':'Attempts left: {} of {}',
-  [BLOCCO]:'You have used up your attempts. Leave the room and come back in to try again.'
-});
 
 const st=document.createElement('style');st.textContent=`
 .tt-conto{font-family:var(--display);font-size:15px;letter-spacing:.08em;color:var(--muted)}
