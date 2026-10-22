@@ -74,8 +74,9 @@ STANZE.atrio={w:13,h:11,ox:148,oy:64,porta:false,
     tintaPareti(g,'#5d5a6e','#46435a','#2e2b3c','#b8892f');
     SALE.forEach(s=>arcoVarco(g,s.posto.lato,s.posto.t,s.colore));
   },
-  luci(){return SALE.map(s=>{const [cx,cy]=s.posto.lato==='R'?iso(s.posto.t,0):iso(0,s.posto.t);
-    return s.posto.lato==='R'?[cx+7,cy-16,16,.55]:[cx-6,cy-14,16,.55]})}};
+  // luce diffusa su tutto l'atrio, più una luce per ogni varco: così gli archi si vedono anche da lontano
+  luci(){const [mx,my]=iso(6,5);return [[mx,my-10,150,.45],...SALE.map(s=>{const [cx,cy]=s.posto.lato==='R'?iso(s.posto.t,0):iso(0,s.posto.t);
+    return s.posto.lato==='R'?[cx+7,cy-16,22,.8]:[cx-6,cy-14,22,.8]})]}};
 function drawScala(o){const [bx,by]=base(o);
   for(let k=0;k<4;k++)box(ctx,bx,by+1-k*0,11-k*2,5-k,2+k*3,k%2?'#7a6e5c':'#8a7e6a','#5f5545','#4c4437');
   R(ctx,bx-2,by-16,4,4,'#e0b04f')}
@@ -85,7 +86,7 @@ function drawGuida(o){const [bx,by]=base(o);
   SALE.forEach((s,i)=>R(ctx,bx-7+(i%6)*2.5|0,by-31+((i/6)|0)*4,2,2,tessereS()[s.id]?'#e0b04f':s.colore))}
 const OGGETTI_ATRIO=[
   {id:'scalaMuseo',x:6,y:10,h:18,name:'Scala: torna al museo',draw:drawScala,act:()=>vaiInStanza('museo',6,0)},
-  {id:'guidaSale',x:6,y:5,h:34,name:'Guida alle sale',draw:drawGuida,act:()=>apriCollezione(),light:1}
+  {id:'guidaSale',x:6,y:5,h:34,name:'Guida alle sale',draw:drawGuida,act:()=>apriGuida(),light:1}
 ];
 OGGETTI.atrio=[...OGGETTI_ATRIO];
 
@@ -100,7 +101,8 @@ OGGETTI.atrio=[...OGGETTI_ATRIO];
     if(!v.atrio){v.atrio=true;say('Atrio delle sale',[
       `Qui comincia il museo del territorio: ${SALE.length} sale, una per ogni storia dell'Alto Vicentino.`,
       'Ogni sala ha un rompicapo. Risolvilo e avrai la sua tessera, con la foto vera del luogo.',
-      'Le tessere non servono per uscire: sono la tua collezione. La guida al centro ti dice quali ti mancano.'])}
+      'Ogni arco porta a una sala. Il leggio al centro è la guida: elenca tutte le sale e ti ci porta.',
+      'Le tessere non servono per uscire: sono la tua collezione.'])}
   }));
 }
 
@@ -132,6 +134,15 @@ function apriCollezione(){
       :`<div class="sl-t sl-chiusa" style="--c:${s.colore}"><b>?</b><span>${s.nome}</span></div>`).join('')}</div>
     <div class="row end">${closeBtn}</div>`);
   $('card').querySelectorAll('.sl-t[data-id]').forEach(b=>b.onclick=()=>mostraTessera(b.dataset.id,false));
+}
+// Elenco delle sale, con il colore del loro arco e un pulsante per entrare.
+function apriGuida(){
+  openModal(`<div class="eyebrow">Atrio · ${SALE.length} sale · tessere ${tessereN()} su ${SALE.length}</div><h2>Guida alle sale</h2>
+    <p>Ogni arco dell'atrio porta a una sala: il colore della fascia sopra l'arco è quello qui accanto al nome. Puoi anche entrare da qui.</p>
+    <div class="sl-scelte" id="slGuida">${SALE.map(s=>`<button type="button" data-id="${s.id}" style="display:flex;gap:10px;align-items:center"><span style="width:14px;height:14px;background:${s.colore};flex:none"></span><span style="flex:1">${s.nome}</span><span class="eyebrow">${tessereS()[s.id]?'tessera presa':'da fare'} · Vai</span></button>`).join('')}</div>
+    <div class="row end"><button type="button" id="slColl">Collezione</button>${closeBtn}</div>`);
+  $('slGuida').onclick=e=>{const b=e.target.closest('button');if(b){closeModal();entraInSala(b.dataset.id)}};
+  $('slColl').onclick=apriCollezione;
 }
 function hudTessere(){const b=$('btnTessere'),t=`Tessere ${tessereN()}/${SALE.length}`;if(b&&b.textContent!==t)b.textContent=t}
 {
