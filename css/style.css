@@ -78,13 +78,19 @@ button.primary{background:var(--brass);color:#1a1424;border-color:#1a1424}
 .journal article{border:2px solid var(--line);padding:10px 12px;display:grid;gap:4px}
 .journal h3{margin:0;font-family:var(--display);font-size:16px;color:var(--brass)}
 .journal .tag{font-family:var(--display);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.journal article.seal{border-color:var(--brass)}
+.journal article.seal{border-color:var(--brass);position:relative;padding-left:44px}
+.journal article.seal::before{content:"";position:absolute;left:14px;top:14px;width:14px;height:14px;background:var(--brass);border:2px solid #fff3c4;transform:rotate(45deg);box-shadow:0 0 8px var(--brass)}
+.tcard .promessa{display:flex;gap:10px;align-items:center;font-family:var(--display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tcard .promessa i{width:16px;height:16px;border:2px solid var(--brass);background:#120e1c;transform:rotate(45deg);display:block;animation:luce 2.4s steps(2) infinite}
+.tcard .promessa i:nth-child(2){animation-delay:.6s}.tcard .promessa i:nth-child(3){animation-delay:1.2s}.tcard .promessa i:nth-child(4){animation-delay:1.8s}
+@keyframes luce{50%{background:var(--brass);box-shadow:0 0 8px var(--brass)}}
+@media (prefers-reduced-motion:reduce){.tcard .promessa i{animation:none}}
 ul.src{margin:0;padding-left:1.1em;display:grid;gap:2px}
 ul.src li::marker{color:var(--brass)}
 a{color:var(--brass)}
 .fonti{display:block;font-size:17px;color:var(--muted)}
 
-#title{position:fixed;inset:0;z-index:30;background:var(--night);display:grid;place-items:center;padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));overflow:auto}
+#title{position:fixed;inset:0;z-index:30;background:radial-gradient(ellipse at 50% 60%,rgba(21,17,31,.55),rgba(21,17,31,.94) 70%);backdrop-filter:blur(2px);display:grid;place-items:center;padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));overflow:auto}
 .tcard{width:min(620px,100%);display:flex;flex-direction:column;gap:14px}
 .tcard h1{font-family:var(--display);font-weight:700;font-size:clamp(44px,11vw,84px);line-height:.9;margin:0;color:var(--brass);letter-spacing:.04em;text-shadow:4px 4px 0 var(--wool),8px 8px 0 #000}
 .tcard .sub{font-family:var(--display);font-size:16px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
