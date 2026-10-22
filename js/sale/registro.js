@@ -74,6 +74,9 @@ function tintaPareti(g,chiaro,scuro,zoccolo,cornice){
 const quadro=(g,lato,t,i0,i1,top,h,fn,cornice)=>onWall(g,lato,t,i0,i1,top,h,framed(fn,cornice));
 
 /* ---------- Disegno: pezzi riutilizzabili ---------- */
+// Tempo per le animazioni delle sale: fermo a 0 se il sistema chiede meno movimento (prefers-reduced-motion).
+const MENO_MOTO=matchMedia('(prefers-reduced-motion: reduce)');
+const tAnim=t=>MENO_MOTO.matches?0:t;
 // Come spr() del motore, ma ogni cella è un quadrato di s pixel.
 function sprS(rows,pal,x,y,s){rows.forEach((row,j)=>{for(let i=0;i<row.length;i++){const c=pal[row[i]];if(c)R(ctx,x+i*s,y+j*s,s,s,c)}})}
 // Piedistallo di pietra; restituisce la quota del piano superiore.
@@ -148,11 +151,13 @@ function mostraTessera(id,nuova){
   const s=SALA[id],T=s.tessera;
   openModal(`<div class="eyebrow">${nuova?'Nuova tessera · ':''}Tessera ${SALE.indexOf(s)+1} di ${SALE.length}</div>
     <h2>${T.titolo}</h2>
-    <figure class="sl-foto"><img src="${T.foto.file}" alt="${T.foto.alt}"><figcaption>${fotoCredito(T.foto)}</figcaption></figure>
+    <figure class="sl-foto${nuova?' sl-nuova':''}"><img src="${T.foto.file}" alt="${T.foto.alt}"><figcaption>${fotoCredito(T.foto)}</figcaption></figure>
     <p>${T.testo}</p>
     ${fonteHtml('tessera-'+id)}
-    <div class="row end">${nuova?`<span class="eyebrow">Tessere: ${tessereN()} su ${SALE.length}</span>`:''}<button type="button" id="slColl">Collezione</button>${closeBtn}</div>`);
+    <div class="row end">${nuova?`<span class="eyebrow">Tessere: ${tessereN()} su ${SALE.length}</span>`:''}${typeof apriMappa==='function'?'<button type="button" id="slMappa">Vedi sulla mappa</button>':''}<button type="button" id="slColl">Collezione</button>${closeBtn}</div>`);
   $('slColl').onclick=apriCollezione;
+  // la mappa del territorio (js/territorio.js) seleziona il luogo della sala, se apriMappa accetta l'id
+  if($('slMappa'))$('slMappa').onclick=()=>apriMappa(id);
 }
 function apriCollezione(){
   openModal(`<div class="eyebrow">Tessere del territorio · ${tessereN()} su ${SALE.length}</div><h2>La tua collezione</h2>
@@ -264,5 +269,13 @@ function mescola(a,seme=7){a=a.slice();for(let i=a.length-1;i>0;i--){seme=(seme*
 .sl-giornale button{background:transparent;color:#2a2030;border:2px solid transparent;box-shadow:none;text-transform:none;font-family:var(--body);font-size:20px;letter-spacing:0;text-align:left;padding:2px 4px}
 .sl-giornale button.on{border-color:#c2493c;text-decoration:line-through;text-decoration-color:#c2493c}
 @media (max-width:520px){.sl-cesti{grid-template-columns:1fr}}
+/* tessera appena presa: entra con un piccolo salto e un lampo dorato */
+.sl-nuova img{animation:slEntra .7s cubic-bezier(.2,.9,.3,1.25) both}
+.sl-nuova{animation:slLampo 1.2s ease-out both}
+@keyframes slEntra{from{transform:scale(.82) rotate(-2deg);filter:brightness(1.8) saturate(.4);opacity:0}to{transform:none;filter:none;opacity:1}}
+@keyframes slLampo{0%{box-shadow:0 0 0 0 rgba(224,176,79,.9)}100%{box-shadow:0 0 0 14px rgba(224,176,79,0)}}
+.sl-t[data-id]{transition:transform .15s}
+.sl-t[data-id]:hover,.sl-t[data-id]:focus-visible{transform:translateY(-3px)}
+@media (prefers-reduced-motion:reduce){.sl-nuova,.sl-nuova img{animation:none}.sl-t[data-id]{transition:none}}
 `;document.head.appendChild(st);
 }

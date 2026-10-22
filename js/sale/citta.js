@@ -32,7 +32,10 @@ function drawPlastico(o,t){const [bx,by]=base(o);
   for(let k=0;k<12;k++)R(ctx,bx-12+k*2,by-4+((k/2)|0),2,1,'#4a7aa8');
   [[-7,-8,6],[-2,-10,8],[4,-8,5],[-4,-4,4],[2,-5,6],[7,-5,3]].forEach(([x,y,h],k)=>box(ctx,bx+x,by+y,3,1,h,k%2?'#e6c9a3':'#d9b98a','#b5523f','#93402f'));
   R(ctx,bx+5,by-14,7,4,'#7aa86a');R(ctx,bx+6,by-13,5,2,'#9fd08a');
-  if(tessereS()[ID])sparkle(bx,by-20,t);
+  // il fumo della ciminiera della fabbrica
+  const tt=tAnim(t);R(ctx,bx-3,by-22,2,8,'#8f3229');
+  for(let k=0;k<4;k++){const f=(tt/600+k/4)%1,s=1+Math.round(f*2);R(ctx,bx-3+Math.round(Math.sin(f*6+k)*2+f*4),by-24-Math.round(f*14),s,s,'rgba(201,201,196,'+(.6*(1-f))+')')}
+  if(tessereS()[ID])sparkle(bx,by-28,t);
 }
 function drawLavagna(o,t){const [bx,by]=base(o);
   R(ctx,bx-1,by-12,2,12,'#3d3320');R(ctx,bx-6,by-2,12,2,'#3d3320');

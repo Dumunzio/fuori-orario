@@ -39,9 +39,11 @@ function drawFontana(o,t){const [bx,by]=base(o);
   for(let k=0;k<3;k++)R(ctx,bx-1+k,by-20+((t/120+k*3)%6),1,2,'#bfe6f0');
   if(tessereS()[ID])sparkle(bx+8,by-20,t);
 }
-function drawBottiglie(o){const [bx,by]=base(o);
+function drawBottiglie(o,t){const [bx,by]=base(o);
   box(ctx,bx,by+1,9,4,8,'#5a3e2a','#46301f','#3a2818');
   [['#7fc4dc',-6],['#c2493c',-2],['#e0b04f',2],['#7fc4dc',6]].forEach(([c,x])=>{R(ctx,bx+x-1,by-18,3,8,c);R(ctx,bx+x,by-21,1,3,'#2a2030')});
+  // bollicine che salgono nelle bottiglie: è acqua frizzante
+  const tt=tAnim(t);[-6,-2,2,6].forEach((x,k)=>{for(let j=0;j<2;j++){const f=(tt/900+k*.27+j*.5)%1;R(ctx,bx+x-1+((k+j)%3),by-11-Math.round(f*6),1,1,'rgba(255,255,255,'+(.8-f*.5)+')')}});
 }
 function drawTubo(o){const [bx,by]=base(o);
   R(ctx,bx-8,by-14,16,3,'#8a8d95');R(ctx,bx+6,by-14,3,14,'#8a8d95');R(ctx,bx-9,by-16,3,7,'#6f727a');

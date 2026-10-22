@@ -27,6 +27,8 @@ function drawMonte(o,t){const [bx,by]=base(o);
   for(let r=0;r<26;r++){const w=Math.round(r*.55)+1,y=by-31+r,neve=r<5;
     R(ctx,bx-w,y,w,1,neve?'#cfd6da':'#7a8a6a');R(ctx,bx,y,w,1,neve?'#b8c0c4':'#5f6e52')}
   R(ctx,bx-3,by-31,6,4,'#3a3226');R(ctx,bx-2,by-30,4,2,'#1a1424');
+  // neve leggera sul plastico
+  const tt=tAnim(t);for(let k=0;k<7;k++){const y=(tt/55+k*9)%34,x=Math.round(Math.sin(tt/700+k*2)*2)+((k*7)%22)-11;R(ctx,bx+x,by-38+y,1,1,'rgba(233,238,240,'+(.9-y/40)+')')}
   if(tessereS()[ID])sparkle(bx+6,by-34,t);
 }
 function drawOrologio(o,t){const [bx,by]=base(o);

@@ -38,7 +38,11 @@ function drawForte(o,t){const [bx,by]=base(o);
   faceL(bx,by-4,9,4,(x,y,i)=>{if(i%3===1)R(ctx,x,y-7,1,2,'#1a1424')});
   faceR(bx,by-4,9,4,(x,y,i)=>{if(i%3===1)R(ctx,x,y-7,1,2,'#1a1424')});
   for(const dx of [-4,4]){for(let r=0;r<3;r++)R(ctx,bx+dx-3+r,by-17-r,6-2*r,1,'#5c5f67')}
-  if(tessereS()[ID])sparkle(bx,by-24,t);
+  // la bandiera sull'asta sventola
+  const tt=tAnim(t);R(ctx,bx,by-28,1,10,'#3a3a3a');
+  // tricolore a bande verticali: verde, bianco, rosso
+  for(let i=0;i<9;i++){const dy=Math.round(Math.sin(tt/160+i*.9)*1);R(ctx,bx+1+i,by-28+dy,1,5,i<3?'#3f7a3f':i<6?'#efe2c4':'#c2493c')}
+  if(tessereS()[ID])sparkle(bx,by-32,t);
 }
 function drawEdicola(o,t){const [bx,by]=base(o);
   box(ctx,bx,by+1,7,3,16,'#6a4632','#4a2f22','#3a251b');
