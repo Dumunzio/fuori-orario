@@ -204,6 +204,15 @@ function concediTessera(id){
   mostraTessera(id,true);
 }
 function fotoCredito(f){return `Foto: ${f.autore} · ${f.licenza} · <a href="${f.pagina}" target="_blank" rel="noopener">Wikimedia Commons</a>`}
+// Le tessere prese, nell'ordine delle sale, per la schermata finale (enigmi.js): dati della sala e della foto.
+// {id, nome, colore, motivo, titolo, foto:{file, alt, autore, licenza, pagina}}
+const tessereImmagini=()=>SALE.filter(s=>tessereS()[s.id]).map(s=>({id:s.id,nome:s.nome,colore:s.colore,motivo:MOTIVI[s.id],
+  titolo:s.tessera.titolo,foto:{...s.tessera.foto}}));
+// Come tessereImmagini, ma con la foto già caricata in img (Image), pronta per drawImage su un canvas.
+// Una foto che non si carica ha img null: la schermata disegna al suo posto il colore della sala.
+// Nota: aperto da file locale, il canvas con le foto non si può esportare (toBlob); via http(s) sì.
+const caricaTessereImmagini=()=>Promise.all(tessereImmagini().map(t=>new Promise(fatto=>{
+  const img=new Image();img.onload=()=>fatto({...t,img});img.onerror=()=>fatto({...t,img:null});img.src=t.foto.file})));
 function mostraTessera(id,nuova){
   const s=SALA[id],T=s.tessera;
   openModal(`<div class="eyebrow">${nuova?'Nuova tessera · ':''}Tessera ${SALE.indexOf(s)+1} di ${SALE.length}</div>
