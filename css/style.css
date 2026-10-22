@@ -108,13 +108,18 @@ a{color:var(--brass)}
 #btnAct{width:56px;height:56px;border-radius:0;font-size:18px}
 /* pianta del museo nell'ingresso: carta crema, rami color ottone, stanze completate dorate */
 .pianta{width:100%;max-width:520px;background:#efe2c4;border:2px solid var(--line);box-shadow:3px 3px 0 #000}
-.pianta line{stroke:#8a7350;stroke-width:3;stroke-linecap:round}
-.pianta circle{fill:#5a4e3e;stroke:#2a2030;stroke-width:1.5}
-.pianta circle.fatta{fill:var(--brass);stroke:#8a6a34}
-.pianta circle.qui{stroke:var(--wool);stroke-width:3}
-.pianta text{font-family:var(--display);font-size:10px;fill:#3a2a1a}
+/* stanze come rettangoli, corridoi ad angolo retto, zone tenui per i rami */
+.pianta .zona{fill:var(--c);fill-opacity:.12;stroke:var(--c);stroke-opacity:.5;stroke-dasharray:3 2}
+.pianta .zona-nome{font-size:6.5px;fill:var(--c);letter-spacing:.04em}
+.pianta .corridoi path{fill:none;stroke:#8a7350;stroke-width:4;stroke-linejoin:round}
+.pianta rect.stanza{fill:#f7eedb;stroke:var(--c);stroke-width:2.5}
+.pianta rect.stanza.fatta{fill:#e8c46a}
+.pianta rect.qui{fill:none;stroke:var(--wool);stroke-width:2;stroke-dasharray:4 2}
+.pianta text{font-family:var(--display);font-size:7.5px;fill:#3a2a1a}
+.pianta text.spunta{font-size:8px;fill:#5a7a2a}
+.pianta text.sei-qui{font-size:6.5px;fill:var(--wool)}
 .pianta g{cursor:pointer;outline:none}
-.pianta g:focus circle,.pianta g:hover circle{stroke:var(--wool);stroke-width:3}
+.pianta g:focus rect.stanza,.pianta g:hover rect.stanza{stroke:var(--wool);stroke-width:4}
 .pianta-rami{display:grid;gap:4px;font-size:18px}
 .pianta-rami b{font-family:var(--display);font-size:13px;color:var(--brass);letter-spacing:.06em;margin-right:6px}
 .pianta-rami span.fatta{color:var(--ok)}
