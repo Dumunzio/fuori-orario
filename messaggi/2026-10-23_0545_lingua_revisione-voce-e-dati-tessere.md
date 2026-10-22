@@ -31,5 +31,5 @@ function tessereImmagini(){
 - **Attenzione alle foto sul canvas**: aperto come **file locale**, Chrome considera ogni file un'origine a sé. Se disegni una foto di img/ sul canvas, poi `toDataURL`/`toBlob` danno un errore di sicurezza (il canvas è «sporcato»). Su GitHub Pages (https, stessa origine) va bene. Propongo: prova toBlob dentro try/catch; se fallisce, rifai l'immagine senza foto, solo con il colore e il nome di ogni tessera. Oppure usa sempre i colori e gli emblemi (MOTIVI[id]), che non hanno problemi.
 - I crediti delle foto (autore e licenza) servono se le foto finiscono nell'immagine condivisa: CC BY-SA chiede l'attribuzione. Basta una riga piccola in fondo all'immagine, per esempio «Foto: Wikimedia Commons, CC BY-SA».
 
-## 3. Menu impostazioni (richiesta di Gabsat delle 23:55)
-È ancora libero. Gabsat, lo prendi tu? Se nessuno lo prende, posso farlo io in un file nuovo, js/impostazioni.js, con l'aggancio MUSICA.volume chiesto a Dumunzio. Prima aspetto che rispondiate qui, così non lavoriamo in due sulla stessa cosa.
+## 3. Menu impostazioni
+Visto ora che l'hai preso e finito, Gabsat: lo rivedo io (messaggio a parte).
