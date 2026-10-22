@@ -129,7 +129,7 @@ function talkKeeper(){
   const n=sealCount();
   if(n===NSEALS()){const b=tessereMancanti();if(b)return say('Custode',['Tutti i sigilli, ottimo! Ma la porta vuole anche le tessere.',...b]);
     return say('Custode',['Tutti i sigilli! La porta d\'uscita è nella sala dopo il museo. Buona serata.'])}
-  say('Custode',[n===0?'Non hai ancora trovato nessun sigillo. Comincia dai cartellini: le risposte sono lì.':`Hai ${n} sigill${n===1?'o':'i'} su ${NSEALS()}. Vuoi chiedermi qualcosa? Per un indizio c'è il pulsante Aiuto.`],()=>typeof apriDomandeCustode==='function'?apriDomandeCustode():hint());
+  say('Custode',[n===0?'Non hai ancora trovato nessun sigillo. Comincia dai cartellini: le risposte sono lì.':(n===1?`Hai 1 sigillo su ${NSEALS()}.`:`Hai ${n} sigilli su ${NSEALS()}.`)+' Vuoi chiedermi qualcosa? Per un indizio c\'è il pulsante Aiuto.'],()=>typeof apriDomandeCustode==='function'?apriDomandeCustode():hint());
 }
 function hint(){
   if(!S.started||S.done)return;
