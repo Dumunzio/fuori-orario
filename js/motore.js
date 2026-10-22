@@ -196,6 +196,16 @@ const STANZE={
     luci(){return [['R',2],['R',7]].map(([s_,t])=>lampada(s_,t))}}
 };
 const sfondi={};
+// Grana del pavimento: con la stanza ingrandita le mattonelle a tinta unita sembravano piatte.
+// Qualche pixel un po' più chiaro o più scuro del colore della mattonella, sempre negli stessi punti (niente a caso).
+const tono=(hex,k)=>{const n=parseInt(hex.slice(1),16),c=v=>Math.max(0,Math.min(255,Math.round(v*k)));
+  return '#'+((c(n>>16)<<16)|(c(n>>8&255)<<8)|c(n&255)).toString(16).padStart(6,'0')};
+function granaPavimento(g,cx,cy,x,y,base){
+  if(!/^#[0-9a-f]{6}$/i.test(base))return;const scuro=tono(base,.9),chiaro=tono(base,1.08);
+  for(let r=1;r<11;r++){const w=r<6?2*r+2:2*(11-r)+2;
+    for(let c=-w+2;c<w-2;c++){const h=((x*73856093)^(y*19349663)^(r*83492791)^(c*2654435761))>>>0;
+      if(h%29===0){g.fillStyle=scuro;g.fillRect(cx+c,cy+r,1,1)}else if(h%41===0){g.fillStyle=chiaro;g.fillRect(cx+c,cy+r,1,1)}}}
+}
 function buildBg(){
   if(sfondi[S.room])return;
   const st=STANZE[S.room],c=document.createElement('canvas');c.width=VW;c.height=VH;const g=c.getContext('2d');
@@ -206,6 +216,7 @@ function buildBg(){
     const [cx,cy]=iso(x,y),p=st.pav[st.zona(x,y)],base=(x+y)%2?p[0]:p[1];
     for(let r=0;r<12;r++){const w=r<6?2*r+2:2*(11-r)+2;g.fillStyle=base;g.fillRect(cx-w,cy+r,w*2,1);
       if(r<6){g.fillStyle=p[2];g.fillRect(cx-w,cy+r,1,1);g.fillRect(cx+w-1,cy+r,1,1)}}
+    granaPavimento(g,cx,cy,x,y,base);
     if(p[3]&&(x+y)%2===0){g.fillStyle=p[3];g.fillRect(cx-1,cy+5,2,2)}
   }
   st.decoro&&st.decoro(g);
@@ -392,7 +403,9 @@ function frame(now){
 }
 function render(t){
   ctx.setTransform(1,0,0,1,-VISTA.x,-VISTA.y);
-  ctx.fillStyle='#0b0814';ctx.fillRect(VISTA.x,VISTA.y,VISTA.w,VISTA.h);
+  // fuori dalla stanza non un fondo piatto: un alone tenue dietro la stanza che sfuma nel buio ai bordi
+  const fx=OX+(MW-MH)*HW/2,fy=OY+(MW+MH)*HH/2-WH/2,fondo=ctx.createRadialGradient(fx,fy,10,fx,fy,Math.max(VISTA.w,VISTA.h)*.75);
+  fondo.addColorStop(0,'#1c1534');fondo.addColorStop(1,'#07050d');ctx.fillStyle=fondo;ctx.fillRect(VISTA.x,VISTA.y,VISTA.w,VISTA.h);
   ctx.drawImage(sfondi[S.room],0,0);drawDoor(t);disegnaTraiettorie();
   const accesi=OBJ.filter(o=>o.acceso&&o.hit&&o.acceso());accesi.forEach(o=>varcoAcceso(o,t));
   const list=OBJ.filter(o=>o.draw).map(o=>({d:o.x+o.y,f:()=>o.draw(o,t)}));
