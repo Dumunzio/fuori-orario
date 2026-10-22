@@ -2,6 +2,8 @@
 
 Escape room in pixel art ambientata in un museo immaginario dell'Alto Vicentino. Progetto per la sfida "Il luogo che racconta": far scoprire il patrimonio culturale locale a chi ha meno di 26 anni, usando dati aperti e AI.
 
+**Il gioco si gioca da casa.** È una scelta del team: niente meccaniche che obbligano ad andare fisicamente nei luoghi (GPS, check-in). I luoghi veri entrano nel gioco attraverso sale, foto, racconti e fonti.
+
 Il team è diviso in **4 aree**. Ogni persona lavora con il suo Claude su **un ramo git**, e ogni ramo ha i suoi file. I Claude si coordinano sulla **bacheca** (in fondo a questo file).
 
 ## All'inizio di ogni sessione
@@ -16,7 +18,7 @@ Il team è diviso in **4 aree**. Ogni persona lavora con il suo Claude su **un r
 | `grafica-motore` | Disegno isometrico, animazioni, luce, movimento, comandi (tastiera, mouse, touch), dialoghi e finestre, stile, versione mobile | `index.html`, `css/style.css`, `js/motore.js`, `js/avvio.js` |
 | `enigmi-storia` | Le sale, gli oggetti, i rompicapi, i testi dei cartellini, il custode, il diario, il finale | `js/contenuti.js`, `js/stanza.js`, `js/enigmi.js` |
 | `dati-ai` | Verifica dei fatti sulle fonti aperte (Wikidata, Europeana, Catalogo MiC, Rete Museale), fonti citate in gioco, custode che risponde con l'AI | `js/fonti.js` e i nuovi file `js/ai-*.js`, cartella `dati/` |
-| `territorio` | Il collegamento con i luoghi veri: codici da trovare dal vivo, mappa, controllo di posizione, versione da giocare in giro per Schio e dintorni | `js/territorio.js` e i nuovi file `js/luoghi-*.js` |
+| `territorio` | Portare i luoghi veri dell'Alto Vicentino dentro il gioco: quali luoghi, con foto, coordinate e storia; sale ispirate a luoghi reali; una mappa del territorio da consultare in gioco | `js/territorio.js` e i nuovi file `js/luoghi-*.js` |
 
 **Regola d'oro: modifica solo i file della tua area.** Se ti serve un cambiamento in un file di un'altra area, scrivi un messaggio in bacheca a quell'area e aspetta. Se è una correzione minuscola e urgente (un errore che blocca il gioco), falla, ma scrivilo subito in bacheca.
 
@@ -24,7 +26,7 @@ Il team è diviso in **4 aree**. Ogni persona lavora con il suo Claude su **un r
 - **grafica-motore**: più sale (oggi c'è una stanza sola), passaggio tra sale, schermata finale più ricca, test su telefono.
 - **enigmi-storia**: enigmi meno "leggi e copia" e più di ragionamento; nuove sale (Grande Guerra, Ville, Folklore); il calcolo 1917 − 1862 della cassetta è forzato, da ripensare.
 - **dati-ai**: verificare ogni fatto di `contenuti.js` e segnarlo in `FONTI` come `verificato` con il link; mostrare la fonte nel diario; progettare il custode AI. Attenzione: il repo è pubblico, **mai mettere chiavi API nel codice**. Se serve l'AI dal vivo, va trovata una soluzione con un piccolo server, oppure i testi si generano prima con Claude e si salvano con la fonte.
-- **territorio**: far sì che alcune combinazioni si trovino solo andando nei luoghi veri di `LUOGHI_REALI` (una data incisa, un numero su una targa). Serve anche un modo per giocare in sala alla demo senza muoversi.
+- **territorio**: ampliare `LUOGHI_REALI` (foto con licenza da Wikimedia Commons, coordinate, breve storia con fonte); proporre a enigmi-storia nuove sale ispirate a luoghi reali; una mappa dell'Alto Vicentino nel gioco che mostra da dove viene ogni oggetto del museo. Il gioco resta da casa: niente GPS né obbligo di andare nei luoghi.
 
 ## Come è fatto il codice
 - Niente librerie e niente build: si apre `index.html` nel browser e funziona, anche da file locale.

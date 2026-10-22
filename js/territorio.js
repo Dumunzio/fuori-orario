@@ -2,8 +2,8 @@
    Area: territorio. Vedi CLAUDE.md prima di modificare. */
 
 // Coordinate e ID da Wikidata (snapshot del 22/10/2026).
-// Idea di partenza: alcune combinazioni non stanno nei cartellini del museo,
-// ma su questi luoghi (una data incisa, un numero su una targa). Per uscire dal museo devi uscire di casa.
+// I luoghi veri da cui vengono gli oggetti e le storie del museo. Il gioco si gioca da casa:
+// questi dati servono a raccontare i luoghi (mappa, foto, schede), non a obbligare ad andarci.
 const LUOGHI_REALI=[
   {id:'Q3737489',nome:'Fabbrica Alta',comune:'Schio',lat:45.715,lon:11.35194},
   {id:'Q3862664',nome:'Monumento al Tessitore',comune:'Schio',lat:45.7147,lon:11.3589},
