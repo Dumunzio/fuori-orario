@@ -921,5 +921,7 @@ const LINGUA_EN={
 "Hai già il sigillo di questa sala.":"You already have this room's seal.",
 "Sigilli delle sale del territorio · {} su {}":"Seals from the regional rooms · {} of {}",
 "Nessun sigillo delle sale, questa volta. {}":"No seals from the rooms this time. {}",
+"Musica: accesa":"Music: on",
+"Musica: spenta":"Music: off",
 "partita salvata":"game saved"
 };
