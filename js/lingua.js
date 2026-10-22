@@ -31,6 +31,8 @@ function tr(s,prof=0){
   let r=D.get(n);
   if(r===undefined&&prof<3)for(const m of MODELLI){const x=n.match(m.re);if(x){let k=1;r=m.en.replace(/\{\}/g,()=>tr(x[k++],prof+1));break}}
   if(r===undefined&&prof<3&&n.includes(' · ')){const p=n.split(' · ').map(t=>tr(t,prof+1));if(p.join(' · ')!==n)r=p.join(' · ')}
+  // un simbolo davanti alla frase («✓ Ingresso», «▲ 3»): traduco quello che segue
+  if(r===undefined&&prof<3){const x=n.match(/^([^A-Za-zÀ-ÿ0-9«“"']+)(.+)$/);if(x){const t=tr(x[2],prof+1);if(t!==x[2])r=x[1]+t}}
   if(r===undefined)return s;
   return s.match(/^\s*/)[0]+r+s.match(/\s*$/)[0];
 }
