@@ -28,7 +28,10 @@ function caricaPartita(){
   return true;
 }
 function haSalvataggio(){return !!leggi()}
-function cancellaSalvataggio(){cancella()}
+// Cancella la partita salvata (per il menu impostazioni): la schermata iniziale torna a «Entra nel museo», senza «Continua».
+// Il gioco in corso non si ferma (e risalva alla prossima voce del diario): per ripartire da capo, dopo chiamate location.reload().
+let aggiornaTitolo=()=>{};
+function cancellaSalvataggio(){cancella();aggiornaTitolo()}
 
 /* ---------- Quando salvare ---------- */
 // Ogni mezzo secondo: se il diario ha voci nuove o sei in un'altra stanza, salva.
@@ -59,6 +62,6 @@ setInterval(()=>{
   b.addEventListener('click',()=>{if(caricaPartita()){fit();toast('La partita riprende da dove l\'avevi lasciata')}});
   // «Entra nel museo» / «Nuova partita» parte da zero: il vecchio salvataggio si cancella
   avvia.addEventListener('click',()=>{cancella();ultimo={n:0,room:'museo'}},true);
-  aggiorna();
+  aggiorna();aggiornaTitolo=aggiorna;
 }
 }
