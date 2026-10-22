@@ -4,7 +4,8 @@ $('btnStart').onclick=()=>{$('title').hidden=true;S.started=true;fit();intro()};
 function start(data){
   if(data&&data.S){S=data.S;Object.assign(P,data.P);P.px=P.tx=P.x;P.py=P.ty=P.y;if(S.started)$('title').hidden=true}
   // uno stato salvato da una versione precedente può non avere stanza, dissolvenza o sigilli nuovi
-  if(!STANZE[S.room])S.room='museo';S.fade=0;
+  if(!STANZE[S.room])S.room=PIANTA.inizio;  // per esempio l'atrio, che non c'è più
+  S.fade=0;
   Object.keys(SEALS).forEach(k=>{if(!(k in S.seals))S.seals[k]=false;if(!(k in S.hint))S.hint[k]=0});
   entraStanza(S.room);hud();fit();requestAnimationFrame(frame);
 }
