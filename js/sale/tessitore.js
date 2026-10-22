@@ -40,6 +40,15 @@ function drawRotolo(o){const [bx,by]=base(o);
   diamond(ctx,bx,by+1,6,3,'rgba(0,0,0,.3)');
   for(let k=0;k<3;k++){box(ctx,bx,by+1-k*4,6,3,4,k%2?'#c2493c':'#efe2c4',k%2?'#8f3229':'#c9bc9c',k%2?'#7a2a22':'#a89b7c')}
 }
+// Un telaio a mano: i fili dell'ordito e la navetta che va e viene.
+function drawTelaio(o,t){const [bx,by]=base(o),tt=tAnim(t);
+  diamond(ctx,bx,by+1,8,4,'rgba(0,0,0,.3)');
+  R(ctx,bx-8,by-20,2,20,'#6a4632');R(ctx,bx+6,by-20,2,20,'#4a2f22');R(ctx,bx-8,by-22,16,3,'#7a5236');R(ctx,bx-8,by-8,16,2,'#5a3a26');
+  for(let k=0;k<6;k++)R(ctx,bx-5+k*2,by-19,1,11,k%2?'#efe2c4':'#c2493c');
+  // il tessuto cresce sotto la navetta
+  R(ctx,bx-6,by-10,12,2,'#c2493c');
+  const nx=Math.round(Math.sin(tt/350)*5);R(ctx,bx+nx-2,by-13,5,2,'#d9b98a');R(ctx,bx+nx-1,by-14,3,1,'#8a6a44');
+}
 const STANZA={w:8,h:8,ox:160,oy:70,
   zona:(x,y)=>Math.abs(x-3.5)<2&&Math.abs(y-3.5)<2?'tappeto':'piazza',
   pav:{piazza:['#7d7a72','#75726a','#5b5952'],tappeto:['#8f3229','#9c3b30','#6e241d','#e0b04f']},
@@ -61,7 +70,8 @@ const OGGETTI_SALA=[
   cartellinoMuro('tesPl2','tes_storia','R',3,COL,C.tes_storia.title),
   {id:'rotolo1',x:7,y:1,h:14,draw:drawRotolo},
   {id:'rotolo2',x:1,y:1,h:14,draw:drawRotolo},
-  {id:'panca',x:6,y:7,h:8,draw:drawBench}
+  {id:'panca',x:6,y:7,h:8,draw:drawBench},
+  {id:'telaio',x:2,y:6,h:22,name:'Un telaio a mano',draw:drawTelaio,act:()=>say('Telaio a mano',['La navetta passa il filo da una parte all\'altra dell\'ordito: è lei che l\'Omo tiene in mano.'])}
 ];
 
 /* ---------- Rompicapo: le otto formelle ---------- */

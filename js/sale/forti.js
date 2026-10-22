@@ -38,7 +38,12 @@ function drawForte(o,t){const [bx,by]=base(o);
   faceL(bx,by-4,9,4,(x,y,i)=>{if(i%3===1)R(ctx,x,y-7,1,2,'#1a1424')});
   faceR(bx,by-4,9,4,(x,y,i)=>{if(i%3===1)R(ctx,x,y-7,1,2,'#1a1424')});
   for(const dx of [-4,4]){for(let r=0;r<3;r++)R(ctx,bx+dx-3+r,by-17-r,6-2*r,1,'#5c5f67')}
-  if(tessereS()[ID])sparkle(bx,by-24,t);
+  // una bandiera piccola, sbiadita e sbrindellata, che si muove appena: il forte fu abbandonato e poi fatto saltare,
+  // quindi niente bandiera fiera (consiglio di territorio, bacheca 2026-10-23_0030)
+  const tt=tAnim(t);R(ctx,bx,by-26,1,8,'#3a3a3a');
+  const lembo=[3,3,3,2,3,1];
+  lembo.forEach((h,i)=>{const dy=i>2&&Math.sin(tt/600+i)>.6?1:0;R(ctx,bx+1+i,by-26+dy,1,h,i<2?'#5f7a5f':i<4?'#cfc6b0':'#9a5a52')});
+  if(tessereS()[ID])sparkle(bx,by-32,t);
 }
 function drawEdicola(o,t){const [bx,by]=base(o);
   box(ctx,bx,by+1,7,3,16,'#6a4632','#4a2f22','#3a251b');

@@ -28,7 +28,10 @@ const FACCIATA_PAL={m:'#e6c9a3',t:'#e6c9a3',g:'#5a3e2a',r:'#9c3b30',b:'#d9b98a',
 function drawCastello(o,t){const [bx,by]=base(o);
   diamond(ctx,bx,by+1,16,7,'#6f8a5c');
   sprS(FACCIATA,FACCIATA_PAL,bx-15,by-18,2);
-  if(tessereS()[ID])sparkle(bx,by-24,t);
+  // stendardi sulle due torri
+  const tt=tAnim(t);for(const [x0,col] of [[-14,'#b5523f'],[12,'#2d4a6b']]){R(ctx,bx+x0,by-27,1,9,'#3a2a1a');
+    for(let i=0;i<5;i++){const dy=Math.round(Math.sin(tt/180+i*.8+x0));R(ctx,bx+x0+1+i,by-27+dy,1,i>3?2:3,col)}}
+  if(tessereS()[ID])sparkle(bx,by-30,t);
 }
 function drawStallo(o){const [bx,by]=base(o);
   R(ctx,bx-7,by-20,2,20,'#9c3b30');R(ctx,bx+5,by-20,2,20,'#8f3229');R(ctx,bx-7,by-22,14,2,'#7a5236');
