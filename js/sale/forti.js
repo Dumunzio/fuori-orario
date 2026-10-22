@@ -64,7 +64,8 @@ const STANZA={w:8,h:8,ox:160,oy:70,
     // pietrame a vista e feritoie
     for(let x=0;x<8;x++)onWall(g,'R',x,0,11,40,26,(u,v)=>v%6===0||(u+(v/6|0)*3)%6===0?'#4a4740':null);
     for(let y=0;y<8;y++)onWall(g,'L',y,0,11,40,26,(u,v)=>v%6===0||(u+(v/6|0)*3)%6===0?'#5f5b52':null);
-    [1,4,7].forEach(x=>onWall(g,'R',x,4,6,34,8,()=>'#0b0814'));
+    // feritoie: con la pianta del museo R1, R4 e R7 sono le porte verso mine, ferrarin e grotta
+    (MODO_PIANTA?[2,6]:[1,4,7]).forEach(x=>onWall(g,'R',x,4,6,34,8,()=>'#0b0814'));
     quadro(g,'L',3,2,10,46,20,(u,v,W,H)=>v<H/2?'#9fb4c8':(u===4||u===5)&&v<H-3?'#7d786e':'#556b45','#4a3b2c');
   },
   luci:()=>{const [x,y]=iso(4,3);return [[x,y-8,28,.45]]}};

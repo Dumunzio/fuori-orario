@@ -10,28 +10,83 @@ const ATRIO_POSTI=[['R',1],['R',3],['R',5],['R',7],['R',9],['R',11],['L',1],['L'
 // Casella del pavimento davanti a un varco.
 const davantiVarco=(lato,t)=>lato==='R'?[t,0]:[0,t];
 
+/* ---------- Pianta del museo (js/pianta.js) ---------- */
+// Con la pianta le sale si collegano tra loro a rami (bacheca 2026-10-23_0200); senza, si torna all'atrio.
+const MODO_PIANTA=typeof PIANTA!=='undefined';
+// Porte delle mie sale verso i figli nella pianta, sulla parete destra. La porta verso il genitore è sempre a sinistra, t=6.
+const PORTE_FIGLI={tessitore:{citta:7},castello:{meneghello:4},forti:{mine:1,ferrarin:4,grotta:7},mine:{cimone:5},grotta:{anguane:6},anguane:{recoaro:5}};
+const NOMI_STANZE={ingresso:'Ingresso',museo:'Museo',villa:'Sala delle Ville',uscita:'Uscita'};
+const nomeStanza=id=>SALA[id]?SALA[id].nome:(typeof NOMI_PIANTA!=='undefined'&&NOMI_PIANTA[id])||NOMI_STANZE[id]||id;
+// Il genitore di una stanza: il vicino più vicino all'ingresso (visita in ampiezza dalla stanza iniziale).
+function genitore(id){
+  if(!MODO_PIANTA)return null;
+  const padre={[PIANTA.inizio]:null},coda=[PIANTA.inizio];
+  while(coda.length){const a=coda.shift();PIANTA.vicini(a).forEach(b=>{if(!(b in padre)){padre[b]=a;coda.push(b)}})}
+  return padre[id]??null;
+}
+// Porta il giocatore nella stanza a, davanti alla porta che riporta a da. Usa vaiVerso di pianta.js se c'è.
+function _vaiVerso(da,a){
+  if(typeof vaiVerso==='function')return vaiVerso(da,a);
+  const p=PIANTA.porte&&PIANTA.porte[a]&&PIANTA.porte[a][da];
+  vaiInStanza(a,...(p?davantiVarco(p.lato,p.t):[Math.floor((STANZE[a]?STANZE[a].w:8)/2),Math.floor((STANZE[a]?STANZE[a].h:8)/2)]));
+}
+// Porta nella stanza id dal suo genitore. Usa vaiInStanzaPianta di pianta.js se c'è; da fuori usate quella.
+function _vaiDalGenitore(id){
+  if(typeof vaiInStanzaPianta==='function')return vaiInStanzaPianta(id);
+  const g=genitore(id);if(g)_vaiVerso(g,id);else vaiInStanza(id,1,1);
+}
+
 // Una sala: {id, nome, colore, benvenuto, stanza:{w,h,ox,oy,zona,pav,pareti,luci}, ritorno:{lato,t},
 // oggetti, cartellini, tessera, aiuti, fonti, schede}. Vedi js/sale/tessitore.js come esempio.
 function registraSala(s){
-  const [lato,t]=ATRIO_POSTI[SALE.length];
-  s.posto={lato,t};SALE.push(s);SALA[s.id]=s;
+  SALE.push(s);SALA[s.id]=s;
   const st=Object.assign({porta:false,luci:()=>[]},s.stanza),pareti=st.pareti,luci=st.luci,targhe=s.oggetti.filter(o=>o.muro);
-  st.pareti=g=>{pareti(g);arcoVarco(g,s.ritorno.lato,s.ritorno.t,'#c9b98f');targhe.forEach(o=>targaMuro(g,o.muro.lato,o.muro.t,o.muro.colore))};
+  let porte;
+  if(MODO_PIANTA){
+    // le porte di questa sala nella pianta: genitore a sinistra (t=6 come il vecchio ritorno), figli a destra
+    const g=genitore(s.id);porte={};if(g)porte[g]={lato:s.ritorno.lato,t:s.ritorno.t};
+    Object.entries(PORTE_FIGLI[s.id]||{}).forEach(([f,t])=>porte[f]={lato:'R',t});
+    PIANTA.porte=PIANTA.porte||{};PIANTA.porte[s.id]=porte;
+  }else{const [lato,t]=ATRIO_POSTI[SALE.length-1];s.posto={lato,t}}
+  // le porte della pianta: quelle di pianta.js (pareteVarchiPianta, varchiPianta) se ci sono, altrimenti le disegno io
+  const disegnaPorte=g=>{
+    if(!MODO_PIANTA)return arcoVarco(g,s.ritorno.lato,s.ritorno.t,'#c9b98f');
+    if(typeof pareteVarchiPianta==='function')return pareteVarchiPianta(g,s.id);
+    Object.entries(porte).forEach(([v,p])=>arcoVarco(g,p.lato,p.t,SALA[v]?SALA[v].colore:'#c9b98f',MOTIVI[v]));
+  };
+  st.pareti=g=>{pareti(g);disegnaPorte(g);targhe.forEach(o=>targaMuro(g,o.muro.lato,o.muro.t,o.muro.colore))};
   // una luce calda sopra ogni cartellino appeso (con il motore che illumina gli oggetti a parete, ci pensa lui)
   st.luci=()=>typeof hitCartellino==='function'?luci():[...luci(),...targhe.map(o=>{const [cx,cy]=o.muro.lato==='R'?iso(o.muro.t,0):iso(0,o.muro.t);
     return o.muro.lato==='R'?[cx+6,cy-20,18,.7]:[cx-6,cy-18,18,.7]})];
   STANZE[s.id]=st;
-  OGGETTI[s.id]=[...s.oggetti,varco('ritorno-'+s.id,s.ritorno.lato,s.ritorno.t,'Varco: torna all\'atrio',()=>vaiInStanza('atrio',...davantiVarco(lato,t)))];
-  OGGETTI.atrio.push(varco('varco-'+s.id,lato,t,'Varco: '+s.nome,()=>entraInSala(s.id),()=>!!tessereS()[s.id]));
+  if(MODO_PIANTA){
+    // gli oggetti varco si costruiscono quando servono: così valgono anche le porte dichiarate dopo (stanze di grafica-motore)
+    const varchi=()=>typeof varchiPianta==='function'?varchiPianta(s.id):Object.entries(porte).map(([v,p])=>
+      varco('porta-'+s.id+'-'+v,p.lato,p.t,'Varco: '+nomeStanza(v),()=>_vaiVerso(s.id,v),()=>typeof completata==='function'&&completata(v)));
+    OGGETTI[s.id]=[...s.oggetti,...varchi()];
+  }else{
+    const {lato,t}=s.posto;
+    OGGETTI[s.id]=[...s.oggetti,varco('ritorno-'+s.id,s.ritorno.lato,s.ritorno.t,'Varco: torna all\'atrio',()=>vaiInStanza('atrio',...davantiVarco(lato,t)))];
+    OGGETTI.atrio.push(varco('varco-'+s.id,lato,t,'Varco: '+s.nome,()=>entraInSala(s.id),()=>!!tessereS()[s.id]));
+  }
   Object.assign(PLAQUES,s.cartellini);
   Object.assign(FONTI,s.fonti);
   CONOSCENZA.push(...s.schede);
 }
+// Entra in una sala (dalla mappa, dalla guida): con la pianta arrivi davanti alla porta verso il suo genitore.
 function entraInSala(id){
-  const s=SALA[id];vaiInStanza(id,...davantiVarco(s.ritorno.lato,s.ritorno.t));
-  const v=S.visitate||(S.visitate={});
+  const s=SALA[id];
+  if(MODO_PIANTA)_vaiDalGenitore(id);else vaiInStanza(id,...davantiVarco(s.ritorno.lato,s.ritorno.t));
+  benvenutoSala(id);
+}
+// Alla prima visita di una sala, il suo benvenuto. Con la pianta si entra anche dai varchi, quindi lo controllo a ogni cambio di stanza.
+function benvenutoSala(id){
+  const s=SALA[id];if(!s)return;const v=S.visitate||(S.visitate={});
   if(!v[id]){v[id]=true;say(s.nome,s.benvenuto)}
 }
+if(MODO_PIANTA){let ultima=null;setInterval(()=>{if(!S||!S.started||S.room===ultima)return;
+  if(!$('dialog').hidden||!$('modal').hidden)return; // aspetto che dialogo e finestre siano chiusi
+  ultima=S.room;benvenutoSala(S.room)},300)}
 
 /* ---------- Varchi ---------- */
 // Emblema di ogni sala sopra il suo arco nell'atrio (i motivi li disegna pareteVarco, in motore.js).
@@ -98,7 +153,8 @@ function targaMuro(g,lato,t,colore){
 }
 
 /* ---------- Atrio ---------- */
-STANZE.atrio={w:13,h:11,ox:148,oy:64,porta:false,
+// Solo senza la pianta del museo: con la pianta l'atrio non esiste, così una partita salvata lì riparte dall'ingresso.
+const STANZA_ATRIO={w:13,h:11,ox:148,oy:64,porta:false,
   zona:(x,y)=>(x+y)%4<2?'a':'b',
   pav:{a:['#8a8378','#827b70','#5f5950'],b:['#77706a','#6f6862','#5f5950','#9a9286']},
   pareti(g){
@@ -119,11 +175,12 @@ const OGGETTI_ATRIO=[
   {id:'scalaMuseo',x:6,y:10,h:18,name:'Scala: torna al museo',draw:drawScala,act:()=>vaiInStanza('museo',6,0)},
   {id:'guidaSale',x:6,y:5,h:34,name:'Guida alle sale',draw:drawGuida,act:()=>apriGuida(),light:1}
 ];
-OGGETTI.atrio=[...OGGETTI_ATRIO];
+if(!MODO_PIANTA){STANZE.atrio=STANZA_ATRIO;OGGETTI.atrio=[...OGGETTI_ATRIO]}
 
 /* ---------- Dal museo all'atrio ---------- */
 // Varco sulla parete destra del museo, casella 6 (tra il ritratto e il plastico del Pasubio).
-{
+// Con la pianta del museo l'atrio non c'è: le sale si raggiungono dall'ingresso. Il codice dell'atrio resta per una seconda ala.
+if(!MODO_PIANTA){
   const pareti=STANZE.museo.pareti;
   STANZE.museo.pareti=g=>{pareti(g);arcoVarco(g,'R',6,'#e0b04f')};
   OGGETTI.museo.push(varco('varcoAtrio','R',6,'Varco: le sale del territorio',()=>{
@@ -159,9 +216,11 @@ function mostraTessera(id,nuova){
   // la mappa del territorio (js/territorio.js) seleziona il luogo della sala, se apriMappa accetta l'id
   if($('slMappa'))$('slMappa').onclick=()=>apriMappa(id);
 }
+// Dove si trovano le sale: con la pianta partono dall'ingresso, senza dal varco del museo.
+const doveSale=()=>MODO_PIANTA?'Le trovi nei rami del museo che partono dall\'ingresso.':'Le trovi passando dal varco sulla parete destra del museo.';
 function apriCollezione(){
   openModal(`<div class="eyebrow">Tessere del territorio · ${tessereN()} su ${SALE.length}</div><h2>La tua collezione</h2>
-    <p>Ogni sala del territorio nasconde una tessera. Le trovi passando dal varco sulla parete destra del museo.${tesserePerUscire()?` Per uscire dal museo servono tutte e ${SALE.length}.`:''}</p>
+    <p>Ogni sala del territorio nasconde una tessera. ${doveSale()}${tesserePerUscire()?` Per uscire dal museo servono tutte e ${SALE.length}.`:''}</p>
     <div class="sl-collezione">${SALE.map(s=>tessereS()[s.id]
       ?`<button type="button" class="sl-t" data-id="${s.id}" style="--c:${s.colore}"><img src="${s.tessera.foto.file}" alt=""><span>${s.tessera.titolo}</span></button>`
       :`<div class="sl-t sl-chiusa" style="--c:${s.colore}"><b>?</b><span>${s.nome}</span></div>`).join('')}</div>
@@ -195,13 +254,13 @@ const tesserePerUscire=()=>typeof tessereMancanti==='function'||(typeof tryDoor=
 function bloccoUscita(){
   const mancano=SALE.filter(s=>!tessereS()[s.id]);if(!mancano.length)return null;
   return [`Sulla porta c'è un'altra serratura: ha ${SALE.length} incavi, uno per ogni tessera del territorio. Ne hai ${SALE.length-mancano.length}.`,
-    mancano.length<=3?`Ti mancano: ${mancano.map(s=>s.nome).join(', ')}.`:`Ti mancano ${mancano.length} sale. Le trovi passando dall'arco con la fascia dorata, sulla parete destra.`];
+    mancano.length<=3?`Ti mancano: ${mancano.map(s=>s.nome).join(', ')}.`:`Ti mancano ${mancano.length} sale. ${doveSale()}`];
 }
 // Se sei in una sala a tema, mostra il primo aiuto del suo rompicapo e restituisce true.
 // Pensato per hint(): if(typeof aiutoSala==='function'&&aiutoSala())return;
 function aiutoSala(){
   const s=SALA[S.room];if(!s)return false;
-  say(s.nome,tessereS()[s.id]?['Hai già la tessera di questa sala. Torna all\'atrio per le altre.']:[s.aiuti[0],'Nella finestra del rompicapo il pulsante Aiuto ti dà altri indizi.']);
+  say(s.nome,tessereS()[s.id]?['Hai già la tessera di questa sala.',MODO_PIANTA?'Le porte accese portano alle stanze che hai già finito: segui le altre.':'Torna all\'atrio per le altre.']:[s.aiuti[0],'Nella finestra del rompicapo il pulsante Aiuto ti dà altri indizi.']);
   return true;
 }
 // Html con le tessere raccolte, per la schermata finale (win).
@@ -209,7 +268,7 @@ function riepilogoTessere(){
   const prese=SALE.filter(s=>tessereS()[s.id]);
   return `<p class="eyebrow">Tessere del territorio · ${prese.length} su ${SALE.length}</p>`+(prese.length
     ?`<div class="sl-collezione">${prese.map(s=>`<div class="sl-t" style="--c:${s.colore}"><img src="${s.tessera.foto.file}" alt=""><span>${s.tessera.titolo}</span></div>`).join('')}</div>`
-    :'<p>Nessuna tessera, questa volta: le sale del territorio sono dietro il varco sulla parete destra.</p>');
+    :`<p>Nessuna tessera, questa volta. ${doveSale()}</p>`);
 }
 
 /* ---------- Rompicapi: finestra comune ---------- */

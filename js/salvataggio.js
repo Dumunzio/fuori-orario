@@ -18,7 +18,8 @@ function caricaPartita(){
   const d=leggi();if(!d)return false;
   S=d.S;Object.assign(P,d.P,{path:[],pending:null,moving:false});P.px=P.tx=P.x;P.py=P.ty=P.y;
   // come start() in avvio.js: completa uno stato salvato da una versione precedente
-  if(!STANZE[S.room])S.room='museo';S.fade=0;S.started=true;S.done=false;
+  // una stanza che non esiste più (per esempio l'atrio, con la pianta del museo) fa ripartire dalla stanza iniziale
+  if(!STANZE[S.room])S.room=typeof PIANTA!=='undefined'&&STANZE[PIANTA.inizio]?PIANTA.inizio:'museo';S.fade=0;S.started=true;S.done=false;
   S.seals=S.seals||{};S.hint=S.hint||{};S.journal=S.journal||[];
   Object.keys(SEALS).forEach(k=>{if(!(k in S.seals))S.seals[k]=false;if(!(k in S.hint))S.hint[k]=0});
   if(typeof ultimoCambio!=='undefined')ultimoCambio=-1e9;
