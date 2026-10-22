@@ -32,8 +32,10 @@ function tr(s,prof=0){
   let r=D.get(n);
   if(r===undefined&&prof<5)for(const m of MODELLI){const x=n.match(m.re);if(!x)continue;
     const pezzi=x.slice(1).map(p=>tr(p,prof+1));
-    // un modello quasi vuoto («{} e {}», «{}, {}») vale solo se ogni pezzo con delle lettere si traduce
-    if(m.fisso<4&&pezzi.some((p,i)=>p===x[i+1]&&/[A-Za-zÀ-ÿ]{2}/.test(p)))continue;
+    // un modello quasi vuoto («{} e {}», «{}, {}», «{} → {}») vale solo se ogni pezzo con delle lettere si traduce,
+    // o è un nome proprio breve che resta uguale («Cimone»)
+    const nome=p=>/^[A-ZÀ-Ý][^\s]*(\s\S+){0,2}$/.test(p.trim());
+    if(m.fisso<4&&pezzi.some((p,i)=>p===x[i+1]&&/[A-Za-zÀ-ÿ]{2}/.test(p)&&!nome(p)))continue;
     let k=0;r=m.en.replace(/\{\}/g,()=>pezzi[k++]);break}
   if(r===undefined&&prof<3&&n.includes(' · ')){const p=n.split(' · ').map(t=>tr(t,prof+1));if(p.join(' · ')!==n)r=p.join(' · ')}
   // un simbolo davanti alla frase («✓ Ingresso», «▲ 3»): traduco quello che segue
