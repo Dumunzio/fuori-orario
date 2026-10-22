@@ -12,7 +12,14 @@ const PLAQUES={
   pas:{title:'La Strada delle 52 Gallerie',where:'Sala della Grande Guerra',lines:[
     'Plastico del Pasubio. Nel 1917, tra febbraio e novembre, i minatori del Genio militare italiano scavarono una strada nella roccia.',
     'Le sue 52 gallerie portavano rifornimenti in quota, al riparo dall\'artiglieria austro-ungarica.',
-    'Oggi è un sentiero che si percorre solo a piedi: in bicicletta è vietato.']}
+    'Oggi è un sentiero che si percorre solo a piedi: in bicicletta è vietato.']},
+  godi:{title:'Villa Godi',where:'Sala delle Ville',lines:[
+    'A Lonedo di Lugo di Vicenza, dal 1537, i fratelli Godi fanno costruire una villa da un giovane architetto: Andrea Palladio. È la sua prima villa documentata con sicurezza.',
+    'Al centro della facciata, arretrata tra due ali, c\'è una loggia con tre arcate al piano nobile. Una scalinata sale fino all\'arco centrale.',
+    'Dal 1996 le ville di Palladio nel Veneto sono patrimonio dell\'umanità UNESCO.']},
+  palladio:{title:'Andrea Palladio',where:'Sala delle Ville',lines:[
+    'Andrea Palladio (1508–1580) ha cambiato il modo di costruire le case di campagna.',
+    'Nei Quattro Libri dell\'Architettura (1570) spiega le sue regole. La prima è la simmetria: quello che sta a sinistra si ripete a destra, come in uno specchio.']}
 };
 const SEALS={
   loom:{title:'Sigillo della Lana',text:'Il telaio Jacquard (1801) legge schede di cartone perforate, antenate delle istruzioni dei computer. A Schio il suo inventore dà il nome al giardino del Lanificio Rossi, disegnato da Antonio Caregaro Negrin.'},
