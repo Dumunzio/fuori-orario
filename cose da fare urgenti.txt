@@ -1,44 +1,25 @@
 COSE DA FARE URGENTI
-Fuori Orario · richiesta di Dumunzio · 23/10/2026
+Fuori Orario · richiesta di Dumunzio · 22/10/2026
 
-Ogni compito ha un Claude assegnato. Prima di cominciare scrivi in bacheca (messaggi/) che lo prendi e come lo fai.
+I compiti non sono assegnati: chi è libero ne prende uno.
+Prima di cominciare scrivi in bacheca (messaggi/) quale prendi e come lo fai, così due Claude non fanno la stessa cosa.
 Quando hai finito chiedi la revisione: chi scrive non unisce in main.
 Se il compito tocca file di un'altra area, fallo su un ramo tuo e scrivilo nel messaggio.
 
-1. Quando passi con il mouse, mostrare il nome della stanza
-   Assegnato a: Claude di Dumunzio (grafica-motore)
-   Mouse sopra un varco: compare il nome della stanza dove porta, per esempio «Sala delle Mine».
-   Lo stesso nella piantina dell'ingresso, sopra ogni stanza.
-   Sul telefono, dove il mouse non c'è, resta come oggi: nome in alto quando sei davanti al varco.
+1. Hover anche sugli oggetti
+   Passando il mouse sopra un oggetto compare il suo nome, come già succede per i varchi delle stanze.
 
-2. Togliere il pulsante per spegnere la musica, ma tenerlo nelle impostazioni
-   Assegnato a: Claude di Gabsat (impostazioni)
-   Il pulsante ♪ sparisce dalla barra in alto. Nel menu ⚙ c'è «Musica: accesa/spenta», oltre al volume.
-   Usa MUSICA.on e la chiave fuoriOrario.musica, che è quella che il gioco legge già.
-   Il pulsante lo crea js/musica.js (grafica-motore): Gabsat, puoi togliere tu quel blocco, in fondo al file, «Pulsante nella HUD».
+2. Debug ultra fine
+   Controllo a fondo di tutto il gioco per trovare e correggere ogni errore.
 
-3. Migliorare i dialoghi con il custode
-   Assegnato a: Claude di jackjack-lab (sale, dati-ai)
-   Le frasi del custode (introduzione, aiuto, quando parli con lui) e le risposte alle domande.
-   Che parli in modo più naturale e meno ripetitivo, e che risponda a più domande.
-   Le frasi di talkKeeper, hint e intro sono in js/enigmi.js (Dumunzio): cambiale pure su un ramo tuo.
+3. Automazione del backup su Drive
 
-4. Ogni rompicapo ha 5 tentativi: finiti quelli, per riprovare devi uscire dalla stanza e rientrare
-   Assegnato a: Claude di Matteo (territorio)
-   Vale per tutti i 15 rompicapi: museo, villa e le 11 sale.
-   Mostrare quanti tentativi restano, per esempio «Tentativi: 3 su 5». Al quinto sbaglio il rompicapo si blocca
-   e dice «Esci dalla stanza e rientra per riprovare». Cambiare stanza azzera il conteggio.
-   Proposta: un file nuovo, js/tentativi.js, con una funzione comune che i rompicapi chiamano quando sbagli.
-   Gli sbagli oggi passano quasi tutti da bad(el,msg) (motore.js): può essere il punto da agganciare.
-   I rompicapi sono in js/enigmi.js (Dumunzio) e js/sale/*.js (jackjack-lab): accordati con loro in bacheca.
-   >>> FATTO (23/10, Claude di Matteo): IN MAIN (31bf589). Unito da territorio su richiesta di Matteo.
-       js/tentativi.js nuovo + una riga in index.html; i rompicapi degli altri non sono stati toccati.
-       14 rompicapi su 15 contano i tentativi; Recoaro no, perché non ha una risposta sbagliata (d'accordo con sale).
-       Dettagli e prove: messaggi/2026-10-23_0930_territorio_tentativi-pronti.md
+4. Aumentare la dimensione dell'immagine della stanza
 
-5. Cambiare il font per rendere i numeri più leggibili
-   Assegnato a: lingua (Claude sul PC di Matteo, commit saturnisbad)
-   Nel font di oggi (Jersey 10 per il testo, Pixelify Sans per titoli e pulsanti) alcuni numeri si confondono:
-   tempo, conteggi, codice della cassetta, date.
-   Trovare un font pixel con cifre chiare, solo per i numeri o per tutto, e provarlo in italiano e in inglese.
-   Il font si sceglie in index.html e css/style.css (grafica-motore): fai le prove su un ramo tuo, poi rivedo io.
+5. Aggiungere dettagli
+
+6. Mostrare le traiettorie del personaggio (abilitabile dalle impostazioni)
+
+7. Test su computer e su telefono
+
+8. Cambiare il font (Times New Roman)
