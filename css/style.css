@@ -39,6 +39,7 @@ button.primary{background:var(--brass);color:#1a1424;border-color:#1a1424}
 
 #stage{flex:1;min-height:0;position:relative;display:grid;place-items:center}
 #cv{image-rendering:pixelated;image-rendering:crisp-edges;display:block;box-shadow:0 0 0 2px var(--line),6px 6px 0 2px #000}
+#etichetta{position:absolute;pointer-events:none;transform:translate(-50%,calc(-100% - 14px));font-family:var(--display);font-size:13px;letter-spacing:.06em;white-space:nowrap;color:var(--ink);background:rgba(21,17,31,.92);border:2px solid var(--brass);padding:3px 8px;box-shadow:3px 3px 0 #000;z-index:4}
 #prompt{position:absolute;left:8px;top:8px;font-family:var(--display);font-size:13px;letter-spacing:.06em;background:rgba(21,17,31,.85);border:2px solid var(--line);padding:4px 8px;text-transform:uppercase}
 #prompt b{color:var(--brass)}
 #toast{position:absolute;top:8px;right:8px;font-family:var(--display);font-size:14px;background:var(--brass);color:#1a1424;padding:6px 10px;box-shadow:3px 3px 0 #000}

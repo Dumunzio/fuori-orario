@@ -93,7 +93,7 @@ function apriPianta(){
   const corridoi=PIANTA.collegamenti.map(([a,b])=>{if(riga[a]>riga[b])[a,b]=[b,a];const ym=(cy(a)-H/2+cy(b)+H/2)/2;
     return `<path d="M${cx(a)} ${cy(a)-H/2}V${ym}H${cx(b)}V${cy(b)+H/2}"/>`}).join('');
   const stanze=ids.map(id=>{const c=completata(id),qui=S.room===id,nr=righeNome(id);
-    return `<g data-stanza="${id}" tabindex="0" role="button" aria-label="${nomePianta(id)}${c?', completata':''}${qui?', sei qui':''}">`+
+    return `<g data-stanza="${id}" tabindex="0" role="button" aria-label="${nomePianta(id)}${c?', completata':''}${qui?', sei qui':''}"><title>${nomePianta(id)}</title>`+
       (qui?`<rect class="qui" x="${cx(id)-W/2-4}" y="${cy(id)-H/2-4}" width="${W+8}" height="${H+8}"/>`:'')+
       `<rect class="stanza${c?' fatta':''}" x="${cx(id)-W/2}" y="${cy(id)-H/2}" width="${W}" height="${H}" style="--c:${bordo(id)}"/>`+
       nr.map((t,i)=>`<text x="${cx(id)}" y="${cy(id)+3+(i-(nr.length-1)/2)*9}" text-anchor="middle">${t}</text>`).join('')+
