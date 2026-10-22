@@ -2,8 +2,9 @@
    Non cambia i testi degli altri file: li traduce mentre vengono mostrati (dialoghi, finestre, HUD, tela),
    usando il dizionario LINGUA_EN di lingua-en.js. Partita e diario restano salvati in italiano,
    così si può cambiare lingua in ogni momento. Va caricato dopo tutte le sale e prima di avvio.js.
-   Prova sul ramo lingua. Vedi CLAUDE.md. */
-{
+   Tutto sta dentro una funzione, così le funzioni interne non diventano globali: escono solo tr() e cambiaLingua().
+   Vedi CLAUDE.md. */
+(()=>{
 const CHIAVE='fuoriOrario.lingua';
 let lingua=(()=>{try{return new URLSearchParams(location.search).get('lang')||localStorage.getItem(CHIAVE)||'it'}catch(e){return 'it'}})();
 if(lingua!=='en')lingua='it';
@@ -112,4 +113,4 @@ $('btnHint').after(crea());
 $('title').appendChild(crea());
 applica();
 window.cambiaLingua=cambiaLingua;window.tr=tr;
-}
+})();
