@@ -42,6 +42,21 @@ function drawLavagna(o,t){const [bx,by]=base(o);
   R(ctx,bx-9,by-32,18,20,'#6b5226');R(ctx,bx-8,by-31,16,18,'#1f3a2a');
   [3,6,9,14,16].forEach((h,k)=>R(ctx,bx-7+k*3,by-14-h,2,h,tessereS()[ID]?'#e0b04f':'#c9d8c0'));
 }
+/* ---------- Dettagli: un viale della Città Sociale ---------- */
+// Albero del viale: tronco e chioma tonda a pixel.
+function drawAlbero(o){const [bx,by]=base(o);
+  diamond(ctx,bx,by+1,6,3,'rgba(0,0,0,.25)');R(ctx,bx-1,by-12,3,12,'#5a3a26');
+  [[-7,-26,14,10],[-5,-31,10,6],[-8,-21,16,5]].forEach(([x,y,w,h],k)=>R(ctx,bx+x,by+y,w,h,k===1?'#7aa86a':'#5f8a4e'));
+  [[-4,-27],[2,-24],[-1,-22],[4,-29]].forEach(([x,y])=>R(ctx,bx+x,by+y,2,2,'#8fbf78'))}
+// Lampione razionalista: palo scuro e lanterna calda (la luce è in STANZA.luci).
+function drawLampione(o){const [bx,by]=base(o);
+  R(ctx,bx-2,by-1,4,2,'#2b2a2e');R(ctx,bx,by-30,1,30,'#3a3a40');R(ctx,bx-3,by-34,7,5,'#3a3a40');R(ctx,bx-2,by-33,5,3,'#fff1b8')}
+// Bicicletta da operaio appoggiata: due ruote e il telaio.
+function drawBici(o){const [bx,by]=base(o);
+  const ruota=x=>{R(ctx,x-3,by-6,7,1,'#2b2a2e');R(ctx,x-3,by,7,1,'#2b2a2e');R(ctx,x-4,by-5,1,5,'#2b2a2e');R(ctx,x+3,by-5,1,5,'#2b2a2e')};
+  ruota(bx-5);ruota(bx+6);R(ctx,bx-5,by-4,11,1,'#8f3229');R(ctx,bx,by-9,1,6,'#8f3229');R(ctx,bx-2,by-10,4,1,'#2b2a2e');R(ctx,bx+6,by-9,1,5,'#8f3229');R(ctx,bx+5,by-10,3,1,'#2b2a2e')}
+// Aiuola fiorita sul prato: fiori a puntini su una casella.
+const aiuola=(g,x,y)=>casella(g,x,y,(r,c,w)=>Math.abs(c)<w-2&&r>1&&r<10?((r*3+c*5)%7===0?((r+c)%2?'#e0b04f':'#c2493c'):((r+c)%3===0?'#4f6342':null)):null);
 const STANZA={w:8,h:8,ox:160,oy:70,
   zona:(x,y)=>x===3||x===4?'viale':'giardino',
   pav:{viale:['#b39b72','#a8916a','#7a6a4e'],giardino:['#6f8a5c','#678254','#4f6342','#8aa874']},
@@ -51,8 +66,14 @@ const STANZA={w:8,h:8,ox:160,oy:70,
     for(let x=0;x<8;x++)onWall(g,'R',x,3,8,40,12,(u,v)=>v===0||v===11||u===0||u===5?'#efe2c4':'#4a6a8a');
     for(let y=0;y<8;y+=2)onWall(g,'L',y,3,8,40,12,(u,v)=>v===0||v===11||u===0||u===5?'#efe2c4':'#5a7a9a');
     quadro(g,'L',5,1,11,46,18,(u,v,W,H)=>v>H-5?'#4a7aa8':v>H-9?((u%3)?'#d9b98a':'#b5523f'):'#9fb4c8','#6b5226');
+    // un manifesto del dopolavoro tra le finestre, e le applique come nel museo
+    quadro(g,'R',5,3,9,26,12,(u,v,W,H)=>v<4?'#5f8a6b':(v>H-4?'#efe2c4':((u+v)%4?'#d9b98a':'#c2493c')),'#6b5226');
+    [['R',2],['R',6]].forEach(([s_,t])=>applique(g,s_,t));
   },
-  luci:()=>{const [x,y]=iso(4,3);return [[x,y-6,30,.4]]}};
+  // aiuole fiorite ai lati del viale
+  decoro(g){[[1,2],[2,2],[6,4],[6,5],[1,5]].forEach(([x,y])=>aiuola(g,x,y))},
+  luci:()=>{const [x,y]=iso(4,3),[lx,ly]=iso(2,4),[mx,my]=iso(5,6);
+    return [[x,y-6,30,.4],[lx,ly-34,26,.6],[mx,my-34,26,.6],lampada('R',2),lampada('R',6)]}};
 const OGGETTI_SALA=[
   {id:'plastico',x:4,y:3,h:16,name:'Plastico della Città Sociale',draw:drawPlastico,light:1,
     act:()=>say('Plastico della Città Sociale',['Case, scuole, asilo, teatro e stadio sulla sponda sinistra dell\'Agno: la Valdagno progettata da Francesco Bonfanti.','Sulla lavagna qui accanto qualcuno ha cancellato i numeri del grafico.'])},
@@ -61,7 +82,19 @@ const OGGETTI_SALA=[
   cartellinoMuro('csPl1','cs_marzotto','L',1,COL,C.cs_marzotto.title),
   cartellinoMuro('csPl2','cs_citta','L',3,COL,C.cs_citta.title),
   cartellinoMuro('csPl3','cs_1968','L',7,COL,C.cs_1968.title),
-  {id:'pianta',x:7,y:7,h:20,draw:drawPlant}
+  {id:'pianta',x:7,y:7,h:20,draw:drawPlant},
+  // il viale: alberi, lampioni, panchine e una bicicletta
+  {id:'albero1',x:2,y:1,h:32,draw:drawAlbero},
+  {id:'albero2',x:6,y:6,h:32,draw:drawAlbero},
+  {id:'albero3',x:7,y:5,h:32,draw:drawAlbero},
+  {id:'lampione1',x:2,y:4,h:34,draw:drawLampione},
+  {id:'lampione2',x:5,y:6,h:34,draw:drawLampione},
+  {id:'panchina1',x:2,y:6,h:8,name:'Panchina del viale',draw:drawBench,
+    act:()=>say('Panchina del viale',['Una panchina all\'ombra degli alberi. Da qui si vedono il viale e le finestre tutte uguali delle case.'])},
+  {id:'panchina2',x:5,y:1,h:8,name:'Panchina',draw:drawBench,
+    act:()=>say('Panchina',['Qualcuno ha dimenticato un giornale piegato. In prima pagina, una partita allo stadio della città.'])},
+  {id:'bici',x:6,y:7,h:12,name:'Bicicletta',draw:drawBici,
+    act:()=>say('Bicicletta',['Una bicicletta rossa, appoggiata all\'albero. Molti operai andavano in fabbrica così.'])}
 ];
 
 /* ---------- Rompicapo: il grafico dei numeri ---------- */
