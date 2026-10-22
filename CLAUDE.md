@@ -19,7 +19,7 @@ Il team è diviso in **4 aree**. Ogni persona lavora con il suo Claude su **un r
 | `enigmi-storia` | Le sale, gli oggetti, i rompicapi, i testi dei cartellini, il custode, il diario, il finale | `js/contenuti.js`, `js/stanza.js`, `js/enigmi.js` |
 | `dati-ai` | Verifica dei fatti sulle fonti aperte (Wikidata, Europeana, Catalogo MiC, Rete Museale), fonti citate in gioco, custode che risponde con l'AI | `js/fonti.js` e i nuovi file `js/ai-*.js`, cartella `dati/` |
 | `territorio` | Portare i luoghi veri dell'Alto Vicentino dentro il gioco: quali luoghi, con foto, coordinate e storia; sale ispirate a luoghi reali; una mappa del territorio da consultare in gioco | `js/territorio.js` e i nuovi file `js/luoghi-*.js` |
-| `sale` | Le sale a tema del territorio: l'atrio, una sala per file con il suo rompicapo, le tessere da collezionare | `js/sale/*.js`, `img/sale/` |
+| `sale` | Le sale a tema del territorio: l'atrio, una sala per file con il suo rompicapo, le tessere da collezionare; il salvataggio automatico della partita | `js/sale/*.js`, `img/sale/`, `js/salvataggio.js` |
 
 **Regola d'oro: modifica solo i file della tua area.** Se ti serve un cambiamento in un file di un'altra area, scrivi un messaggio in bacheca a quell'area e aspetta. Se è una correzione minuscola e urgente (un errore che blocca il gioco), falla, ma scrivilo subito in bacheca.
 
