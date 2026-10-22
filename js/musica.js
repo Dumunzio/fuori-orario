@@ -145,12 +145,15 @@ function svegliaMusica(){
 }
 ['pointerdown','keydown'].forEach(e=>addEventListener(e,svegliaMusica));
 document.addEventListener('visibilitychange',()=>{if(!MUSICA.ac)return;document.hidden?MUSICA.ac.suspend():MUSICA.ac.resume()});
-// Ogni 50 ms programma i passi dei prossimi 0,2 s. Suona solo a partita iniziata e non finita.
+// Volume generale: pieno mentre si gioca, più basso con un dialogo o una finestra aperta (per leggere in pace),
+// zero se la musica è spenta, prima di «Entra nel museo» e a partita finita.
+function volumeMusica(){if(!MUSICA.on||!S.started||S.done)return 0;return $('dialog').hidden&&$('modal').hidden?.5:.22}
+// Ogni 50 ms programma i passi dei prossimi 0,2 s.
 setInterval(()=>{
   const ac=MUSICA.ac;if(!ac||!MUSICA.bus||ac.state!=='running')return;
-  const attiva=MUSICA.on&&S.started&&!S.done;
-  MUSICA.uscita.gain.setTargetAtTime(attiva?.5:0,ac.currentTime,.2);
-  if(!attiva){MUSICA.prossimo=ac.currentTime+.1;return}
+  const vol=volumeMusica();
+  MUSICA.uscita.gain.setTargetAtTime(vol,ac.currentTime,.2);
+  if(!vol){MUSICA.prossimo=ac.currentTime+.1;return}
   const passo=60/branoDi(MUSICA.brano).bpm/4;
   if(MUSICA.prossimo<ac.currentTime)MUSICA.prossimo=ac.currentTime+.05;
   while(MUSICA.prossimo<ac.currentTime+.2){programmaPasso(ac,MUSICA.bus,MUSICA.brano,MUSICA.passo,MUSICA.prossimo);MUSICA.passo=(MUSICA.passo+1)%64;MUSICA.prossimo+=passo}
