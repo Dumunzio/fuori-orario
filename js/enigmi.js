@@ -128,6 +128,7 @@ function talkKeeper(){
 }
 function hint(){
   if(!S.started||S.done)return;
+  if(typeof aiutoSala==='function'&&aiutoSala())return; // dentro una sala a tema: il suo aiuto (js/sale/registro.js)
   const id=Object.keys(SEALS).find(k=>!S.seals[k]);
   if(!id)return say('Custode',['Hai tutto. Vai alla porta d\'uscita.']);
   const lv=S.hint[id];S.hint[id]=Math.min(lv+1,HINTS[id].length-1);
@@ -146,6 +147,7 @@ function win(){
   openModal(`<div class="eyebrow">Uscita · ${tm}</div><h2>Sei fuori dal museo</h2>
     <p>In ${tm} hai attraversato un secolo di storia dell'Alto Vicentino. Ecco cosa ti porti a casa:</p>
     <div class="journal">${Object.keys(SEALS).map(k=>`<article class="seal"><span class="tag">Sigillo</span><h3>${SEALS[k].title}</h3><p>${SEALS[k].text}</p></article>`).join('')}</div>
+    ${typeof riepilogoTessere==='function'?riepilogoTessere():''}
     <p class="eyebrow">Fonti per la versione completa</p>
     <ul class="src"><li>Wikidata: luoghi, persone e beni culturali collegati tra loro</li><li>Europeana: foto e oggetti per le teche</li><li>Catalogo generale dei beni culturali (MiC)</li><li>Rete Museale Alto Vicentino ed Ecomuseo della Grande Guerra</li></ul>
     <div class="msg" id="msg">&nbsp;</div>
