@@ -475,8 +475,10 @@ const closeBtn='<button type="button" data-close>Chiudi</button>';
 $('card').addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeModal()});
 function bad(el,msg){const m=$('msg');m.textContent=msg;m.className='msg bad';el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}
 // Un'icona per ogni sigillo di SEALS, accese quelle già prese.
+// Con le sale a tema il conteggio di tutti i sigilli è il pulsante «Sigilli n/15» di js/sale/registro.js: le icone si nascondono.
 function hud(){
   const box=$('seals'),n=Object.keys(SEALS).length;
+  box.style.display=typeof sigilliTotali==='function'?'none':'';
   while(box.querySelectorAll('i').length<n)box.appendChild(document.createElement('i'));
   while(box.querySelectorAll('i').length>n)box.querySelector('i').remove();
   box.querySelectorAll('i').forEach((el,i)=>el.classList.toggle('on',i<sealCount()));

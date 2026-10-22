@@ -80,7 +80,7 @@ function apri(){
     $('slRisposte').onclick=e=>{const b=e.target.closest('button');if(!b)return;
       if(+b.dataset.i===DOMANDE[n][2]){n++;const m=$('msg');m.className='msg good';m.textContent='L\'anguana sorride.';
         if(n===DOMANDE.length){$('slRisposte').innerHTML='';$('slDomanda').textContent='«Conosci le nostre storie. Puoi passare, e portale con te.»';
-          return risoltoSala(ID,'L\'anguana torna nella fonte. Sull\'acqua resta un riflesso: è la tua tessera.')}
+          return risoltoSala(ID,'L\'anguana torna nella fonte. Sull\'acqua resta un riflesso: è il suo sigillo.')}
         mostra();
       }else{n=0;bad($('slRisposte'),'AAAAH! L\'anguana grida e l\'acqua si increspa. Si ricomincia dalla prima domanda.');mostra()}
     };

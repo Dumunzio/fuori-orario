@@ -1,4 +1,4 @@
-/* Salvataggio automatico: ogni volta che il diario si allunga (cartellino, sigillo o tessera nuovi)
+/* Salvataggio automatico: ogni volta che il diario si allunga (cartellino o sigillo nuovi)
    o cambi stanza, la partita viene salvata nel browser. Dalla schermata iniziale si riprende con «Continua la partita».
    Non cambia funzioni di altri file: osserva S e usa entraStanza, hud, toast. Area: sale. Vedi CLAUDE.md. */
 {
@@ -57,7 +57,7 @@ setInterval(()=>{
   if(!b){b=document.createElement('button');b.id='btnContinua';b.type='button';b.className='primary';b.textContent='Continua la partita';avvia.before(b)}
   const aggiorna=()=>{const d=leggi();b.hidden=!d;
     if(d){const tess=d.S.tessere?Object.values(d.S.tessere).filter(Boolean).length:0,sig=Object.values(d.S.seals||{}).filter(Boolean).length;
-      b.title=`Salvata il ${new Date(d.quando).toLocaleString('it-IT')} · sigilli ${sig} · tessere ${tess}`;
+      b.title=`Salvata il ${new Date(d.quando).toLocaleString('it-IT')} · sigilli ${sig+tess}`;
       avvia.textContent='Nuova partita'}else avvia.textContent='Entra nel museo'};
   b.addEventListener('click',()=>{if(caricaPartita()){fit();toast('La partita riprende da dove l\'avevi lasciata')}});
   // «Entra nel museo» / «Nuova partita» parte da zero: il vecchio salvataggio si cancella

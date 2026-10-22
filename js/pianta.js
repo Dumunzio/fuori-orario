@@ -76,7 +76,7 @@ function apriPianta(){
     <div class="pianta-rami">${Object.entries(PIANTA.rami).map(([r,nome])=>`<div><b>${nome}</b> ${ids.filter(id=>P_[id].ramo===r).map(id=>`<span class="${completata(id)?'fatta':''}">${completata(id)?'✓ ':''}${nomePianta(id)}</span>`).join(' · ')}</div>`).join('')}</div>
     <div class="row end">${closeBtn}</div>`);
   const mostra=id=>{const c=completata(id),s=SIGILLI_STANZA[id];
-    $('pDettaglio').textContent=`${nomePianta(id)} · ${PIANTA.rami[P_[id].ramo]}. `+(c?'Completata.':s?`Sigilli: ${s.filter(k=>S.seals[k]).length} su ${s.length}.`:id==='uscita'?'Qui c\'è la porta d\'uscita.':'Tessera ancora da trovare.')};
+    $('pDettaglio').textContent=`${nomePianta(id)} · ${PIANTA.rami[P_[id].ramo]}. `+(c?'Completata.':s?`Sigilli: ${s.filter(k=>S.seals[k]).length} su ${s.length}.`:id==='uscita'?'Qui c\'è la porta d\'uscita.':'Sigillo ancora da trovare.')};
   $('card').querySelectorAll('[data-stanza]').forEach(el=>{el.onclick=()=>mostra(el.dataset.stanza);el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();mostra(el.dataset.stanza)}}});
 }
 
