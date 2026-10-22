@@ -4,7 +4,7 @@
 const NSEALS=()=>Object.keys(SEALS).length;
 const lettere=n=>['zero','uno','due','tre','quattro','cinque','sei'][n]??String(n);
 // Dove si trova ogni rompicapo, per gli aiuti del custode.
-const DOVE={loom:'Il telaio, nella sala del Lanificio.',chest:'La cassetta del Genio, nella sala della Grande Guerra.',archive:'L\'armadio dell\'archivio.'};
+const DOVE={loom:'Il telaio, nella sala del Lanificio.',chest:'La cassetta del Genio, nella sala della Grande Guerra.',archive:'L\'armadio dell\'archivio.',facade:'Il plastico di Villa Godi, nella Sala delle Ville: ci si arriva dal varco tra il Lanificio e l\'Archivio.'};
 function note(id,title,where,text,seal){if(S.journal.some(j=>j.id===id))return false;S.journal.push({id,title,where,text,seal:!!seal});return true}
 function readPlaque(k){const p=PLAQUES[k];say('Cartellino · '+p.title,p.lines,()=>{if(note(k,p.title,p.where,p.lines.join(' ')))toast('Annotato nel diario')})}
 
@@ -81,6 +81,44 @@ function openTimeline(){
       if(ok){draw(true);$('tl').remove();solved('archive','Il cassetto scorre. Tra le schede c\'è il terzo sigillo.')}
       else{bad($('placed'),'L\'ordine non torna. Controlla gli anni nei cartellini e riprova.');order=[];setTimeout(()=>draw(),350)}}});
   $('rs').onclick=()=>{order=[];draw()};
+}
+
+// Facciata di Villa Godi: l'ala destra va specchiata dalla sinistra, e la loggia del piano nobile ha tre arcate (cartellino godi).
+const FAC_VALORI=['muro','finestra','porta','arco'];
+// disegnini 8×10 delle caselle (i simboli Unicode non ci sono nei font pixel)
+const facSvg=d=>`<svg viewBox="0 0 8 10" width="18" height="22" shape-rendering="crispEdges" aria-hidden="true">${d}</svg>`;
+const FAC_SIMBOLI={muro:'',
+  finestra:facSvg('<rect x="1" y="1" width="6" height="8" fill="#2a3550"/><rect x="3.5" y="1" width="1" height="8" fill="#e8dfc6"/><rect x="1" y="4.5" width="6" height="1" fill="#e8dfc6"/>'),
+  porta:facSvg('<path d="M2 10V4a2 2 0 0 1 4 0v6z" fill="#5a3e2a"/>'),
+  arco:facSvg('<path d="M0.5 10V4.5a3.5 3.5 0 0 1 7 0V10z" fill="#241c2c"/>'),
+  scala:facSvg('<rect x="0" y="8" width="8" height="2" fill="#8a7a5c"/><rect x="1" y="6" width="6" height="2" fill="#9a8a6c"/><rect x="2" y="4" width="4" height="2" fill="#aa9a7c"/>')};
+function openFacade(){
+  if(S.seals.facade)return say('Plastico di Villa Godi',['La facciata è completa. Il telo è piegato accanto al plastico.']);
+  const val={l0:0,l1:0,l2:0,d0:0,d1:0,d2:0,d3:0},scoperte=new Set();
+  const fissa=(v,cls='')=>`<div class="${cls}" role="img" aria-label="${v}">${FAC_SIMBOLI[v]}</div>`;
+  const cella=(c,cls='')=>`<button type="button" data-c="${c}" class="${cls}"></button>`;
+  // 7 colonne × 2 piani in ordine di lettura: ala sinistra | loggia e scalinata | ala destra
+  const griglia=[fissa('finestra'),fissa('finestra'),cella('l0','ala telo'),cella('l1','telo'),cella('l2','telo'),cella('d0','ala'),cella('d1'),
+    fissa('finestra'),fissa('porta'),fissa('muro','ala'),fissa('scala'),fissa('muro'),cella('d2','ala'),cella('d3')].join('');
+  openModal(`<div class="eyebrow">Rompicapo · Sala delle Ville</div><h2>La facciata di Villa Godi</h2>
+    <p class="clue">Il plastico è rimasto a metà. Completalo come lo avrebbe voluto Palladio.</p>
+    <p>Tocca le caselle per cambiarle: muro, finestra, porta, arco. In alto il piano nobile, in basso il piano terra.</p>
+    <div class="facade" id="fac">${griglia}</div>
+    <div class="msg" id="msg">&nbsp;</div>
+    <div class="row end"><button class="primary" type="button" id="facOk">Controlla</button>${closeBtn}</div>`);
+  const v=c=>FAC_VALORI[val[c]];
+  const draw=()=>$('fac').querySelectorAll('button').forEach(b=>{const c=b.dataset.c,coperta=b.classList.contains('telo')&&!scoperte.has(c);
+    b.classList.toggle('telo',coperta);b.innerHTML=coperta?'':FAC_SIMBOLI[v(c)];
+    b.setAttribute('aria-label',coperta?'coperta da un telo':v(c))});
+  draw();
+  $('fac').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;const c=b.dataset.c;
+    scoperte.add(c);val[c]=(val[c]+1)%FAC_VALORI.length;draw()});
+  $('facOk').onclick=()=>{
+    if(['d0','d1','d2','d3'].map(v).join()!=='finestra,finestra,porta,finestra')return bad($('fac'),'L\'ala destra non rispecchia la sinistra.');
+    if(!['l0','l1','l2'].every(c=>v(c)==='arco'))return bad($('fac'),'La loggia non è quella descritta nel cartellino.');
+    $('fac').querySelectorAll('button').forEach(b=>b.disabled=true);
+    solved('facade','Il telo scivola via: dietro la scalinata c\'è il sigillo della Villa.');
+  };
 }
 
 function talkKeeper(){
