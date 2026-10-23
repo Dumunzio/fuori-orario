@@ -1121,5 +1121,9 @@ const LINGUA_EN={
 "Le acque di Recoaro sono note dal 1689.":"The waters of Recoaro have been known since 1689.",
 // i nomi veri del team nei titoli (bacheca 2026-10-23_2030)
 "Un gioco di":"A game by",
-"Territorio e mappa":"The region and the map"
+"Territorio e mappa":"The region and the map",
+// frasi rimaste senza traduzione: il conto dei trucchi e la griglia della schermata finale (bacheca 2026-10-23_2120)
+"Sigilli {} su {}":"Seals {} of {}",
+"I tuoi sigilli · {} su {}":"Your seals · {} of {}",
+"Nessun sigillo, questa volta. {}":"No seals this time. {}"
 };
