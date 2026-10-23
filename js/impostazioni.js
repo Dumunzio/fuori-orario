@@ -27,6 +27,9 @@ function apriImpostazioni(){
     <div class="im-voce"><span class="im-titolo">Carattere</span>
       <p class="im-nota">Il carattere di tutti i testi del gioco.</p>
       <div class="row" id="imCarattere">${Object.entries(CARATTERI).reverse().map(([id,c])=>`<button type="button" data-font="${id}" aria-pressed="${document.documentElement.dataset.font===id}">${c.nome}</button>`).join('')}</div></div>
+    <div class="im-voce"><span class="im-titolo">Dimensione del testo</span>
+      <p class="im-nota">Sugli schermi grandi il testo cresce già da solo: qui lo fai più piccolo o più grande.</p>
+      <div class="row" id="imTesto">${Object.entries(DIMENSIONI_TESTO).map(([id,d])=>`<button type="button" data-testo="${id}" aria-pressed="${dimensioneTesto()===id}">${d.nome}</button>`).join('')}</div></div>
     <div class="im-voce"><span class="im-titolo">Traiettorie</span>
       <p class="im-nota">Mostra a puntini la strada che il personaggio sta per fare quando tocchi il pavimento, e le orme dei suoi ultimi passi.</p>
       <div class="row"><button type="button" id="imTraiettorie" aria-pressed="${TRAIETTORIE.on}">${TRAIETTORIE.on?'Traiettorie: visibili':'Traiettorie: nascoste'}</button></div></div>
@@ -46,6 +49,8 @@ function apriImpostazioni(){
   // traiettorie del personaggio (js/motore.js, compito 6)
   $('imTraiettorie').onclick=()=>{traiettorie(!TRAIETTORIE.on);const b=$('imTraiettorie');
     b.setAttribute('aria-pressed',String(TRAIETTORIE.on));b.textContent=TRAIETTORIE.on?'Traiettorie: visibili':'Traiettorie: nascoste'};
+  $('imTesto').onclick=e=>{const b=e.target.closest('[data-testo]');if(!b)return;try{localStorage.setItem('fuoriOrario.testo',b.dataset.testo)}catch(x){}fit();
+    $('imTesto').querySelectorAll('[data-testo]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))};
   $('imCarattere').onclick=e=>{const b=e.target.closest('[data-font]');if(!b)return;scegliCarattere(b.dataset.font,true);
     $('imCarattere').querySelectorAll('[data-font]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))};
   const r=$('imVolume');
@@ -81,6 +86,6 @@ const st=document.createElement('style');st.textContent=`
 .im-riga input:focus-visible{outline:2px solid var(--brass);outline-offset:4px}
 .im-nota{margin:0;font-size:16px;color:var(--muted)}
 .im-conferma p{margin:0 0 8px}
-#imCarattere button[aria-pressed="true"]{border-color:var(--brass);color:var(--brass)}`;
+#imCarattere button[aria-pressed="true"],#imTesto button[aria-pressed="true"]{border-color:var(--brass);color:var(--brass)}`;
 document.head.appendChild(st);
 }
