@@ -52,7 +52,8 @@
     mappa:icona(['aaassssaaa','aaassssaaa','caassssaaa','ccassrsaaa','aaccrrrraa','aaascrsaaa','aaassccaaa','aaasssacca','aaassssaac','aaassssaaa']),
     ingranaggio:icona(['....aa....','.a.aaaa.a.','..aaaaaa..','.aaa..aaa.','aaa....aaa','aaa....aaa','.aaa..aaa.','..aaaaaa..','.a.aaaa.a.','....aa....']),
     schermo:icona(['aaa....aaa','a........a','a........a','..........','..........','..........','..........','a........a','a........a','aaa....aaa']),
-    aiuto:icona(['..bbbbbb..','.bb....bb.','.bb....bb.','......bb..','.....bb...','....bb....','....bb....','..........','....bb....','....bb....'])
+    aiuto:icona(['..bbbbbb..','.bb....bb.','.bb....bb.','......bb..','.....bb...','....bb....','....bb....','..........','....bb....','....bb....']),
+    zaino:icona(['...dddd...','..d....d..','.rrrrrrrr.','.rrrrrrrr.','.rbbbbbbr.','.rrrbbrrr.','.rrrrrrrr.','.rrrrrrrr.','.rrrrrrrr.','..........'])
   };
   // angoli a scalino di 3 pixel, come un bottone disegnato a mano
   const scalino='polygon(0 3px,3px 3px,3px 0,calc(100% - 3px) 0,calc(100% - 3px) 3px,100% 3px,100% calc(100% - 3px),calc(100% - 3px) calc(100% - 3px),calc(100% - 3px) 100%,3px 100%,3px calc(100% - 3px),0 calc(100% - 3px))';
@@ -89,7 +90,7 @@
   .hud{display:grid;grid-template-columns:1fr 1fr;align-content:start;gap:5px;width:78px}
   .hud .time,#btnTessere{grid-column:1/-1}
   .hud .time{font-size:15px;color:#e0b04f;padding:2px 0}
-  .hud button{position:relative;height:38px;padding:21px 1px 2px;font-size:8.5px;letter-spacing:.04em;line-height:1;border:0;clip-path:${scalino};
+  .hud button{position:relative;height:38px;padding:21px 0 2px;font-size:8px;letter-spacing:0;line-height:1;border:0;clip-path:${scalino};
     background:#2b2244;color:#efe2c4;box-shadow:inset 0 0 0 2px #15111f,inset 0 -3px 0 #1a1429,inset 0 3px 0 #4b3f6e}
   .hud button::before{content:"";position:absolute;left:50%;top:5px;width:16px;height:16px;transform:translateX(-50%);background:center/contain no-repeat;image-rendering:pixelated}
   .hud button:active{transform:translateY(2px);box-shadow:inset 0 0 0 2px #15111f,inset 0 3px 0 #1a1429}
@@ -98,6 +99,7 @@
   #btnJournal::before{background-image:${IC.diario}}
   #btnMappa::before{background-image:${IC.mappa}}
   #btnHint::before{background-image:${IC.aiuto}}
+  #btnZaino::before{background-image:${IC.zaino}}
   /* solo icona: impostazioni e schermo intero; EN resta scritto, più grande */
   #btnImpostazioni,#btnSchermo{font-size:0;padding:0}
   #btnImpostazioni::before{background-image:${IC.ingranaggio};top:50%;transform:translate(-50%,-50%);width:18px;height:18px}

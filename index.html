@@ -15,6 +15,22 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Fuori Orario">
 <link rel="apple-touch-icon" href="img/icona.svg">
+<script>
+/* Carattere a scelta (compito 1, idea di Dumunzio): Times, già nel sistema, oppure due caratteri pixel.
+   I font pixel sono nel repo (cartella fonts/, licenza OFL) e il browser li scarica solo se servono: niente Google Fonts,
+   funzionano anche senza internet. Sta qui in alto così il carattere salvato c'è già al primo disegno della pagina.
+   I font e le misure sono in css/style.css (@font-face, html[data-font]); la scelta si fa nelle impostazioni (js/impostazioni.js). */
+const CARATTERI={times:{nome:'Times'},morbido:{nome:'Pixel morbido'},pixel:{nome:'Pixel'}};
+function scegliCarattere(id,salva){
+  if(!CARATTERI[id])id='times';
+  document.documentElement.dataset.font=id;
+  if(salva)try{localStorage.setItem('fuoriOrario.font',id)}catch(e){}
+  if(typeof fit==='function')fit();
+}
+// quando un font arriva la barra in alto può cambiare altezza: la tela si rimisura
+if(document.fonts)document.fonts.addEventListener('loadingdone',()=>{if(typeof fit==='function')fit()});
+scegliCarattere((()=>{try{return localStorage.getItem('fuoriOrario.font')}catch(e){return null}})());
+</script>
 </head>
 <body>
 <div id="app">
@@ -61,7 +77,7 @@
       <b>DIARIO</b><span>Raccoglie tutto quello che hai letto</span>
       <b class="solo-verticale">CONSIGLIO</b><span class="solo-verticale">Gira il telefono in orizzontale: la stanza si vede più grande</span>
     </div>
-    <div class="promessa" aria-hidden="true"><i></i><i></i><i></i><i></i><span>15 sigilli da ritrovare</span></div>
+    <div class="promessa" aria-hidden="true"><i></i><i></i><i></i><i></i><span>12 sigilli da ritrovare</span></div>
     <div class="row"><button class="primary" id="btnStart" type="button">Entra nel museo</button></div>
     <p class="note">Prototipo. Il museo è immaginario, i fatti storici sono reali e vanno verificati sulle fonti aperte prima di una versione pubblica.</p>
   </div>
@@ -78,6 +94,7 @@
 <script src="js/territorio.js"></script>
 <!-- Sale a tema (area sale): prima il registro, poi una riga per sala -->
 <script src="js/sale/registro.js"></script>
+<script src="js/sale/miniature.js"></script>
 <script src="js/sale/tessitore.js"></script>
 <script src="js/sale/mine.js"></script>
 <script src="js/sale/cimone.js"></script>
@@ -89,6 +106,9 @@
 <script src="js/sale/anguane.js"></script>
 <script src="js/sale/meneghello.js"></script>
 <script src="js/sale/recoaro.js"></script>
+<script src="js/sale/trucchi.js"></script>
+<script src="js/sale/titoli.js"></script>
+<script src="js/sale/zaino.js"></script>
 <script src="js/impostazioni.js"></script>
 <!-- Salvataggio automatico (area sale) -->
 <script src="js/salvataggio.js"></script>

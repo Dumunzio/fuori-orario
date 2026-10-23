@@ -15,6 +15,22 @@
   --body:"Times New Roman",Times,"Liberation Serif",Tinos,serif;
   color-scheme:dark;
 }
+/* I font pixel stanno in fonts/ (licenza OFL, vedi i file OFL-*.txt): solo l'alfabeto latino, che basta per italiano e inglese.
+   Il browser li scarica solo quando una scelta li usa. Di Jersey 15 si usano solo le cifre (unicode-range). */
+@font-face{font-family:"Pixelify Sans";src:url(../fonts/pixelify-sans.woff2) format("woff2");font-weight:400 700;font-display:swap}
+@font-face{font-family:"Jersey 10";src:url(../fonts/jersey-10.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Jersey 15";src:url(../fonts/jersey-15.woff2) format("woff2");font-display:swap;unicode-range:U+0030-0039}
+/* Gli altri due caratteri, da scegliere nelle impostazioni (data-font su <html>, vedi index.html).
+   «Pixel» è com'era prima di Times: Pixelify Sans per titoli e pulsanti, Jersey 10 per il testo, cifre da Jersey 15.
+   «Pixel morbido» è Pixelify Sans per tutto. */
+html[data-font="pixel"]{--display:"Jersey 15","Pixelify Sans","Courier New",monospace;--body:"Jersey 15","Jersey 10","Courier New",monospace}
+html[data-font="pixel"] body{font-size:22px;line-height:1.25;letter-spacing:.01em}
+html[data-font="morbido"]{--display:"Pixelify Sans","Courier New",monospace;--body:"Pixelify Sans","Courier New",monospace}
+html[data-font="morbido"] body{font-size:18px;line-height:1.3}
+/* Interfaccia più grande sugli schermi grandi: --zoom lo calcola fit() in js/motore.js (da 1 a 2, 1 sul telefono).
+   La tela no: si ingrandisce già da sola. */
+/* --zoom tiene conto anche della dimensione del testo scelta nelle impostazioni (Piccolo, Normale, Grande). */
+.hud,#dialog,#modal,#title,#prompt,#toast,#etichetta{zoom:var(--zoom,1)}
 [hidden]{display:none!important}
 html,body{height:100%}
 body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body);font-size:19px;line-height:1.3;overflow:hidden;box-sizing:border-box;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}

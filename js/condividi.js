@@ -1,10 +1,11 @@
-/* L'immagine da condividere a fine partita: tempo, i 15 sigilli (le foto vere dei luoghi delle sale) e il titolo,
+/* L'immagine da condividere a fine partita: tempo, i 12 sigilli (le foto vere dei luoghi delle sale) e il titolo,
    su una tela 1080×1350 (formato verticale dei social). Si scarica o si condivide con il menu del telefono.
-   Le foto vengono da Wikimedia Commons (tessereImmagini/caricaTessereImmagini, js/sale/registro.js):
-   aperto da file locale il browser non lascia esportare una tela con le foto, quindi in quel caso l'immagine
-   si rifà senza foto, con il colore e il nome di ogni sala. La chiama win() in enigmi.js. Area: sale. */
+   Le foto vengono da Wikimedia Commons (tessereImmagini/caricaTessereImmagini, js/sale/registro.js), come miniature
+   scritte nel codice (MINIATURE, js/sale/miniature.js): così ci sono anche aperto da file locale, dove il browser
+   non lascia esportare una tela con foto lette dal disco. Se una miniatura manca e la tela non si esporta,
+   l'immagine si rifà senza foto, con il colore e il nome di ogni sala. La chiama win() in enigmi.js. Area: sale. */
 {
-const LARGO=1080,ALTO=1350,COL=5,CASELLA=184,PASSO=196;
+const LARGO=1080,ALTO=1350,COL=4,CASELLA=184,PASSO=196;
 const fontTela=(px,peso='')=>`${peso} ${px}px ${getComputedStyle(document.body).getPropertyValue('--display').trim()||'serif'}`;
 
 // Una casella: la foto della sala (ritagliata per riempire), oppure il colore della sala; sotto il nome.
@@ -32,7 +33,7 @@ function casellaMuseo(g,x,y,titolo){
   parole.forEach(p=>{const prova=riga?riga+' '+p:p;if(g.measureText(prova).width>CASELLA-20&&riga){righe.push(riga);riga=p}else riga=prova});righe.push(riga);
   righe.slice(0,2).forEach((l,i)=>g.fillText(l,cx,y+148+i*22));
 }
-function disegna(sale,conFoto){
+function disegna(sale,conFoto,museo=Object.keys(SEALS).map(k=>({museo:SEALS[k].title}))){
   const c=document.createElement('canvas');c.width=LARGO;c.height=ALTO;const g=c.getContext('2d');
   g.fillStyle='#15111f';g.fillRect(0,0,LARGO,ALTO);
   // cornice d'ottone e puntini di polvere, come nel gioco
@@ -42,11 +43,15 @@ function disegna(sale,conFoto){
   g.font=fontTela(128,'bold');g.fillStyle='#000';g.fillText('FUORI ORARIO',LARGO/2+10,268);g.fillStyle='#c2493c';g.fillText('FUORI ORARIO',LARGO/2+5,263);g.fillStyle='#e0b04f';g.fillText('FUORI ORARIO',LARGO/2,258);
   g.fillStyle='#f0e6cf';g.font=fontTela(44);g.fillText('Fuga dal museo dopo la chiusura',LARGO/2,344);
   g.font=fontTela(92,'bold');g.fillStyle='#e0b04f';g.fillText(fmt(S.elapsed),LARGO/2,452);
-  g.font=fontTela(36);g.fillStyle='#a99cc4';g.fillText('Tutti i 15 sigilli della storia dell\'Alto Vicentino',LARGO/2,506);
-  // i 15 sigilli: prima i 4 del museo, poi le 11 sale, in 3 righe da 5
+  // chi ha trovato tutte le statuine dello zaino (js/sale/zaino.js) lo vede scritto anche qui
+  const statuine=typeof statuineTrovate==='function'&&statuineTrovate();
+  g.font=fontTela(36);g.fillStyle='#a99cc4';g.fillText(statuine&&statuine.n===statuine.tot
+    ?`Tutti i ${NTOT()} sigilli e tutte le ${statuine.tot} statuine`:`Tutti i ${NTOT()} sigilli della storia dell'Alto Vicentino`,LARGO/2,506);
+  // i 12 sigilli: prima quello della villa, poi le 11 sale, in 3 righe da 4
   const x0=(LARGO-(COL-1)*PASSO-CASELLA)/2,y0=560;
-  const tutte=[...Object.keys(SEALS).map(k=>({museo:SEALS[k].title})),...sale];
-  tutte.forEach((t,i)=>{const x=x0+(i%COL)*PASSO,y=y0+Math.floor(i/COL)*PASSO;t.museo?casellaMuseo(g,x,y,t.museo):casellaSala(g,x,y,t,conFoto)});
+  // la villa con la sua foto come le sale; senza foto resta il rombo d'ottone
+  const tutte=[...museo,...sale];
+  tutte.forEach((t,i)=>{const x=x0+(i%COL)*PASSO,y=y0+Math.floor(i/COL)*PASSO;t.museo&&!(conFoto&&t.img)?casellaMuseo(g,x,y,t.museo):casellaSala(g,x,y,t,conFoto)});
   g.textAlign='center';g.fillStyle='#f0e6cf';g.font=fontTela(42);g.fillText('Ci provi anche tu?',LARGO/2,1210);
   g.fillStyle='#a99cc4';g.font=fontTela(24);
   g.fillText(conFoto?'Foto da Wikimedia Commons: autori e licenze nel gioco':'Storia vera, fonti aperte: Wikidata, Wikipedia, Wikimedia Commons',LARGO/2,1262);
@@ -56,9 +61,13 @@ function disegna(sale,conFoto){
 async function apriImmagineFinale(){
   const box=$('slImmagine');if(!box)return;box.innerHTML='<p class="eyebrow">Preparo l\'immagine…</p>';
   const sale=typeof caricaTessereImmagini==='function'?await caricaTessereImmagini():[];
+  // i sigilli del museo con la loro foto (la villa: fotoSigilloMuseo, js/sale/registro.js)
+  const museo=await Promise.all(Object.keys(SEALS).map(k=>new Promise(fatto=>{
+    const t={museo:SEALS[k].title,titolo:SEALS[k].title,colore:'#b8892f'},f=typeof fotoSigilloMuseo==='function'&&fotoSigilloMuseo(k);
+    if(!f)return fatto(t);const img=new Image();img.onload=()=>fatto({...t,img});img.onerror=()=>fatto(t);img.src=typeof MINIATURE!=='undefined'&&MINIATURE[k]||f.file})));
   let url,conFoto=true;
-  try{url=disegna(sale,true).toDataURL('image/png')}catch(e){conFoto=false;url=disegna(sale,false).toDataURL('image/png')}
-  box.innerHTML=`<img src="${url}" alt="Immagine della partita: tempo e 15 sigilli" style="width:100%;max-width:360px;display:block;margin:8px auto;border:2px solid var(--line)">
+  try{url=disegna(sale,true,museo).toDataURL('image/png')}catch(e){conFoto=false;url=disegna(sale,false,museo).toDataURL('image/png')}
+  box.innerHTML=`<img src="${url}" alt="Immagine della partita: tempo e ${NTOT()} sigilli" style="width:100%;max-width:360px;display:block;margin:8px auto;border:2px solid var(--line)">
     <div class="row"><a class="primary" id="slScarica" href="${url}" download="fuori-orario.png" style="text-decoration:none;padding:6px 12px;border:2px solid var(--line);background:var(--brass);color:#1a1424;font-family:var(--display);text-transform:uppercase;letter-spacing:.06em">Scarica l'immagine</a>
     <button type="button" id="slCondividi" hidden>Condividi</button></div>
     ${conFoto?'':'<p class="eyebrow">Aperto da file locale il browser non lascia mettere le foto nell\'immagine: online ci sono.</p>'}`;
@@ -68,4 +77,18 @@ async function apriImmagineFinale(){
       b.onclick=()=>navigator.share({files:[file],title:'Fuori Orario',text:typeof tr==='function'?tr('Ci provi anche tu?'):'Ci provi anche tu?'}).catch(()=>{})}}catch(e){}
 }
 window.apriImmagineFinale=apriImmagineFinale;
+
+// Dopo la finestra finale si torna alla pagina iniziale, con la partita cancellata: prima la partita finita restava ferma lì.
+// Si torna quando la finestra si chiude («Chiudi», Esc o un clic fuori), così prima si può scaricare o condividere l'immagine
+// con calma. «Gioca ancora» invece riparte subito dall'ingresso, come prima. La chiama win() in enigmi.js.
+function fineVersoTitolo(){
+  const ancora=$('again');if(!ancora)return;
+  const b=document.createElement('button');b.type='button';b.id='slChiudiFine';b.textContent='Chiudi';b.onclick=closeModal;
+  ancora.before(b);
+  const guarda=new MutationObserver(()=>{if(!$('modal').hidden)return;guarda.disconnect();
+    // con «Gioca ancora» fresh() ha già fatto ripartire la partita: S.done è falso e si resta nel gioco
+    if(S.done){if(typeof cancellaSalvataggio==='function')cancellaSalvataggio();location.reload()}});
+  guarda.observe($('modal'),{attributes:true,attributeFilter:['hidden']});
+}
+window.fineVersoTitolo=fineVersoTitolo;
 }

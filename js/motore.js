@@ -17,7 +17,8 @@ function fresh(){
   P={x:5,y:6,px:5,py:6,tx:5,ty:6,fx:0,fy:-1,moving:false,walk:0,path:[],pending:null};
 }
 fresh();
-const sealCount=()=>Object.values(S.seals).filter(Boolean).length;
+// solo i sigilli di SEALS: una partita salvata può avere ancora quelli della stanza museo, che non c'è più
+const sealCount=()=>Object.keys(SEALS).filter(k=>S.seals[k]).length;
 
 /* ---------- Disegno: primitive ---------- */
 const R=(g,x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),w,h)};
@@ -123,31 +124,6 @@ const lampada=(side,t)=>{const [cx,cy]=side==='R'?iso(t,0):iso(0,t);return [side
 // Gli oggetti di ogni stanza sono in OGGETTI (stanza.js).
 // pav: per ogni zona [colore pari, colore dispari, bordo, puntini (facoltativo)].
 const STANZE={
-  // porta = casella della parete destra dove sta la porta d'uscita, oppure false
-  museo:{w:12,h:10,ox:148,oy:64,porta:false,
-    zona:(x,y)=>x<6?(y<5?'lan':'arc'):(y<5?'war':'hall'),
-    pav:{lan:['#6e4a31','#674529','#4e3220'],war:['#565d59','#4d5350','#3a3f3d'],arc:['#463a5e','#40355a','#2f2744','#5a4b78'],hall:['#7a6e5c','#6e6351','#544a3b']},
-    pareti(g){
-      // parete destra: manifesto, ritratto, Pasubio, foto d'epoca, cartello uscita
-      onWall(g,'R',2,2,10,42,22,framed((u,v)=>v%5<2?'#c2493c':'#efe2c4'));
-      onWall(g,'R',4,3,9,40,18,framed((u,v,W,H)=>{const dx=u-W/2,dy=v-7;return dx*dx+dy*dy*.6<6?'#e6c9a3':(v>11&&Math.abs(dx)<3?'#2d3a5e':'#2a2030')}));
-      onWall(g,'R',7,1,11,42,20,framed((u,v,W)=>{const m=Math.abs(u-W/2)*1.6+4;return v<m?'#5b6f8c':v<m+3?'#e9eef0':v<15?'#7d8a7a':'#556b45'}));
-      onWall(g,'R',8,4,10,38,14,framed((u,v)=>(u*7+v*3)%5===0?'#8a7350':'#b39b72','#5a4630'));
-      onWall(g,'R',10,4,8,44,5,(u,v,W,H)=>(u===0||u===W||v===0||v===H-1)?'#1c4a2c':'#4fd17e');
-      // parete sinistra: stendardo, paesaggio, finestra, targa archivio
-      onWall(g,'L',1,3,9,48,30,(u,v,W,H)=>v===H-1?(u%2?'#e0b04f':null):(u===3?'#8f3229':'#c2493c'));
-      onWall(g,'L',3,2,10,42,18,framed((u,v,W)=>v<6?'#3d4d74':v<9+Math.round(Math.sin(u)*1.5)?'#4f6b3f':'#7a8a4a'));
-      onWall(g,'L',6,2,10,44,22,framed((u,v,W,H)=>(u===Math.floor(W/2)||v===Math.floor(H/2))?'#4a3b2c':(u===2&&v===3?'#f4f0d8':'#24345a'),'#4a3b2c'));
-      onWall(g,'L',8,3,9,36,7,framed((u,v)=>v===3&&u%2?'#3a2a1a':'#c9a65a','#6b5226'));
-      pareteVarchiPianta(g,'museo');
-      pareteCartellino(g,'R',3);
-      [['R',1],['R',5],['R',9],['L',2],['L',7]].forEach(([s_,t])=>applique(g,s_,t));
-    },
-    // passatoia rossa nell'ingresso, verso la porta d'uscita
-    decoro(g){tappeto(g,7,6,10,7,'#7a2a24','#c9a65a','#8f3229')},
-    // lanterna del custode, finestra e applique
-    luci(){const l=[['R',1],['R',5],['R',9],['L',2],['L',7]].map(([s_,t])=>lampada(s_,t)),[wx,wy]=iso(0,6),k=OBJ.find(o=>o.id==='keeper');l.push([wx-6,wy-30,20,.5]);
-      if(k){const [kx,ky]=base(k);l.push([kx+5,ky-4,22,.7])}return l}},
   // Sala delle Ville: pavimento alla veneziana, intonaco chiaro, veduta di Villa Godi
   villa:{w:8,h:8,ox:160,oy:82,porta:false,
     zona:()=>'villa',
@@ -166,8 +142,10 @@ const STANZE={
     decoro(g){tappeto(g,3,2,5,4,'#6b2a2a','#c9a65a','#8a3a32')},
     // finestre, applique e un lampadario al centro
     luci(){const [mx,my]=iso(4,4);return [...[2,5].map(t=>{const [wx,wy]=iso(0,t);return [wx-6,wy-34,20,.5]}),lampada('R',2),lampada('R',5),[mx,my-20,46,.45]]}},
-  // Ingresso: dove si comincia. Marmo, pareti verde scuro, il custode, la piantina e i varchi verso i rami del museo.
-  ingresso:{w:10,h:8,ox:148,oy:76,porta:false,
+  // porta = casella della parete destra dove sta la porta d'uscita, oppure false
+  // Ingresso: dove si comincia e dove si esce. Marmo, pareti verde scuro, il custode, la piantina, i varchi verso i rami del museo
+  // e la porta d'uscita sulla parete destra, con il cartello verde sopra.
+  ingresso:{w:10,h:8,ox:148,oy:76,porta:8,
     zona:()=>'ingresso',
     pav:{ingresso:['#8d8579','#827a6e','#5f584e','#a2998a']},
     muro:{fondo:['#2f3a3a','#3c4a48'],zoccolo:['#1f2828','#283433'],cornice:['#435352','#5a6e6b'],fascia:'#b8892f'},
@@ -177,23 +155,12 @@ const STANZE={
       onWall(g,'L',0,3,9,48,30,(u,v,W,H)=>v===H-1?(u%2?'#e0b04f':null):(u===3?'#1f4a46':'#2d6b64'));
       onWall(g,'R',6,2,10,42,22,framed((u,v,W,H)=>v<4?'#c2493c':v>H-5?'#2a2030':(u+v)%4===0?'#e0b04f':'#efe2c4'));
       onWall(g,'L',7,2,10,40,16,framed((u,v)=>v%4===1&&u>1?'#3a2a1a':'#efe2c4','#6b5226'));
+      onWall(g,'R',8,4,8,44,5,(u,v,W,H)=>(u===0||u===W||v===0||v===H-1)?'#1c4a2c':'#4fd17e');
       [['R',3],['R',7],['L',4]].forEach(([s_,t])=>applique(g,s_,t));
     },
     decoro(g){tappeto(g,4,2,5,7,'#7a2a24','#c9a65a','#8f3229')},
     luci(){const l=[['R',3],['R',7],['L',4]].map(([s_,t])=>lampada(s_,t)),k=OBJ.find(o=>o.id==='keeper');
-      if(k){const [kx,ky]=base(k);l.push([kx+5,ky-4,22,.7])}return l}},
-  // Uscita: una piccola anticamera con la porta che chiede sigilli e tessere.
-  uscita:{w:8,h:6,ox:148,oy:88,porta:5,
-    zona:()=>'uscita',
-    pav:{uscita:['#7a6e5c','#6e6351','#544a3b']},
-    pareti(g){
-      pareteVarchiPianta(g,'uscita');
-      onWall(g,'R',5,4,8,44,5,(u,v,W,H)=>(u===0||u===W||v===0||v===H-1)?'#1c4a2c':'#4fd17e');
-      onWall(g,'L',1,2,10,42,20,framed((u,v,W)=>{const m=Math.abs(u-W/2)*1.6+4;return v<m?'#3d4d74':v<m+3?'#e9eef0':v<14?'#7d8a7a':'#556b45'}));
-      [['R',2],['R',7]].forEach(([s_,t])=>applique(g,s_,t));
-    },
-    decoro(g){tappeto(g,4,0,6,1,'#7a2a24','#c9a65a','#8f3229')},
-    luci(){return [['R',2],['R',7]].map(([s_,t])=>lampada(s_,t))}}
+      if(k){const [kx,ky]=base(k);l.push([kx+5,ky-4,22,.7])}return l}}
 };
 const sfondi={};
 // Grana del pavimento: con la stanza ingrandita le mattonelle a tinta unita sembravano piatte.
@@ -225,7 +192,7 @@ function buildBg(){
 }
 // Assegna dimensioni, oggetti e sfondo della stanza id, senza dissolvenza.
 function entraStanza(id){
-  const st=STANZE[id];if(!st)return;S.room=id;MW=st.w;MH=st.h;OX=st.ox;OY=st.oy;OBJ=OGGETTI[id]||[];buildBg();
+  const st=STANZE[id];if(!st)return;chiudiDialoghi();S.room=id;MW=st.w;MH=st.h;OX=st.ox;OY=st.oy;OBJ=OGGETTI[id]||[];buildBg();
   inquadra();TRAIETTORIE.scia=[];
   if(typeof suonaStanza==='function')suonaStanza(id); // js/musica.js
 }
@@ -250,58 +217,14 @@ function vaiInStanza(id,x,y){
 }
 
 /* ---------- Oggetti ---------- */
-function drawLoom(o,t){const [bx,by]=base(o);
-  box(ctx,bx,by+1,10,5,5,'#7a5236','#5a3a26','#46301f');
-  R(ctx,bx-9,by-30,2,28,'#5a3a26');R(ctx,bx+7,by-30,2,28,'#46301f');R(ctx,bx-9,by-31,18,3,'#8a603f');
-  for(let k=0;k<7;k++)R(ctx,bx-6+k*2,by-27,1,15,k%2?'#efe2c4':'#c2493c');
-  R(ctx,bx-7,by-12,14,5,'#c2493c');for(let k=0;k<7;k++)R(ctx,bx-6+k*2,by-11+(k%2)*2,1,1,'#efe2c4');
-  if(!S.seals.loom){R(ctx,bx+4,by-40,8,10,'#efe2c4');[[1,2],[4,2],[2,5],[5,4],[3,7],[6,7]].forEach(([a,b])=>R(ctx,bx+4+a,by-40+b,1,1,'#3a2a1a'));R(ctx,bx+7,by-31,1,1,'#3a2a1a')}
-  else sparkle(bx,by-36,t);
-}
 function drawLectern(o){const [bx,by]=base(o);
   diamond(ctx,bx,by+1,4,2,'rgba(0,0,0,.3)');R(ctx,bx-3,by-1,6,2,'#2b2416');R(ctx,bx-1,by-11,2,10,'#3d3320');
   R(ctx,bx-6,by-18,12,7,'#e0b04f');R(ctx,bx-5,by-17,10,5,'#b8892f');R(ctx,bx-4,by-16,8,1,'#f4dc9a');R(ctx,bx-4,by-14,6,1,'#f4dc9a');
-}
-function drawFactory(o){const [bx,by]=base(o);
-  box(ctx,bx,by+1,10,5,6,'#8a8396','#6b6577','#575262');
-  R(ctx,bx+3,by-40,3,20,'#7a3328');R(ctx,bx+2,by-41,5,2,'#5a2620');
-  box(ctx,bx,by-5,8,4,18,'#8c3b2e','#b5523f','#93402f');
-  faceL(bx,by-5,8,4,(x,y,i)=>{if(i%2)for(let k=0;k<4;k++)R(ctx,x,y-16+k*4,1,2,'#f2d27a')});
-  faceR(bx,by-5,8,4,(x,y,i)=>{if(i%2)for(let k=0;k<4;k++)R(ctx,x,y-16+k*4,1,2,'#c9a85a')});
-}
-function drawDiorama(o){const [bx,by]=base(o);
-  box(ctx,bx,by+1,11,5,9,'#6b4a33','#4f3625','#3e2a1c');
-  diamond(ctx,bx,by-8,10,5,'#556b45');
-  for(let r=0;r<20;r++){const w=Math.round(r*.5)+1,y=by-29+r;R(ctx,bx-w,y,w,1,r<4?'#e9eef0':'#8a978a');R(ctx,bx,y,w,1,r<4?'#cfd6da':'#66726a')}
-  for(let r=5;r<20;r++){const x=bx+Math.round(Math.sin(r*.9)*r*.3);R(ctx,x,by-29+r,1,1,r%3?'#e3cf94':'#14110c')}
-}
-function drawChest(o,t){const [bx,by]=base(o);
-  if(S.seals.chest){R(ctx,bx-6,by-17,12,7,'#5d6b3a');R(ctx,bx-5,by-16,10,5,'#4a5630')}
-  box(ctx,bx,by+1,6,3,7,S.seals.chest?'#2a2a18':'#66753f','#4a5630','#3b4426');
-  if(!S.seals.chest){R(ctx,bx-6,by-4,6,1,'#2f3720');R(ctx,bx-4,by-3,2,2,'#e0b04f');R(ctx,bx+2,by-3,1,3,'#efe2c4')}
-  else sparkle(bx,by-10,t);
-}
-function drawCabinet(o,t){const [bx,by]=base(o);
-  box(ctx,bx,by+1,8,4,28,'#6a4632','#4a2f22','#3a251b');
-  faceR(bx,by+1,8,4,(x,y,i)=>{for(let k=1;k<5;k++){R(ctx,x,y-28+k*6,1,1,'#22150e');if(i===4)R(ctx,x,y-31+k*6,1,1,'#e0b04f')}});
-  faceL(bx,by+1,8,4,(x,y)=>{for(let k=1;k<5;k++)R(ctx,x,y-28+k*6,1,1,'#2a1a12')});
-  if(S.seals.archive){R(ctx,bx+2,by-14,7,4,'#7a5236');R(ctx,bx+3,by-15,5,1,'#efe2c4');sparkle(bx+5,by-20,t)}
-}
-const BOOKS=['#8f3229','#2d4a6b','#c9a65a','#3f5a3a','#6b3a5a','#efe2c4'];
-function drawShelf(o){const [bx,by]=base(o);
-  box(ctx,bx,by+1,10,5,28,'#4a3b2c','#3b2e22','#2e241a');
-  faceR(bx,by+1,10,5,(x,y,i)=>{if(i<1||i>8)return;for(let k=0;k<3;k++){const hgt=4+((i*3+k*5)%3);R(ctx,x,y-26+k*8+(6-hgt),1,hgt,BOOKS[(i*7+k*3+o.x)%6])}});
 }
 function drawDesk(o,t){const [bx,by]=base(o);
   box(ctx,bx,by+1,10,5,8,'#5b3b2a','#4a2f22','#3a251b');
   R(ctx,bx-5,by-10,7,4,'#efe2c4');R(ctx,bx-4,by-9,5,1,'#8a7350');
   R(ctx,bx+4,by-16,1,7,'#3a3a3a');R(ctx,bx+2,by-18,5,3,'#2f6b4a');R(ctx,bx+3,by-15,3,1,'#fff1b8');
-}
-function drawVitrine(o){const [bx,by]=base(o);
-  box(ctx,bx,by+1,8,4,10,'#3a2f4a','#2b2238','#211a2c');
-  R(ctx,bx-3,by-17,7,4,'#6b6f4a');R(ctx,bx-4,by-14,9,1,'#55593a');R(ctx,bx-2,by-12,3,2,'#8a8f9a');
-  box(ctx,bx,by-9,8,4,13,'rgba(170,210,230,.18)','rgba(170,210,230,.12)','rgba(170,210,230,.08)');
-  R(ctx,bx-8,by-22,1,13,'rgba(220,240,255,.35)');
 }
 // plastico di Villa Godi: ali con finestre, loggia a tre archi al piano nobile, scalinata all'arco centrale
 function drawVilla(o){const [bx,by]=base(o);
@@ -501,7 +424,8 @@ const stanzaDelVarco=o=>o&&o.hit&&/^Varco: /.test(o.name)?o.name.replace(/^Varco
 const nomeAlPassaggio=o=>o?stanzaDelVarco(o)||o.name||null:null;
 cv.addEventListener('pointermove',e=>{const [mx,my]=toCanvas(e),o=hitObj(mx,my);cv.style.cursor=o?'pointer':'default';
   const nome=e.pointerType==='mouse'&&!blocked()&&nomeAlPassaggio(o);etichetta.hidden=!nome;if(!nome)return;
-  const s=$('stage').getBoundingClientRect();etichetta.textContent=nome;etichetta.style.left=e.clientX-s.left+'px';etichetta.style.top=e.clientY-s.top+'px'});
+  const s=$('stage').getBoundingClientRect();etichetta.textContent=nome;// l'etichetta è ingrandita con --zoom, che vale anche per left e top: divido per restare sotto il mouse
+  const z=parseFloat(getComputedStyle(etichetta).zoom)||1;etichetta.style.left=(e.clientX-s.left)/z+'px';etichetta.style.top=(e.clientY-s.top)/z+'px'});
 cv.addEventListener('pointerleave',()=>etichetta.hidden=true);
 document.querySelectorAll('.dpad button').forEach(b=>{
   const d=b.dataset.d.split(',').map(Number);
@@ -520,9 +444,36 @@ function nextLine(){
 }
 function advance(){
   if(typing){clearInterval(typing);typing=null;$('dText').textContent=full;return}
-  if(dq.length)nextLine();else{$('dialog').hidden=true;const cb=dcb;dcb=null;cb&&cb()}
+  if(dq.length)nextLine();else{$('dialog').hidden=true;const cb=dcb;dcb=null;cb&&cb();if($('dialog').hidden&&sospesi.length)riprendiDialogo()}
 }
-$('dialog').addEventListener('click',advance);
+// Compito 3: il dialogo va avanti con un clic in qualsiasi punto dello schermo, non solo sul riquadro.
+// Non sui pulsanti e sui campi (fanno il loro lavoro) e non quando sopra c'è una finestra o la schermata del titolo.
+document.addEventListener('click',e=>{
+  if($('dialog').hidden||!$('modal').hidden||!e.target.isConnected)return; // isConnected: un pulsante appena tolto dalla finestra
+  if(e.target.closest('button,a,input,select,textarea,label,#modal,#title'))return;
+  advance();
+});
+// Compito 4: i pulsanti in alto funzionano anche durante un dialogo.
+// sopraDialogo(fn) mette da parte il dialogo aperto, esegue fn (per esempio l'Aiuto, che apre un altro dialogo)
+// e quando quel dialogo finisce riprende il primo dalla riga dov'era, con il suo seguito (cb).
+let sospesi=[];
+function sopraDialogo(fn){
+  if($('dialog').hidden)return fn();
+  clearInterval(typing);typing=null;
+  sospesi.push({who:$('dWho').textContent,dq:[full,...dq],cb:dcb});dq=[];dcb=null;$('dialog').hidden=true;
+  fn();if($('dialog').hidden)riprendiDialogo();
+}
+function riprendiDialogo(){
+  const s=sospesi.pop();if(!s)return;
+  $('dWho').textContent=s.who;dq=s.dq;dcb=s.cb;full=dq.shift();$('dText').textContent=full;$('dialog').hidden=false;held=null;
+}
+// Cambiando stanza (per esempio con «Vai alla stanza» dalla Mappa durante un dialogo) i dialoghi aperti si chiudono,
+// ma il loro seguito si fa lo stesso: un dialogo può dare un sigillo o aprire la porta quando finisce.
+function chiudiDialoghi(){
+  if($('dialog').hidden&&!sospesi.length)return;
+  const cbs=[dcb,...sospesi.map(s=>s.cb).reverse()].filter(Boolean);
+  clearInterval(typing);typing=null;dq=[];dcb=null;sospesi=[];$('dialog').hidden=true;cbs.forEach(cb=>cb());
+}
 
 function toast(msg){const t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2400)}
 
@@ -545,7 +496,15 @@ function hud(){
 
 // La tela ha la misura del riquadro della stanza (VISTA) e si ingrandisce fino a riempire la finestra.
 // Ingrandimento intero se toglie poco spazio (pixel tutti uguali), altrimenti quello che riempie di più.
+// Sugli schermi grandi scritte, pulsanti e finestre crescono con la finestra (richiesta di Dumunzio):
+// 1 fino a 1280×800, la misura su cui è disegnata l'interfaccia, poi in proporzione fino a 2. Lo usa css/style.css (--zoom).
+// Si moltiplica per la dimensione del testo scelta nelle impostazioni (localStorage fuoriOrario.testo), che vale anche sul telefono.
+const DIMENSIONI_TESTO={piccolo:{nome:'Piccolo',k:.85},normale:{nome:'Normale',k:1},grande:{nome:'Grande',k:1.25}};
+function dimensioneTesto(){try{const d=localStorage.getItem('fuoriOrario.testo');return DIMENSIONI_TESTO[d]?d:'normale'}catch(e){return 'normale'}}
+function zoomInterfaccia(){const z=Math.max(1,Math.min(2,innerWidth/1280,innerHeight/800))*DIMENSIONI_TESTO[dimensioneTesto()].k;
+  document.documentElement.style.setProperty('--zoom',(Math.round(z*20)/20).toString())}
 function fit(){
+  zoomInterfaccia();
   const st=$('stage'),w=st.clientWidth,h=st.clientHeight,v=VISTA;
   if(cv.width!==v.w||cv.height!==v.h){cv.width=v.w;cv.height=v.h}
   let s=Math.min(w/v.w,h/v.h);if(s>=2&&Math.floor(s)/s>.92)s=Math.floor(s);
