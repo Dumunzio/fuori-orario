@@ -424,7 +424,8 @@ const stanzaDelVarco=o=>o&&o.hit&&/^Varco: /.test(o.name)?o.name.replace(/^Varco
 const nomeAlPassaggio=o=>o?stanzaDelVarco(o)||o.name||null:null;
 cv.addEventListener('pointermove',e=>{const [mx,my]=toCanvas(e),o=hitObj(mx,my);cv.style.cursor=o?'pointer':'default';
   const nome=e.pointerType==='mouse'&&!blocked()&&nomeAlPassaggio(o);etichetta.hidden=!nome;if(!nome)return;
-  const s=$('stage').getBoundingClientRect();etichetta.textContent=nome;etichetta.style.left=e.clientX-s.left+'px';etichetta.style.top=e.clientY-s.top+'px'});
+  const s=$('stage').getBoundingClientRect();etichetta.textContent=nome;// l'etichetta è ingrandita con --zoom, che vale anche per left e top: divido per restare sotto il mouse
+  const z=parseFloat(getComputedStyle(etichetta).zoom)||1;etichetta.style.left=(e.clientX-s.left)/z+'px';etichetta.style.top=(e.clientY-s.top)/z+'px'});
 cv.addEventListener('pointerleave',()=>etichetta.hidden=true);
 document.querySelectorAll('.dpad button').forEach(b=>{
   const d=b.dataset.d.split(',').map(Number);
@@ -497,8 +498,11 @@ function hud(){
 // Ingrandimento intero se toglie poco spazio (pixel tutti uguali), altrimenti quello che riempie di più.
 // Sugli schermi grandi scritte, pulsanti e finestre crescono con la finestra (richiesta di Dumunzio):
 // 1 fino a 1280×800, la misura su cui è disegnata l'interfaccia, poi in proporzione fino a 2. Lo usa css/style.css (--zoom).
-function zoomInterfaccia(){const z=Math.max(1,Math.min(2,innerWidth/1280,innerHeight/800));
-  document.documentElement.style.setProperty('--zoom',(Math.floor(z*20)/20).toString())}
+// Si moltiplica per la dimensione del testo scelta nelle impostazioni (localStorage fuoriOrario.testo), che vale anche sul telefono.
+const DIMENSIONI_TESTO={piccolo:{nome:'Piccolo',k:.85},normale:{nome:'Normale',k:1},grande:{nome:'Grande',k:1.25}};
+function dimensioneTesto(){try{const d=localStorage.getItem('fuoriOrario.testo');return DIMENSIONI_TESTO[d]?d:'normale'}catch(e){return 'normale'}}
+function zoomInterfaccia(){const z=Math.max(1,Math.min(2,innerWidth/1280,innerHeight/800))*DIMENSIONI_TESTO[dimensioneTesto()].k;
+  document.documentElement.style.setProperty('--zoom',(Math.round(z*20)/20).toString())}
 function fit(){
   zoomInterfaccia();
   const st=$('stage'),w=st.clientWidth,h=st.clientHeight,v=VISTA;

@@ -16,25 +16,19 @@
 <meta name="apple-mobile-web-app-title" content="Fuori Orario">
 <link rel="apple-touch-icon" href="img/icona.svg">
 <script>
-/* Carattere a scelta (compito 1, idea di Dumunzio): Times, che non si scarica, oppure due caratteri pixel da Google Fonts,
-   scaricati solo da chi li sceglie. Sta qui in alto così il carattere salvato c'è già al primo disegno della pagina.
-   Le misure sono in css/style.css (html[data-font]); la scelta si fa nelle impostazioni (js/impostazioni.js). */
-const CARATTERI={
-  times:{nome:'Times',link:[]},
-  morbido:{nome:'Pixel morbido',link:['https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap']},
-  pixel:{nome:'Pixel',link:['https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Jersey+10&display=swap',
-    'https://fonts.googleapis.com/css2?family=Jersey+15&text=0123456789&display=swap']} // solo le cifre, più leggibili
-};
+/* Carattere a scelta (compito 1, idea di Dumunzio): Times, già nel sistema, oppure due caratteri pixel.
+   I font pixel sono nel repo (cartella fonts/, licenza OFL) e il browser li scarica solo se servono: niente Google Fonts,
+   funzionano anche senza internet. Sta qui in alto così il carattere salvato c'è già al primo disegno della pagina.
+   I font e le misure sono in css/style.css (@font-face, html[data-font]); la scelta si fa nelle impostazioni (js/impostazioni.js). */
+const CARATTERI={times:{nome:'Times'},morbido:{nome:'Pixel morbido'},pixel:{nome:'Pixel'}};
 function scegliCarattere(id,salva){
   if(!CARATTERI[id])id='times';
-  CARATTERI[id].link.forEach(h=>{if(document.querySelector(`link[href="${h}"]`))return;
-    const l=document.createElement('link');l.rel='stylesheet';l.href=h;
-    // quando il carattere arriva la barra in alto può cambiare altezza: la tela si rimisura
-    l.onload=()=>document.fonts&&document.fonts.ready.then(()=>typeof fit==='function'&&fit());document.head.appendChild(l)});
   document.documentElement.dataset.font=id;
   if(salva)try{localStorage.setItem('fuoriOrario.font',id)}catch(e){}
   if(typeof fit==='function')fit();
 }
+// quando un font arriva la barra in alto può cambiare altezza: la tela si rimisura
+if(document.fonts)document.fonts.addEventListener('loadingdone',()=>{if(typeof fit==='function')fit()});
 scegliCarattere((()=>{try{return localStorage.getItem('fuoriOrario.font')}catch(e){return null}})());
 </script>
 </head>
