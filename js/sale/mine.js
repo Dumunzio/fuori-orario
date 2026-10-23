@@ -78,12 +78,16 @@ function apri(){
     <div class="sl-griglia" id="slRoccia" style="grid-template-columns:repeat(${N},40px)">${[...Array(N*N).keys()].map(i=>`<button type="button" data-i="${i}" aria-label="Riga ${Math.floor(i/N)+1}, colonna ${i%N+1}">·</button>`).join('')}</div>
     <div class="row"><button type="button" id="slModo" class="primary">Ascolti rimasti: ${ASCOLTI}</button></div>`,()=>{
     const aggiorna=()=>{$('slModo').textContent=modo==='ascolta'?`Ascolti rimasti: ${ASCOLTI-ascolti}`:'Scava qui: tocca la casella'};
+    // Per scavare tutte le caselle tornano toccabili, anche quelle già ascoltate (i numeri restano scritti):
+    // prima la casella dell'ascolto 0, cioè proprio quella giusta, restava disabilitata e non si poteva scavare.
+    const scava=()=>{modo='scava';$('slRoccia').querySelectorAll('button').forEach(x=>x.disabled=false);aggiorna()};
     $('slRoccia').onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;const i=+b.dataset.i,x=i%N,y=Math.floor(i/N);
       if(modo==='ascolta'){
         const d=Math.abs(x-mx)+Math.abs(y-my);b.textContent=d;b.disabled=true;ascolti++;
-        const m=$('msg');m.className='msg';m.textContent=d===0?'Il picchiettio è proprio qui sotto.':d<=2?'Colpi vicini, la roccia trema.':'Colpi lontani, appena udibili.';
-        if(ascolti>=ASCOLTI){modo='scava';m.textContent+=' Basta ascoltare: ora scegli dove scavare.'}
-        aggiorna();
+        const m=$('msg');m.className='msg';m.textContent=d===0?'Il picchiettio è proprio qui sotto: scava qui.':d<=2?'Colpi vicini, la roccia trema.':'Colpi lontani, appena udibili.';
+        if(d===0)scava();
+        else if(ascolti>=ASCOLTI){m.textContent+=' Basta ascoltare: ora scegli dove scavare.';scava()}
+        else aggiorna();
       }else if(i===meta){b.textContent='✕';$('slRoccia').querySelectorAll('button').forEach(x=>x.disabled=true);
         risoltoSala(ID,'Contromina! La galleria nemica è fermata prima di arrivare sotto il Dente.');
       }else{tentativo++;b.textContent='○';
@@ -91,7 +95,7 @@ function apri(){
         $('slRoccia').querySelectorAll('button').forEach(x=>x.disabled=true);
       }
     };
-    $('slModo').onclick=()=>{if(ascolti>0&&modo==='ascolta'){modo='scava';aggiorna()}};
+    $('slModo').onclick=()=>{if(ascolti>0&&modo==='ascolta')scava()};
     aggiorna();
   });
   return meta;
