@@ -39,11 +39,10 @@ const fermo=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
 
 /* ---------- I dati ---------- */
-// La foto di un sigillo: quelle delle sale nella tessera, quella della villa in LUOGHI_REALI (territorio).
+// La foto di un sigillo: quelle delle sale nella tessera, quella della villa da fotoSigilloMuseo (registro.js).
 function fotoSigillo(id){
   if(typeof SALA!=='undefined'&&SALA[id])return SALA[id].tessera.foto;
-  const l=typeof LUOGHI_REALI!=='undefined'&&LUOGHI_REALI.find(l=>l.foto&&l.nome==='Villa Godi');
-  return id==='facade'&&l?l.foto:null;
+  return typeof fotoSigilloMuseo==='function'?fotoSigilloMuseo(id):null;
 }
 const titoloSigillo=id=>typeof SALA!=='undefined'&&SALA[id]?SALA[id].tessera.titolo:SEALS[id]?SEALS[id].title:id;
 // I sigilli presi, nell'ordine del diario; quelli presi senza voce nel diario vanno in fondo.
