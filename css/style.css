@@ -55,7 +55,7 @@ button.primary{background:var(--brass);color:#1a1424;border-color:#1a1424}
 .seals span{font-family:var(--display);font-size:14px;color:var(--muted);margin-right:4px}
 .time{font-family:var(--display);font-size:16px;font-variant-numeric:tabular-nums;color:var(--ink);min-width:52px}
 
-#stage{flex:1;min-height:0;position:relative;display:grid;place-items:center}
+#stage{flex:1;min-height:0;min-width:0;position:relative;display:grid;place-items:center}
 #cv{image-rendering:pixelated;image-rendering:crisp-edges;display:block;box-shadow:0 0 0 2px var(--line),6px 6px 0 2px #000}
 #etichetta{position:absolute;pointer-events:none;transform:translate(-50%,calc(-100% - 14px));font-family:var(--display);font-size:13px;letter-spacing:.06em;white-space:nowrap;color:var(--ink);background:rgba(21,17,31,.92);border:2px solid var(--brass);padding:3px 8px;box-shadow:3px 3px 0 #000;z-index:4}
 #prompt{position:absolute;left:8px;top:8px;font-family:var(--display);font-size:13px;letter-spacing:.06em;background:rgba(21,17,31,.85);border:2px solid var(--line);padding:4px 8px;text-transform:uppercase}
@@ -124,6 +124,9 @@ a{color:var(--brass)}
 .dpad{width:120px;height:120px;transform:rotate(45deg);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px}
 .dpad button{padding:0;font-size:16px;opacity:.85}
 .dpad button span{display:block;transform:rotate(-45deg)}
+/* la croce è girata di 45°: la losanga sporge di (√2−1)/2 del lato, circa 25 px per lato con 120 px.
+   Il margine la tiene dentro #pad, così non esce dallo schermo (sul telefono in verticale la pagina scorreva di 5 px) */
+@media (pointer:coarse){.dpad{margin:25px 0}}
 #btnAct{width:56px;height:56px;border-radius:0;font-size:18px}
 /* pianta del museo nell'ingresso: carta crema, rami color ottone, stanze completate dorate */
 /* sul telefono la piantina resta grande e si scorre di lato, così i nomi si leggono */
@@ -188,7 +191,7 @@ a{color:var(--brass)}
   .hud button{font-size:11px;letter-spacing:.03em;padding:5px 2px;box-shadow:2px 2px 0 #000;text-align:center}
   #stage{place-items:center}
   #pad{position:static;display:contents}
-  #pad .dpad{position:absolute;left:calc(18px + env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));width:92px;height:92px;z-index:5}
+  #pad .dpad{margin:0;position:absolute;left:calc(18px + env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));width:92px;height:92px;z-index:5}
   #pad .dpad button{opacity:.8}
   #btnAct{position:absolute;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));width:52px;height:52px;z-index:5;opacity:.9}
   #dialog:not([hidden])~#pad{display:none}
