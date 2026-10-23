@@ -114,7 +114,9 @@ function tryDoor(){
   const b=tessereMancanti();if(b)return say('Porta d\'uscita',b);
   const n=sealCount();
   if(n<NSEALS())return say('Porta d\'uscita',[`È chiusa. Sulla serratura ci sono ${lettere(NSEALS())} incavi a forma di sigillo: ne hai ${n}.`]);
-  if(S.door===0){S.door=.01;say('Porta d\'uscita',[`Metti i ${lettere(NTOT())} sigilli negli incavi. La serratura gira da sola.`],()=>setTimeout(win,600))}
+  if(S.door===0){S.door=.01;say('Porta d\'uscita',[`Metti i ${lettere(NTOT())} sigilli negli incavi. La serratura gira da sola.`],
+    // prima i titoli di coda (js/sale/titoli.js, area sale), poi la finestra finale
+    ()=>setTimeout(()=>typeof titoliDiCoda==='function'?titoliDiCoda(win):win(),600))}
 }
 
 /* ---------- Fine ---------- */
