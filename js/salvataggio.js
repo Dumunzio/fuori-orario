@@ -55,8 +55,9 @@ setInterval(()=>{
   // il pulsante: quello del title se grafica-motore lo prevede (#btnContinua), altrimenti lo creo accanto a «Entra nel museo»
   let b=$('btnContinua');
   if(!b){b=document.createElement('button');b.id='btnContinua';b.type='button';b.className='primary';b.textContent='Continua la partita';avvia.before(b)}
+  // sigilli: solo quelli che esistono ancora, non quelli della stanza museo rimasti nei salvataggi vecchi
   const aggiorna=()=>{const d=leggi();b.hidden=!d;
-    if(d){const tess=d.S.tessere?Object.values(d.S.tessere).filter(Boolean).length:0,sig=Object.values(d.S.seals||{}).filter(Boolean).length;
+    if(d){const tess=d.S.tessere?Object.values(d.S.tessere).filter(Boolean).length:0,sig=Object.keys(SEALS).filter(k=>(d.S.seals||{})[k]).length;
       b.title=`Salvata il ${new Date(d.quando).toLocaleString('it-IT')} · sigilli ${sig+tess}`;
       avvia.textContent='Nuova partita'}else avvia.textContent='Entra nel museo'};
   b.addEventListener('click',()=>{if(caricaPartita()){fit();toast('La partita riprende da dove l\'avevi lasciata')}});
