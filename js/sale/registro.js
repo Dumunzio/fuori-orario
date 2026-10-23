@@ -324,14 +324,17 @@ const sigilliMuseo=()=>Object.keys(SEALS).map(k=>S.seals[k]
 // Dove si trova un sigillo del museo ancora da prendere (come DOVE di enigmi.js, ma breve).
 const DOVE_SIGILLO={facade:'Sala delle Ville'};
 // La scheda di un sigillo del museo: come mostraTessera, con il testo di SEALS e la fonte del rompicapo.
-function mostraSigilloMuseo(k){
-  const s=SEALS[k],f=fotoSigilloMuseo(k);
-  openModal(`<div class="eyebrow">Sigillo · ${DOVE_SIGILLO[k]||'Museo'}</div>
+// nuova: appena vinto (lo chiama grant() di enigmi.js), come mostraTessera(id,true): «Nuovo sigillo», animazione e conto;
+// se era l'ultimo, ricorda dov'è la porta d'uscita (lo diceva il dialogo di prima).
+function mostraSigilloMuseo(k,nuova){
+  const s=SEALS[k],f=fotoSigilloMuseo(k),tutti=sigilliPresi()>=sigilliTotali();
+  openModal(`<div class="eyebrow">${nuova?'Nuovo sigillo · ':'Sigillo · '}${DOVE_SIGILLO[k]||'Museo'}</div>
     <h2>${s.title}</h2>
-    ${f?`<figure class="sl-foto"><img src="${f.file}" alt="${f.alt}"><figcaption>${fotoCredito(f)}</figcaption></figure>`:''}
+    ${f?`<figure class="sl-foto${nuova?' sl-nuova':''}"><img src="${f.file}" alt="${f.alt}"><figcaption>${fotoCredito(f)}</figcaption></figure>`:''}
     <p>${s.text}</p>
+    ${nuova&&tutti?"<p>Hai tutti i sigilli. La porta d'uscita è nell'ingresso, sotto il cartello verde.</p>":''}
     ${typeof fonteHtml==='function'?fonteHtml(k):''}
-    <div class="row end"><button type="button" id="slColl">Tutti i sigilli</button>${closeBtn}</div>`);
+    <div class="row end">${nuova?`<span class="eyebrow">Sigilli: ${sigilliPresi()} su ${sigilliTotali()}</span>`:''}<button type="button" id="slColl">Tutti i sigilli</button>${closeBtn}</div>`);
   $('slColl').onclick=apriCollezione;
 }
 function apriCollezione(){
