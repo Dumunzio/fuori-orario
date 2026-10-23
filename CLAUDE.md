@@ -18,7 +18,7 @@ Il team è diviso in **4 aree**. Ogni persona lavora con il suo Claude su **un r
 | `grafica-motore` | Disegno isometrico, animazioni, luce, movimento, comandi (tastiera, mouse, touch), dialoghi e finestre, stile, versione mobile | `index.html`, `css/style.css`, `js/motore.js`, `js/avvio.js`, `js/musica.js` (musica di ogni stanza), `js/pianta.js` (pianta del museo) |
 | `enigmi-storia` | Le sale, gli oggetti, i rompicapi, i testi dei cartellini, il custode, il diario, il finale | `js/contenuti.js`, `js/stanza.js`, `js/enigmi.js` |
 | `dati-ai` | Verifica dei fatti sulle fonti aperte (Wikidata, Europeana, Catalogo MiC, Rete Museale), fonti citate in gioco, custode che risponde con l'AI | `js/fonti.js` e i nuovi file `js/ai-*.js`, cartella `dati/` |
-| `territorio` | Portare i luoghi veri dell'Alto Vicentino dentro il gioco: quali luoghi, con foto, coordinate e storia; sale ispirate a luoghi reali; una mappa del territorio da consultare in gioco | `js/territorio.js` e i nuovi file `js/luoghi-*.js` |
+| `territorio` | Portare i luoghi veri dell'Alto Vicentino dentro il gioco: quali luoghi, con foto, coordinate e storia; sale ispirate a luoghi reali; una mappa del territorio da consultare in gioco | `js/territorio.js`, `js/tentativi.js` (5 tentativi per rompicapo) e i nuovi file `js/luoghi-*.js` |
 | `sale` | Le sale a tema del territorio: una sala per file con il suo rompicapo, collegata alla pianta del museo; le tessere da collezionare; il salvataggio automatico della partita | `js/sale/*.js`, `img/sale/`, `js/salvataggio.js` |
 | `lingua` | Il gioco in inglese: pulsante IT/EN e traduzione dei testi mentre compaiono | `js/lingua.js`, `js/lingua-en.js` |
 
@@ -32,7 +32,7 @@ Il team è diviso in **4 aree**. Ogni persona lavora con il suo Claude su **un r
 
 ## Come è fatto il codice
 - Niente librerie e niente build: si apre `index.html` nel browser e funziona, anche da file locale.
-- Gli script sono normali `<script>` (non moduli) e condividono le variabili globali. **L'ordine in `index.html` conta**: `contenuti`, `motore`, `musica`, `pianta`, `enigmi`, `stanza`, `fonti`, `territorio`, poi `sale/registro.js` e una riga per ogni sala, `salvataggio`, `lingua-en`, `lingua`, e `avvio` sempre ultimo.
+- Gli script sono normali `<script>` (non moduli) e condividono le variabili globali. **L'ordine in `index.html` conta**: `contenuti`, `motore`, `musica`, `pianta`, `enigmi`, `stanza`, `fonti`, `territorio`, poi `sale/registro.js` e una riga per ogni sala, `impostazioni`, `salvataggio`, `schermo`, `condividi`, `lingua-en`, `tentativi`, `lingua`, `voce`, e `avvio` sempre ultimo.
 - **Nomi globali: prima di crearne uno nuovo controlla che non esista già** (`grep -rn "nome" js/`). Due `const` o `let` con lo stesso nome in file diversi bloccano tutto il secondo file. È già successo: le 11 sale sparivano.
 - **Aggiungere una sala a tema**: copia `js/sale/tessitore.js`, cambia contenuti, rompicapo e tessera, e aggiungi la sua riga in `index.html` dopo le altre sale. `registraSala()` la collega alla pianta e aggiunge cartellini, fonti e schede del custode. Ogni fatto va in `fonti` con la sua fonte, ogni foto con autore e licenza. Dove sta la sala nella pianta (collegamenti, posto nel disegno, ramo) si decide in bacheca con grafica-motore, che lo scrive in `js/pianta.js`.
 
