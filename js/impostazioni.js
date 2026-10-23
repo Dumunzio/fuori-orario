@@ -24,6 +24,9 @@ function apriImpostazioni(){
       <label for="imVolume">Volume della musica</label>
       <div class="im-riga"><input type="range" id="imVolume" min="0" max="100" step="5" value="${v}"><output id="imValore" for="imVolume">${v}%</output></div>
       <p class="im-nota" id="imNota"${v===0?'':' hidden'}>A volume 0 la musica è spenta.</p></div>
+    <div class="im-voce"><span class="im-titolo">Carattere</span>
+      <p class="im-nota">Il carattere di tutti i testi del gioco.</p>
+      <div class="row" id="imCarattere">${Object.entries(CARATTERI).reverse().map(([id,c])=>`<button type="button" data-font="${id}" aria-pressed="${document.documentElement.dataset.font===id}">${c.nome}</button>`).join('')}</div></div>
     <div class="im-voce"><span class="im-titolo">Traiettorie</span>
       <p class="im-nota">Mostra a puntini la strada che il personaggio sta per fare quando tocchi il pavimento, e le orme dei suoi ultimi passi.</p>
       <div class="row"><button type="button" id="imTraiettorie" aria-pressed="${TRAIETTORIE.on}">${TRAIETTORIE.on?'Traiettorie: visibili':'Traiettorie: nascoste'}</button></div></div>
@@ -42,6 +45,8 @@ function apriImpostazioni(){
   // traiettorie del personaggio (js/motore.js, compito 6)
   $('imTraiettorie').onclick=()=>{traiettorie(!TRAIETTORIE.on);const b=$('imTraiettorie');
     b.setAttribute('aria-pressed',String(TRAIETTORIE.on));b.textContent=TRAIETTORIE.on?'Traiettorie: visibili':'Traiettorie: nascoste'};
+  $('imCarattere').onclick=e=>{const b=e.target.closest('[data-font]');if(!b)return;scegliCarattere(b.dataset.font,true);
+    $('imCarattere').querySelectorAll('[data-font]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))};
   const r=$('imVolume');
   r.oninput=()=>{const n=+r.value;$('imValore').textContent=n+'%';$('imNota').hidden=n!==0;scriviVolume(n);applicaVolume(n)};
   if($('imCancella')){
@@ -62,6 +67,7 @@ const st=document.createElement('style');st.textContent=`
 .im-riga input{flex:1;accent-color:var(--brass)}
 .im-riga output{min-width:4ch;text-align:right}
 .im-nota{margin:0;font-size:16px;color:var(--muted)}
-.im-conferma p{margin:0 0 8px}`;
+.im-conferma p{margin:0 0 8px}
+#imCarattere button[aria-pressed="true"]{border-color:var(--brass);color:var(--brass)}`;
 document.head.appendChild(st);
 }
