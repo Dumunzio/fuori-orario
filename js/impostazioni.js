@@ -17,7 +17,7 @@ const partitaDaCancellare=()=>S.started||(typeof haSalvataggio==='function'&&haS
 const musicaAccesa=()=>typeof MUSICA==='undefined'||MUSICA.on;
 
 function apriImpostazioni(){
-  const v=leggiVolume();
+  const v=musicaAccesa()?leggiVolume():0;   // con la musica spenta lo slider sta a 0
   openModal(`<div class="eyebrow">Fuori Orario · menu</div><h2>Impostazioni</h2>
     <div class="im-voce"><span class="im-titolo">Musica</span>
       <div class="row"><button type="button" id="imMusica" aria-pressed="${musicaAccesa()}">${musicaAccesa()?'Musica: accesa':'Musica: spenta'}</button></div>
@@ -42,10 +42,16 @@ function apriImpostazioni(){
         :'<p class="im-nota">Non c\'è nessuna partita da cancellare.</p>'}</div>
     ${typeof voceTrucchi==='function'?voceTrucchi():''}
     <div class="row end">${closeBtn}</div>`);
-  $('imMusica').onclick=()=>{
-    MUSICA.on=!MUSICA.on;try{localStorage.setItem('fuoriOrario.musica',MUSICA.on?'1':'0')}catch(e){}
+  // Pulsante e slider vanno insieme: spegnendo la musica lo slider va a 0 (il volume salvato resta, per quando la riaccendi);
+  // riaccendendola torna al volume salvato, o a 100 se era 0. Alzare lo slider con la musica spenta la riaccende.
+  const r=$('imVolume');
+  const mostraVolume=n=>{r.value=n;r.style.setProperty('--v',n/100);$('imValore').textContent=n+'%';$('imNota').hidden=n!==0};
+  const accendi=on=>{MUSICA.on=on;try{localStorage.setItem('fuoriOrario.musica',on?'1':'0')}catch(e){}
     if(typeof svegliaMusica==='function')svegliaMusica();
-    const m=$('imMusica');m.setAttribute('aria-pressed',String(MUSICA.on));m.textContent=MUSICA.on?'Musica: accesa':'Musica: spenta'};
+    const m=$('imMusica');m.setAttribute('aria-pressed',String(on));m.textContent=on?'Musica: accesa':'Musica: spenta'};
+  $('imMusica').onclick=()=>{const on=!MUSICA.on;
+    if(on&&leggiVolume()===0){scriviVolume(100);applicaVolume(100)}
+    accendi(on);mostraVolume(on?leggiVolume():0)};
   // traiettorie del personaggio (js/motore.js, compito 6)
   $('imTraiettorie').onclick=()=>{traiettorie(!TRAIETTORIE.on);const b=$('imTraiettorie');
     b.setAttribute('aria-pressed',String(TRAIETTORIE.on));b.textContent=TRAIETTORIE.on?'Traiettorie: visibili':'Traiettorie: nascoste'};
@@ -53,8 +59,7 @@ function apriImpostazioni(){
     $('imTesto').querySelectorAll('[data-testo]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))};
   $('imCarattere').onclick=e=>{const b=e.target.closest('[data-font]');if(!b)return;scegliCarattere(b.dataset.font,true);
     $('imCarattere').querySelectorAll('[data-font]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))};
-  const r=$('imVolume');
-  r.oninput=()=>{const n=+r.value;r.style.setProperty('--v',n/100);$('imValore').textContent=n+'%';$('imNota').hidden=n!==0;scriviVolume(n);applicaVolume(n)};
+  r.oninput=()=>{const n=+r.value;mostraVolume(n);scriviVolume(n);applicaVolume(n);if(n>0&&!musicaAccesa())accendi(true)};
   if($('imCancella')){
     $('imCancella').onclick=()=>{$('imCancella').hidden=true;$('imConferma').hidden=false;$('imNo').focus()};
     $('imNo').onclick=()=>{$('imConferma').hidden=true;$('imCancella').hidden=false;$('imCancella').focus()};
