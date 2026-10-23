@@ -149,33 +149,41 @@ a{color:var(--brass)}
 /* promemoria dei comandi touch al primo ingresso (js/mobile.js) */
 #consiglio{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:6;width:max-content;max-width:calc(100% - 16px);font-size:16px;line-height:1.25;background:rgba(21,17,31,.92);border:2px solid var(--brass);box-shadow:3px 3px 0 #000;padding:6px 10px;text-align:center;pointer-events:none}
 #consiglio b{color:var(--brass);font-family:var(--display);font-weight:600}
-/* telefono in orizzontale: barra su una riga sola, stanza alta quanto lo schermo, frecce a sinistra ed E a destra */
+/* altezza vera dello schermo: sul telefono 100% può contare anche la barra del browser */
+@supports (height:100dvh){html,body{height:100dvh}}
+/* schermo basso (finestra piccola o telefono in orizzontale): schermata iniziale più compatta */
 @media (orientation:landscape) and (max-height:520px){
-  body{padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
-  #app{gap:4px;padding-block:4px max(4px,env(safe-area-inset-bottom,0px))}
-  .hud{flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:3px}
-  .hud::-webkit-scrollbar{display:none}
-  .hud>*{flex:none}
-  .brand{font-size:15px}.brand small{display:none}
-  .seals{margin-left:auto}.seals span{font-size:12px}
-  .time{font-size:13px;min-width:40px}
-  .hud button{font-size:12px;padding:4px 7px;box-shadow:2px 2px 0 #000}
-  #dialog{width:min(560px,calc(100% - 16px));bottom:4px;padding:6px 12px 8px}
-  #dText{font-size:16px;min-height:2.2em}
-  #dWho{font-size:12px;margin-bottom:2px}
-  #prompt{font-size:12px;padding:3px 6px}
-  #modal{padding:8px max(8px,env(safe-area-inset-right,0px)) 8px max(8px,env(safe-area-inset-left,0px))}
-  /* schermata iniziale: le istruzioni touch restano, in piccolo */
-  .tcard .solo-touch{font-size:15px;gap:2px 10px}
-  .tcard .note{display:none}
   .tcard{gap:6px}.tcard h1{font-size:clamp(28px,11vh,48px)}.tcard h1 br{display:none}
-  .tcard .no-basso,.tcard .solo-verticale{display:none}
-  #consiglio{top:auto;bottom:10px;max-width:calc(100% - 330px);font-size:15px}
+  .tcard .no-basso,.tcard .solo-verticale,.tcard .note{display:none}
+  .tcard .solo-touch{font-size:15px;gap:2px 10px}
 }
+/* telefono in orizzontale: la stanza prende tutta l'altezza; i pulsanti stanno in una colonna stretta a destra,
+   le frecce e il tasto E negli angoli bassi della stanza, che nella vista isometrica sono vuoti */
 @media (orientation:landscape) and (max-height:520px) and (pointer:coarse){
   .tcard .controls.solo-touch{display:grid}
+  body{padding-left:max(4px,env(safe-area-inset-left,0px));padding-right:max(4px,env(safe-area-inset-right,0px))}
+  #app{flex-direction:row-reverse;gap:6px;padding-block:4px max(4px,env(safe-area-inset-bottom,0px))}
+  .hud{flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:4px;width:74px;flex:none;overflow-y:auto;scrollbar-width:none;padding:0 3px 3px 0}
+  .hud::-webkit-scrollbar{display:none}
+  .hud>*{flex:none}
+  .brand{display:none}
+  .seals{margin:0}.seals:empty,.seals span:only-child{display:none}
+  .time{font-size:14px;min-width:0;text-align:center}
+  .hud button{font-size:11px;letter-spacing:.03em;padding:5px 2px;box-shadow:2px 2px 0 #000;text-align:center}
+  #stage{place-items:center}
   #pad{position:static;display:contents}
-  #pad .dpad{position:absolute;left:calc(26px + env(safe-area-inset-left,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));width:104px;height:104px;z-index:5}
-  #btnAct{position:absolute;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:58px;height:58px;z-index:5}
+  #pad .dpad{position:absolute;left:calc(18px + env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));width:92px;height:92px;z-index:5}
+  #pad .dpad button{opacity:.8}
+  #btnAct{position:absolute;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));width:52px;height:52px;z-index:5;opacity:.9}
   #dialog:not([hidden])~#pad{display:none}
+  /* dialogo basso e largo quanto la stanza: copre solo il pavimento davanti */
+  #dialog{width:calc(100% - 8px);max-width:620px;bottom:2px;padding:5px 12px 7px;background:rgba(33,26,52,.94)}
+  #dText{font-size:16px;line-height:1.2;min-height:0}
+  #dWho{font-size:11px;margin-bottom:1px}
+  #dialog .next{bottom:3px}
+  #prompt{font-size:11px;padding:2px 6px;left:4px;top:4px}
+  #toast{font-size:12px;top:4px;right:4px}
+  #modal{padding:6px max(6px,env(safe-area-inset-right,0px)) 6px max(6px,env(safe-area-inset-left,0px))}
+  .card{padding:12px 14px 14px;gap:8px}
+  #consiglio{top:auto;bottom:6px;max-width:calc(100% - 220px);font-size:14px;padding:4px 8px}
 }
