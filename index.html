@@ -46,13 +46,20 @@
 <div id="title">
   <div class="tcard">
     <div class="sub">Un'escape room nel Museo del Territorio</div>
-    <h1>FUORI<br>ORARIO</h1>
+    <h1>FUORI <br>ORARIO</h1>
     <p>Ti sei perso tra le sale e il museo ha chiuso. Le porte si sbloccano solo con i sigilli nascosti nelle sale del museo.</p>
-    <p>Le combinazioni non si indovinano: stanno nella storia dell'Alto Vicentino, scritta sui cartellini delle sale.</p>
-    <div class="controls">
+    <p class="no-basso">Le combinazioni non si indovinano: stanno nella storia dell'Alto Vicentino, scritta sui cartellini delle sale.</p>
+    <div class="controls solo-tastiera">
       <b>MUOVITI</b><span>Frecce o WASD, oppure clicca un punto del pavimento</span>
       <b>ESAMINA</b><span>E, Spazio o Invio vicino a un oggetto, oppure cliccalo</span>
       <b>DIARIO</b><span>Raccoglie tutto quello che hai letto</span>
+    </div>
+    <!-- sul telefono (schermo touch) si vedono queste al posto di quelle da tastiera -->
+    <div class="controls solo-touch">
+      <b>MUOVITI</b><span>Tocca un punto del pavimento, oppure usa le frecce in basso</span>
+      <b>ESAMINA</b><span>Tocca un oggetto, oppure avvicinati e premi E</span>
+      <b>DIARIO</b><span>Raccoglie tutto quello che hai letto</span>
+      <b class="solo-verticale">CONSIGLIO</b><span class="solo-verticale">Gira il telefono in orizzontale: la stanza si vede più grande</span>
     </div>
     <div class="promessa" aria-hidden="true"><i></i><i></i><i></i><i></i><span>15 sigilli da ritrovare</span></div>
     <div class="row"><button class="primary" id="btnStart" type="button">Entra nel museo</button></div>
@@ -91,6 +98,7 @@
 <script src="js/tentativi.js"></script>
 <script src="js/lingua.js"></script>
 <script src="js/voce.js"></script>
+<script src="js/mobile.js"></script>
 <script src="js/avvio.js"></script>
 
 </body>

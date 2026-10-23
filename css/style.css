@@ -141,3 +141,41 @@ a{color:var(--brass)}
 @media (max-width:520px){.brand small{display:none}.hud{gap:8px}button{font-size:13px;padding:5px 8px}}
 /* schermi bassi (telefono in orizzontale): titolo più piccolo, così «Entra nel museo» si vede senza scorrere */
 @media (max-height:520px){.tcard{gap:8px}.tcard h1{font-size:clamp(30px,13vh,56px)}.tcard p{font-size:16px}.controls{display:none}}
+
+/* ---------- Telefono (prova locale, ramo prova-mobile) ---------- */
+/* istruzioni: da tastiera sul computer, touch sul telefono */
+.solo-touch{display:none}
+@media (pointer:coarse){.solo-tastiera{display:none}.solo-touch{display:grid}}
+/* promemoria dei comandi touch al primo ingresso (js/mobile.js) */
+#consiglio{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:6;width:max-content;max-width:calc(100% - 16px);font-size:16px;line-height:1.25;background:rgba(21,17,31,.92);border:2px solid var(--brass);box-shadow:3px 3px 0 #000;padding:6px 10px;text-align:center;pointer-events:none}
+#consiglio b{color:var(--brass);font-family:var(--display);font-weight:600}
+/* telefono in orizzontale: barra su una riga sola, stanza alta quanto lo schermo, frecce a sinistra ed E a destra */
+@media (orientation:landscape) and (max-height:520px){
+  body{padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+  #app{gap:4px;padding-block:4px max(4px,env(safe-area-inset-bottom,0px))}
+  .hud{flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:3px}
+  .hud::-webkit-scrollbar{display:none}
+  .hud>*{flex:none}
+  .brand{font-size:15px}.brand small{display:none}
+  .seals{margin-left:auto}.seals span{font-size:12px}
+  .time{font-size:13px;min-width:40px}
+  .hud button{font-size:12px;padding:4px 7px;box-shadow:2px 2px 0 #000}
+  #dialog{width:min(560px,calc(100% - 16px));bottom:4px;padding:6px 12px 8px}
+  #dText{font-size:16px;min-height:2.2em}
+  #dWho{font-size:12px;margin-bottom:2px}
+  #prompt{font-size:12px;padding:3px 6px}
+  #modal{padding:8px max(8px,env(safe-area-inset-right,0px)) 8px max(8px,env(safe-area-inset-left,0px))}
+  /* schermata iniziale: le istruzioni touch restano, in piccolo */
+  .tcard .solo-touch{font-size:15px;gap:2px 10px}
+  .tcard .note{display:none}
+  .tcard{gap:6px}.tcard h1{font-size:clamp(28px,11vh,48px)}.tcard h1 br{display:none}
+  .tcard .no-basso,.tcard .solo-verticale{display:none}
+  #consiglio{top:auto;bottom:10px;max-width:calc(100% - 330px);font-size:15px}
+}
+@media (orientation:landscape) and (max-height:520px) and (pointer:coarse){
+  .tcard .controls.solo-touch{display:grid}
+  #pad{position:static;display:contents}
+  #pad .dpad{position:absolute;left:calc(26px + env(safe-area-inset-left,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));width:104px;height:104px;z-index:5}
+  #btnAct{position:absolute;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:58px;height:58px;z-index:5}
+  #dialog:not([hidden])~#pad{display:none}
+}
