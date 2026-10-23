@@ -1118,5 +1118,8 @@ const LINGUA_EN={
 "A Priabona le rocce sono piene di animali di un mare di 38-34 milioni di anni fa.":"At Priabona the rocks are full of animals from a sea of 38-34 million years ago.",
 "Le anguane, dice la tradizione, proteggono fonti e ruscelli.":"The anguane, tradition says, protect springs and streams.",
 "Malo è il paese di Luigi Meneghello e di «Libera nos a Malo».":"Malo is the town of Luigi Meneghello and of “Libera nos a Malo”.",
-"Le acque di Recoaro sono note dal 1689.":"The waters of Recoaro have been known since 1689."
+"Le acque di Recoaro sono note dal 1689.":"The waters of Recoaro have been known since 1689.",
+// i nomi veri del team nei titoli (bacheca 2026-10-23_2030)
+"Un gioco di":"A game by",
+"Territorio e mappa":"The region and the map"
 };
