@@ -1,9 +1,12 @@
 /* La voce dei dialoghi: mentre una frase compare lettera per lettera nel riquadro dei dialoghi (#dText),
    ogni lettera fa un piccolo suono, scelto a caso tra 6. Suoni generati con il Web Audio, niente file e niente licenze.
-   Non cambia say() né nextLine(): osserva il testo che si allunga. Segue il pulsante ♪ (MUSICA.on).
+   Non cambia say() né nextLine(): osserva il testo che si allunga.
+   Ha un interruttore e un volume suoi, separati dalla musica: chiavi fuoriOrario.voce ('0' spenta) e fuoriOrario.volumeVoce (0-100),
+   scelti nel menu ⚙ (js/impostazioni.js), che chiama impostaVoce(). Spegnere la musica non spegne la voce.
    Con «riduci movimento» la frase compare tutta insieme, quindi niente suoni. Vedi CLAUDE.md. */
 {
-const VOCE={ac:null,uscita:null,vol:.07,ultimo:''};
+const VOCE={ac:null,uscita:null,vol:.07,ultimo:'',on:true,volume:1};   // volume: da 0 a 1, moltiplica vol
+try{VOCE.on=localStorage.getItem('fuoriOrario.voce')!=='0';const v=parseInt(localStorage.getItem('fuoriOrario.volumeVoce'),10);if(!isNaN(v))VOCE.volume=Math.max(0,Math.min(100,v))/100}catch(e){}
 // I 6 suoni: ognuno è un'onda, una nota di partenza e una di arrivo (Hz), una durata (s); gli ultimi due hanno un colpo di rumore.
 const VOCE_SUONI=[
   {onda:'square',da:620,a:560,dur:.035},         // bip da macchina da scrivere
@@ -16,10 +19,12 @@ const VOCE_SUONI=[
 // L'audio si può accendere solo dopo un clic o un tasto: si prepara al primo gesto.
 function svegliaVoce(){
   if(VOCE.ac)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
-  VOCE.ac=new AC();VOCE.uscita=VOCE.ac.createGain();VOCE.uscita.gain.value=VOCE.vol;VOCE.uscita.connect(VOCE.ac.destination);
+  VOCE.ac=new AC();VOCE.uscita=VOCE.ac.createGain();VOCE.uscita.gain.value=VOCE.vol*VOCE.volume;VOCE.uscita.connect(VOCE.ac.destination);
 }
 ['pointerdown','keydown'].forEach(e=>addEventListener(e,svegliaVoce,{once:true,capture:true}));
-const voceAccesa=()=>typeof MUSICA==='undefined'||MUSICA.on;
+const voceAccesa=()=>VOCE.on&&VOCE.volume>0;
+// dal menu ⚙: accesa o spenta e volume da 0 a 100
+window.impostaVoce=(on,volume)=>{VOCE.on=on;VOCE.volume=volume/100;if(VOCE.uscita)VOCE.uscita.gain.value=VOCE.vol*VOCE.volume};
 
 function suonaLettera(){
   if(!VOCE.ac||!voceAccesa())return;

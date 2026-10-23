@@ -2,28 +2,54 @@
    - Musica accesa o spenta: MUSICA.on e la chiave fuoriOrario.musica (js/musica.js). Il ♪ nella HUD non c'è più.
    - Volume della musica, da 0 a 100: si ricorda in localStorage (fuoriOrario.volume) e va in MUSICA.volume, da 0 a 1.
      Lo legge volumeMusica() in js/musica.js (grafica-motore); senza quell'aggancio la musica resta com'è.
+   - Voce dei dialoghi (il suono di ogni lettera), separata dalla musica: chiavi fuoriOrario.voce e fuoriOrario.volumeVoce,
+     applicate da impostaVoce() di js/voce.js. Spegnere la musica non spegne la voce, e viceversa.
    - Traiettorie del personaggio visibili o nascoste: traiettorie() e TRAIETTORIE in js/motore.js (compito 6).
    - Cancella la partita: conferma dentro il gioco, poi cancellaSalvataggio() (js/salvataggio.js, area sale)
      e si ricarica la pagina, che riparte dalla schermata iniziale.
    Bacheca: 2026-10-23_0520_gabsat_prendo-menu-impostazioni.md. Vedi CLAUDE.md. */
 {
-const leggiVolume=()=>{try{const v=parseInt(localStorage.getItem('fuoriOrario.volume'),10);return isNaN(v)?100:Math.max(0,Math.min(100,v))}catch(e){return 100}};
-const scriviVolume=v=>{try{localStorage.setItem('fuoriOrario.volume',String(v))}catch(e){}};
-const applicaVolume=v=>{if(typeof MUSICA!=='undefined')MUSICA.volume=v/100};
-applicaVolume(leggiVolume());
+// Due suoni con pulsante e volume ciascuno: la musica e la voce dei dialoghi.
+// chiave: acceso o spento ('0' = spento); chiaveVol: volume da 0 a 100; id: pulsante, slider, valore e nota nella finestra.
+const AUDIO={
+  musica:{id:{b:'imMusica',r:'imVolume',o:'imValore',n:'imNota'},chiave:'fuoriOrario.musica',chiaveVol:'fuoriOrario.volume',titolo:'Musica',etichetta:'Volume della musica',
+    pulsante:['Musica: accesa','Musica: spenta'],nota:'A volume 0 la musica è spenta.',
+    acceso:()=>typeof MUSICA==='undefined'||MUSICA.on,
+    applica:(on,v)=>{if(typeof MUSICA==='undefined')return;const prima=MUSICA.on;MUSICA.on=on;MUSICA.volume=v/100;
+      if(on!==prima&&typeof svegliaMusica==='function')svegliaMusica()}},
+  voce:{id:{b:'imVoce',r:'imVolumeVoce',o:'imValoreVoce',n:'imNotaVoce'},chiave:'fuoriOrario.voce',chiaveVol:'fuoriOrario.volumeVoce',titolo:'Voce dei dialoghi',etichetta:'Volume della voce',
+    spiega:'Il piccolo suono di ogni lettera che compare nei dialoghi. Non dipende dalla musica.',
+    pulsante:['Voce: accesa','Voce: spenta'],nota:'A volume 0 la voce è spenta.',
+    acceso:()=>{try{return localStorage.getItem('fuoriOrario.voce')!=='0'}catch(e){return true}},
+    applica:(on,v)=>{if(typeof impostaVoce==='function')impostaVoce(on,v)}}
+};
+const leggiVolume=a=>{try{const v=parseInt(localStorage.getItem(a.chiaveVol),10);return isNaN(v)?100:Math.max(0,Math.min(100,v))}catch(e){return 100}};
+const scriviVolume=(a,v)=>{try{localStorage.setItem(a.chiaveVol,String(v))}catch(e){}};
+if(typeof MUSICA!=='undefined')MUSICA.volume=leggiVolume(AUDIO.musica)/100;
+// con il suono spento lo slider sta a 0
+const sezioneAudio=a=>{const on=a.acceso(),v=on?leggiVolume(a):0;
+  return `<div class="im-voce"><span class="im-titolo">${a.titolo}</span>${a.spiega?`<p class="im-nota">${a.spiega}</p>`:''}
+      <div class="row"><button type="button" id="${a.id.b}" aria-pressed="${on}">${a.pulsante[on?0:1]}</button></div>
+      <label for="${a.id.r}">${a.etichetta}</label>
+      <div class="im-riga"><input type="range" id="${a.id.r}" min="0" max="100" step="5" value="${v}" style="--v:${v/100}"><output id="${a.id.o}" for="${a.id.r}">${v}%</output></div>
+      <p class="im-nota" id="${a.id.n}"${v===0?'':' hidden'}>${a.nota}</p></div>`};
+// Pulsante e slider vanno insieme: spegnendo lo slider va a 0 (il volume salvato resta, per quando riaccendi);
+// riaccendendo torna al volume salvato, o a 100 se era 0. Alzare lo slider con il suono spento lo riaccende.
+function agganciaAudio(a){
+  const r=$(a.id.r),b=$(a.id.b);
+  const mostraVolume=n=>{r.value=n;r.style.setProperty('--v',n/100);$(a.id.o).textContent=n+'%';$(a.id.n).hidden=n!==0};
+  const accendi=on=>{try{localStorage.setItem(a.chiave,on?'1':'0')}catch(e){}a.applica(on,leggiVolume(a));
+    b.setAttribute('aria-pressed',String(on));b.textContent=a.pulsante[on?0:1]};
+  b.onclick=()=>{const on=!a.acceso();if(on&&leggiVolume(a)===0)scriviVolume(a,100);accendi(on);mostraVolume(on?leggiVolume(a):0)};
+  r.oninput=()=>{const n=+r.value;mostraVolume(n);scriviVolume(a,n);if(n>0&&!a.acceso())accendi(true);else a.applica(a.acceso(),n)};
+}
 
 // C'è qualcosa da cancellare: una partita iniziata o un salvataggio.
 const partitaDaCancellare=()=>S.started||(typeof haSalvataggio==='function'&&haSalvataggio());
-const musicaAccesa=()=>typeof MUSICA==='undefined'||MUSICA.on;
-
 function apriImpostazioni(){
-  const v=musicaAccesa()?leggiVolume():0;   // con la musica spenta lo slider sta a 0
   openModal(`<div class="eyebrow">Fuori Orario · menu</div><h2>Impostazioni</h2>
-    <div class="im-voce"><span class="im-titolo">Musica</span>
-      <div class="row"><button type="button" id="imMusica" aria-pressed="${musicaAccesa()}">${musicaAccesa()?'Musica: accesa':'Musica: spenta'}</button></div>
-      <label for="imVolume">Volume della musica</label>
-      <div class="im-riga"><input type="range" id="imVolume" min="0" max="100" step="5" value="${v}" style="--v:${v/100}"><output id="imValore" for="imVolume">${v}%</output></div>
-      <p class="im-nota" id="imNota"${v===0?'':' hidden'}>A volume 0 la musica è spenta.</p></div>
+    ${sezioneAudio(AUDIO.musica)}
+    ${sezioneAudio(AUDIO.voce)}
     <div class="im-voce"><span class="im-titolo">Carattere</span>
       <p class="im-nota">Il carattere di tutti i testi del gioco.</p>
       <div class="row" id="imCarattere">${Object.entries(CARATTERI).reverse().map(([id,c])=>`<button type="button" data-font="${id}" aria-pressed="${document.documentElement.dataset.font===id}">${c.nome}</button>`).join('')}</div></div>
@@ -42,16 +68,7 @@ function apriImpostazioni(){
         :'<p class="im-nota">Non c\'è nessuna partita da cancellare.</p>'}</div>
     ${typeof voceTrucchi==='function'?voceTrucchi():''}
     <div class="row end">${closeBtn}</div>`);
-  // Pulsante e slider vanno insieme: spegnendo la musica lo slider va a 0 (il volume salvato resta, per quando la riaccendi);
-  // riaccendendola torna al volume salvato, o a 100 se era 0. Alzare lo slider con la musica spenta la riaccende.
-  const r=$('imVolume');
-  const mostraVolume=n=>{r.value=n;r.style.setProperty('--v',n/100);$('imValore').textContent=n+'%';$('imNota').hidden=n!==0};
-  const accendi=on=>{MUSICA.on=on;try{localStorage.setItem('fuoriOrario.musica',on?'1':'0')}catch(e){}
-    if(typeof svegliaMusica==='function')svegliaMusica();
-    const m=$('imMusica');m.setAttribute('aria-pressed',String(on));m.textContent=on?'Musica: accesa':'Musica: spenta'};
-  $('imMusica').onclick=()=>{const on=!MUSICA.on;
-    if(on&&leggiVolume()===0){scriviVolume(100);applicaVolume(100)}
-    accendi(on);mostraVolume(on?leggiVolume():0)};
+  agganciaAudio(AUDIO.musica);agganciaAudio(AUDIO.voce);
   // traiettorie del personaggio (js/motore.js, compito 6)
   $('imTraiettorie').onclick=()=>{traiettorie(!TRAIETTORIE.on);const b=$('imTraiettorie');
     b.setAttribute('aria-pressed',String(TRAIETTORIE.on));b.textContent=TRAIETTORIE.on?'Traiettorie: visibili':'Traiettorie: nascoste'};
@@ -59,7 +76,6 @@ function apriImpostazioni(){
     $('imTesto').querySelectorAll('[data-testo]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))};
   $('imCarattere').onclick=e=>{const b=e.target.closest('[data-font]');if(!b)return;scegliCarattere(b.dataset.font,true);
     $('imCarattere').querySelectorAll('[data-font]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))};
-  r.oninput=()=>{const n=+r.value;mostraVolume(n);scriviVolume(n);applicaVolume(n);if(n>0&&!musicaAccesa())accendi(true)};
   if($('imCancella')){
     $('imCancella').onclick=()=>{$('imCancella').hidden=true;$('imConferma').hidden=false;$('imNo').focus()};
     $('imNo').onclick=()=>{$('imConferma').hidden=true;$('imCancella').hidden=false;$('imCancella').focus()};
