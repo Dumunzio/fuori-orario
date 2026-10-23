@@ -392,7 +392,8 @@ function riepilogoTessere(){
   const sale=SALE.filter(s=>tessereS()[s.id]).map(s=>`<div class="sl-t" style="--c:${s.colore}"><img src="${s.tessera.foto.file}" alt=""><span>${s.tessera.titolo}</span></div>`);
   return `<p class="eyebrow">I tuoi sigilli · ${sigilliPresi()} su ${sigilliTotali()}</p>`+(museo.length+sale.length
     ?`<div class="sl-collezione">${[...museo,...sale].join('')}</div>`
-    :`<p>Nessun sigillo, questa volta. ${doveSale()}</p>`);
+    :`<p>Nessun sigillo, questa volta. ${doveSale()}</p>`)
+    +(typeof riepilogoStatuine==='function'?riepilogoStatuine():'');  // le statuine dello zaino (js/sale/zaino.js)
 }
 
 /* ---------- Rompicapi: finestra comune ---------- */

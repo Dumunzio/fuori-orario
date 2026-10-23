@@ -67,6 +67,7 @@ function testo(ricordi){
   const foto=sigilliInOrdine().map(id=>({id,f:fotoSigillo(id)})).filter(x=>x.f);
   return `<h1>FUORI ORARIO</h1><p class="ti-sotto">Fuga dal museo dopo la chiusura</p>
     <p class="ti-tempo">Sei uscito in ${fmt(S.elapsed)}</p>
+    ${typeof statuineTrovate==='function'?`<p class="ti-sotto">Statuine trovate: ${statuineTrovate().n} su ${statuineTrovate().tot}</p>`:''}
     ${ricordi?`<h2>Cosa hai imparato</h2>${ricordi}`:''}
     <h2>Il team</h2>${TEAM.map(t=>`<h3>${esc(t.area)}</h3>${t.nomi.map(n=>`<p>${esc(n)}</p>`).join('')}`).join('')}
     <h2>Le foto dei sigilli</h2>${foto.map(({id,f})=>`<h3>${esc(titoloSigillo(id))}</h3><p>${esc(f.autore)} · ${esc(f.licenza)} · Wikimedia Commons</p>`).join('')}
