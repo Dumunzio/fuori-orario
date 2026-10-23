@@ -41,7 +41,7 @@ const STATUINE=[
     righe:['..hhhh..','.hhhhhh.','..ssss..','..sees..','..ssss..','.jJjJjJ.','jJjJjJjJ','sJjJjJoo','.wwwwwoo','.ss..ss.','.ss..ss.','.kk..kk.'],
     colori:{h:'#3b2618',j:'#2f6b4a',J:'#efe2c4',w:'#efe2c4',o:'#f4f0d8'}},
   {id:'cavaliere',stanza:'castello',oggetto:'baule',nome:'Il cavaliere',
-    frase:'Un cavaliere in armatura, un po\' fuori posto in un castello che non è mai stato una fortezza.',
+    frase:'Un cavaliere in armatura, un po\' fuori posto in un castello nato come casa di campagna.',
     righe:['...rr...','..AAAA..','.AAAAAA.','.AeAAeA.','.AAAAAA.','.AAAAAA.','AAAAAAAA','AAAAAAAA','.AAAAAA.','.AA..AA.','.AA..AA.','.kk..kk.'],
     colori:{A:'#a8b0b8',r:'#c2493c'}},
   {id:'aviatore',stanza:'ferrarin',oggetto:'cassaFe',nome:'L\'aviatore',
