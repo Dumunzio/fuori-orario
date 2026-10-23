@@ -18,6 +18,8 @@ function solved(id,msg){
 }
 function grant(id){
   S.seals[id]=true;const s=SEALS[id];note('seal-'+id,s.title,'Sigillo',s.text,true);hud();
+  // la scheda con la foto, come per i sigilli delle sale (js/sale/registro.js); senza, il dialogo di sempre
+  if(typeof mostraSigilloMuseo==='function')return mostraSigilloMuseo(id,true);
   const n=NPRESI();
   say(s.title,[s.text,n<NTOT()?`Sigilli: ${n} su ${NTOT()}.`:'Hai tutti i sigilli. La porta d\'uscita è nell\'ingresso, sotto il cartello verde.']);
 }
