@@ -10,7 +10,7 @@
 {
 // Il team, prima tutti in ordine di cognome, poi per area (nomi dati da jackjack-lab il 23/10/2026).
 const TEAM=[
-  {area:'Un gioco di',nomi:['Gabriele Cappelletti','Matteo Mastrantoni','Matteo Peruffo','Francesco Ravanini','Giacomo Verga']},
+  {area:'Un gioco di',nomi:['Gabriele Cappelletti','Matteo Mastrantoni','Matteo Peruffo','Francesco Ravanini','Giacomo Verga','Alessandro Veronesi']},
   {area:'Grafica e motore',nomi:['Francesco Ravanini']},
   {area:'Enigmi e storia',nomi:['Francesco Ravanini']},
   {area:'Sale del territorio',nomi:['Giacomo Verga']},
