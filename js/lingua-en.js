@@ -1069,5 +1069,10 @@ const LINGUA_EN={
 "La porta d'uscita è qui all'ingresso, sulla parete destra, sotto il cartello verde. Si apre solo con tutti i {} sigilli.":"The exit door is here in the entrance hall, on the right wall, under the green sign. It only opens with all {} seals.",
 "Carattere":"Font",
 "Il carattere di tutti i testi del gioco.":"The font for all the text in the game.",
-"Pixel morbido":"Soft pixel"
+"Pixel morbido":"Soft pixel",
+"Dimensione del testo":"Text size",
+"Sugli schermi grandi il testo cresce già da solo: qui lo fai più piccolo o più grande.":"On large screens the text already grows by itself: here you can make it smaller or bigger.",
+"Piccolo":"Small",
+"Normale":"Normal",
+"Grande":"Large"
 };
