@@ -2,7 +2,7 @@
    - Esaminando l'espositore di dépliant dell'ingresso (depliantIn, stanza.js) prendi la piantina del museo:
      dallo zaino si apre da qualsiasi stanza (apriPianta, pianta.js).
    - 13 statuine, una per stanza, nascoste dentro un oggetto che si può esaminare (STATUINE.oggetto). Non sono segnalate.
-   - Il pulsante «Zaino» compare nella barra quando hai preso qualcosa. Dentro: la pianta e la vetrinetta delle statuine,
+   - Il pulsante «Zaino» è nella barra da subito; vuoto, dice che c'è qualcosa da cercare. Dentro: la pianta e la vetrinetta delle statuine,
      con «?» al posto di quelle che mancano (senza dire dove sono).
    - A fine partita: riepilogoStatuine() nella finestra finale (da riepilogoTessere, registro.js), statuineTrovate() nei titoli
      e nella cartolina (solo se le hai trovate tutte).
@@ -103,7 +103,8 @@ STATUINE.forEach(st=>{
 function apriZaino(){
   const z=Z(),n=trovate();
   openModal(`<div class="eyebrow">Zaino</div><h2>Il tuo zaino</h2>
-    ${z.pianta?'<div class="row"><button type="button" id="zaPianta">Apri la pianta del museo</button></div>':''}
+    ${z.pianta?'<div class="row"><button type="button" id="zaPianta">Apri la pianta del museo</button></div>'
+      :n?'':'<p>Lo zaino è ancora vuoto. Nel museo ci sono cose da portare via: una piantina da tenere sempre con te e 13 statuine nascoste. Esamina gli oggetti delle stanze!</p>'}
     <p class="eyebrow">Statuine · ${n} su ${STATUINE.length}</p>
     <div class="za-vetrina">${STATUINE.map(st=>z.statuine[st.id]
       ?`<button type="button" class="za-s" data-id="${st.id}"><img src="${figura(st)}" alt=""><span>${st.nome}</span></button>`
@@ -121,11 +122,10 @@ window.riepilogoStatuine=()=>{const n=trovate(),m=STATUINE.length-n;
   return `<p class="eyebrow">Statuine trovate · ${n} su ${STATUINE.length}</p><p>${m===0?'Le hai trovate tutte!':m===1?'Ne manca una.':`Ne mancano ${m}.`}</p>`};
 window.prendiTutteStatuine=()=>{Z().pianta=true;STATUINE.forEach(s=>Z().statuine[s.id]=true);salva()};
 
-// Il pulsante nella barra, dopo «Sigilli»: compare quando nello zaino c'è qualcosa.
-const b=document.createElement('button');b.id='btnZaino';b.type='button';b.textContent='Zaino';b.hidden=true;
+// Il pulsante nella barra, dopo «Sigilli»: c'è da subito, così si capisce che c'è qualcosa da cercare.
+const b=document.createElement('button');b.id='btnZaino';b.type='button';b.textContent='Zaino';
 b.onclick=()=>{if(S.started&&$('modal').hidden)apriZaino()};  // anche durante un dialogo, che resta sotto
 ($('btnTessere')||$('btnJournal')).after(b);
-setInterval(()=>{const z=S.zaino;b.hidden=!(S.started&&z&&(z.pianta||Object.keys(z.statuine).length))},400);
 
 const st=document.createElement('style');st.textContent=`
 .za-vetrina{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px;margin:8px 0}
