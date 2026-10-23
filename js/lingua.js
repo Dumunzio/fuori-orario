@@ -90,7 +90,20 @@ new MutationObserver(lista=>{if(lingua!=='en')return;
 
 /* ---------- Dialoghi, avvisi e tela ---------- */
 // Il dialogo scrive una lettera alla volta: la frase va tradotta prima, intera.
-const sayIt=say;say=(chi,righe,poi)=>sayIt(tr(chi),righe.map(r=>tr(r)),poi);
+// ORIG ricorda da quale frase italiana viene ogni frase tradotta, per ritradurre un dialogo già aperto.
+const ORIG=new Map(),traduci=s=>{const t=tr(s);if(t!==s)ORIG.set(t,s);return t};
+const sayIt=say;say=(chi,righe,poi)=>sayIt(traduci(chi),righe.map(traduci),poi);
+// Cambiando lingua con un dialogo aperto (per esempio il custode all'inizio) le righe erano già tradotte, o no:
+// rifaccio nella lingua nuova la riga sul riquadro, quelle che seguono e quelle dei dialoghi sospesi (motore.js).
+function ritraduciDialogo(){
+  if($('dialog').hidden&&!sospesi.length)return;
+  const r=s=>{const it=ORIG.get(s)??s;return lingua==='en'?traduci(it):it};
+  $('dWho').textContent=r($('dWho').textContent);
+  full=r(full);dq=dq.map(r);sospesi.forEach(s=>{s.who=r(s.who);s.dq=s.dq.map(r)});
+  // la frase che si sta scrivendo la mostro intera, così non riparte a metà nella lingua nuova
+  if(typing){clearInterval(typing);typing=null}
+  if(!$('dialog').hidden)$('dText').textContent=full;
+}
 const toastIt=toast;toast=msg=>toastIt(tr(msg));
 for(const f of ['fillText','strokeText']){const o=CanvasRenderingContext2D.prototype[f];
   CanvasRenderingContext2D.prototype[f]=function(t,...a){return o.call(this,lingua==='en'?tr(t):t,...a)}}
@@ -108,7 +121,7 @@ function applica(){
 }
 function cambiaLingua(l){
   lingua=l==='en'?'en':'it';try{localStorage.setItem(CHIAVE,lingua)}catch(e){}
-  applica();toast(lingua==='en'?'Language: English':'Lingua: italiano');
+  applica();ritraduciDialogo();toast(lingua==='en'?'Language: English':'Lingua: italiano');
 }
 const st=document.createElement('style');
 st.textContent='.btnLingua{min-width:3em}#title .btnLingua{position:absolute;top:12px;right:12px}';

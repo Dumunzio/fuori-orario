@@ -933,6 +933,13 @@ const LINGUA_EN={
 "Nessun sigillo delle sale, questa volta. {}":"No seals from the rooms this time. {}",
 "Musica: accesa":"Music: on",
 "Musica: spenta":"Music: off",
+// voce dei dialoghi, separata dalla musica (js/impostazioni.js)
+"Voce dei dialoghi":"Dialogue voice",
+"Il piccolo suono di ogni lettera che compare nei dialoghi. Non dipende dalla musica.":"The little sound of each letter that appears in the dialogues. It doesn't depend on the music.",
+"Voce: accesa":"Voice: on",
+"Voce: spenta":"Voice: off",
+"Volume della voce":"Voice volume",
+"A volume 0 la voce è spenta.":"At volume 0 the voice is off.",
 "La più vicina che ti manca è la {}. Dall'ingresso: {}.":"The nearest one you're missing is the {}. From the entrance: {}.",
 "{} → {}":"{} → {}",
 "Tutti i sigilli! Non ci credevo. La porta d'uscita è nella sala dopo il museo: vai, prima che cambi idea.":"All the seals! I didn't believe it. The exit door is in the room after the museum: go, before I change my mind.",
@@ -965,7 +972,8 @@ const LINGUA_EN={
 "Tentativi rimasti: {} su {}":"Attempts left: {} of {}",
 "Hai finito i tentativi. Esci dalla stanza e rientra per riprovare.":"You've run out of attempts. Leave the room and come back in to try again.",
 "Rompicapo bloccato":"Puzzle locked",
-"partita salvata":"game saved",
+"partita salvata":"game saved"
+,
 // dettagli delle sale e traiettorie (sale, lavoro notturno del 23/10)
 "Cesto di matasse":"Basket of skeins",
 "Matasse di lana tinta: rosso, giallo, blu, verde. Pronte per il telaio.":"Skeins of dyed wool: red, yellow, blue, green. Ready for the loom.",
