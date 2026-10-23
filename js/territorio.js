@@ -28,13 +28,14 @@ const VILLE_PALLADIANE=[
 /* ---------- Mappa del territorio ---------- */
 // Un rombo per ogni luogo vero da cui viene una storia del museo. Coordinate da Wikidata (22/10/2026).
 // Il luogo è «scoperto» quando nel diario c'è una delle sue voci: un cartellino (cartellini) o la tessera della sua sala (sala).
+// stanza: la stanza del museo dove sono i suoi cartellini, per «Vai alla stanza».
 // I luoghi di file non ancora caricati (una sala o un cartellino che non c'è) non compaiono.
 const MAPPA_LUOGHI=[
-  {id:'Q3737489',nome:'Fabbrica Alta',comune:'Schio',lat:45.715,lon:11.35194,cartellini:['fab','lan']},
+  {id:'Q3737489',nome:'Fabbrica Alta',comune:'Schio',lat:45.715,lon:11.35194,cartellini:['fab','lan'],stanza:'museo'},
   // a mezzo chilometro dalla Fabbrica Alta: spost sposta il rombo (in pixel della mappa) e lo lega al punto vero con una linea
   {id:'Q3862664',nome:'Monumento al Tessitore',comune:'Schio',lat:45.7147,lon:11.3589,sala:'tessitore',spost:[14,-10]},
-  {id:'Q699595',nome:'Strada delle 52 Gallerie',comune:'Posina, massiccio del Pasubio',lat:45.779,lon:11.228,cartellini:['pas']},
-  {id:'Q2084394',nome:'Villa Godi',comune:'Lugo di Vicenza',lat:45.74614,lon:11.53444,cartellini:['godi','palladio']},
+  {id:'Q699595',nome:'Strada delle 52 Gallerie',comune:'Posina, massiccio del Pasubio',lat:45.779,lon:11.228,cartellini:['pas'],stanza:'museo'},
+  {id:'Q2084394',nome:'Villa Godi',comune:'Lugo di Vicenza',lat:45.74614,lon:11.53444,cartellini:['godi','palladio'],stanza:'villa'},
   {id:'Q3705524',nome:'Dente Italiano',comune:'Trambileno, massiccio del Pasubio',lat:45.7943,lon:11.176,sala:'mine'},
   {id:'Q2448119',nome:'Monte Cimone di Tonezza',comune:'Tonezza del Cimone',lat:45.82271,lon:11.34626,sala:'cimone'},
   {id:'Q1438908',nome:'Forte Casa Ratti',comune:'Arsiero',lat:45.83681,lon:11.36943,sala:'forti'},
@@ -148,7 +149,8 @@ function schedaLuogo(l){
   return `<span class="eyebrow">${l.comune} · nel museo: ${dove}</span><h3>${l.nome}</h3>
     ${sc?`${foto?`<figure class="mp-foto"><img src="${foto.file}" alt="${foto.alt}"><figcaption>Foto: ${foto.autore} · ${foto.licenza} · <a href="${foto.pagina}" target="_blank" rel="noopener">Wikimedia Commons</a></figcaption></figure>`:''}<p>${testo}</p>`
       :`<p>Non l'hai ancora scoperto. La sua storia ti aspetta nel museo: ${dove}.</p>`}
-    ${link}${sc&&l.sala&&typeof entraInSala==='function'?`<div class="row"><button type="button" data-sala="${l.sala}">Vai alla sala</button></div>`:''}`;
+    ${link}${sc&&l.sala&&typeof entraInSala==='function'?`<div class="row"><button type="button" data-sala="${l.sala}">Vai alla sala</button></div>`
+      :sc&&l.stanza&&typeof vaiInStanzaPianta==='function'?`<div class="row"><button type="button" data-stanza="${l.stanza}">Vai alla stanza</button></div>`:''}`;
 }
 // Apre la mappa; id facoltativo (ID Wikidata del luogo o id della sala) per partire da quel luogo.
 // Per esempio, dalla scheda di una tessera: apriMappa('tessitore').
@@ -174,7 +176,8 @@ function apriMappa(id){
   tela.onclick=e=>{const r=tela.getBoundingClientRect(),k=MAPPA_BOX.w/r.width,x=(e.clientX-r.left)*k,y=(e.clientY-r.top)*k;
     const vicino=(P,max)=>{let best=null,d=max*max;P.forEach(l=>{const [px,py]=mappaPunto(l),q=(px-x)**2+(py-y)**2;if(q<d){d=q;best=l}});return best};
     const l=vicino(M,14)||vicino(V,12)||vicino(M,24);if(l)scegli(l)};
-  $('mpScheda').onclick=e=>{const b=e.target.closest('[data-sala]');if(b){closeModal();entraInSala(b.dataset.sala)}};
+  $('mpScheda').onclick=e=>{const b=e.target.closest('[data-sala],[data-stanza]');if(!b)return;closeModal();
+    if(b.dataset.sala)entraInSala(b.dataset.sala);else if(S.room!==b.dataset.stanza)vaiInStanzaPianta(b.dataset.stanza)};
   scegli(L.find(l=>id&&(l.id===id||l.sala===id))||nuovi[0]||M.find(mappaScoperto)||L[0]);
   // 4,5 secondi di pulsazione lenta (meno di un ciclo al secondo), niente se il sistema chiede meno movimento
   if(nuovi.length&&!matchMedia('(prefers-reduced-motion: reduce)').matches){const t0=performance.now();

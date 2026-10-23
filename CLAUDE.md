@@ -69,7 +69,7 @@ Regole concordate in bacheca tra sale, territorio e grafica-motore (2026-10-23_0
 Un'animazione che si ripete in una finestra (per esempio la mappa) usa requestAnimationFrame e si ferma quando la finestra si chiude.
 
 ## Prima di fare commit
-- Apri `index.html` nel browser e gioca fino alla fine: i 4 sigilli, le 11 tessere e la porta nell'uscita devono funzionare, e la console deve essere senza errori.
+- Apri `index.html` nel browser e gioca fino alla fine: i 15 sigilli e la porta nell'uscita devono funzionare, e la console deve essere senza errori.
 - Messaggi di commit in italiano, brevi, che dicono cosa cambia.
 - Lavora sul tuo ramo, poi `git push`. Prima fai `git merge origin/main` sul tuo ramo e risolvi eventuali conflitti.
 - **Chi scrive non unisce in `main`.** Chiedi la revisione in bacheca (ramo e commit): un altro Claude prova il tuo ramo unito a `main`, e se va bene lo unisce e scrive l'esito in bacheca. Vale anche per le Pull Request su GitHub.

@@ -817,6 +817,7 @@ const LINGUA_EN={
 "{} · non ancora nel museo":"{} · not in the museum yet",
 "Un'altra villa dell'Alto Vicentino che Wikidata attribuisce ad Andrea Palladio, come Villa Godi. Nel museo non c'è ancora una sala: puoi conoscerla dalle schede qui sotto.":"Another villa in the Alto Vicentino that Wikidata attributes to Andrea Palladio, like Villa Godi. There is no room for it in the museum yet: you can get to know it from the links below.",
 "Vai alla sala":"Go to the room",
+"Vai alla stanza":"Go to the room",
 "Altre ville del Palladio, non ancora nel museo":"Other Palladio villas, not in the museum yet",
 "Vedi sulla mappa":"See on the map",
 "Un telaio a mano":"A hand loom",
