@@ -17,7 +17,8 @@ const TEAM=[
   {area:'Dati aperti e AI',nomi:['Giacomo Verga']},
   {area:'Territorio e mappa',nomi:['Matteo Mastrantoni']},
   {area:'Lingua',nomi:['Matteo Peruffo']},
-  {area:'Impostazioni e voce',nomi:['Gabriele Cappelletti']}
+  {area:'Impostazioni e voce',nomi:['Gabriele Cappelletti']},
+  {area:'Tester',nomi:['Alessandro Veronesi']}
 ];
 // Cosa ricorda il personaggio di ogni sigillo: una frase breve, presa dal testo verificato della tessera.
 const RICORDI={
