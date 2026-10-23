@@ -201,6 +201,6 @@ function apriMappa(id){
 .mp-lista button[aria-pressed="true"]{border-color:var(--brass)}`;
   document.head.appendChild(st);
   const b=document.createElement('button');b.id='btnMappa';b.type='button';b.textContent='Mappa';
-  b.onclick=()=>{if(S.started&&$('modal').hidden&&$('dialog').hidden)apriMappa()};
+  b.onclick=()=>{if(S.started&&$('modal').hidden)apriMappa()}; // anche durante un dialogo, che resta sotto
   $('btnJournal').after(b);
 }

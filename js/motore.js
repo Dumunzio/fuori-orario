@@ -225,7 +225,7 @@ function buildBg(){
 }
 // Assegna dimensioni, oggetti e sfondo della stanza id, senza dissolvenza.
 function entraStanza(id){
-  const st=STANZE[id];if(!st)return;S.room=id;MW=st.w;MH=st.h;OX=st.ox;OY=st.oy;OBJ=OGGETTI[id]||[];buildBg();
+  const st=STANZE[id];if(!st)return;chiudiDialoghi();S.room=id;MW=st.w;MH=st.h;OX=st.ox;OY=st.oy;OBJ=OGGETTI[id]||[];buildBg();
   inquadra();TRAIETTORIE.scia=[];
   if(typeof suonaStanza==='function')suonaStanza(id); // js/musica.js
 }
@@ -520,9 +520,36 @@ function nextLine(){
 }
 function advance(){
   if(typing){clearInterval(typing);typing=null;$('dText').textContent=full;return}
-  if(dq.length)nextLine();else{$('dialog').hidden=true;const cb=dcb;dcb=null;cb&&cb()}
+  if(dq.length)nextLine();else{$('dialog').hidden=true;const cb=dcb;dcb=null;cb&&cb();if($('dialog').hidden&&sospesi.length)riprendiDialogo()}
 }
-$('dialog').addEventListener('click',advance);
+// Compito 3: il dialogo va avanti con un clic in qualsiasi punto dello schermo, non solo sul riquadro.
+// Non sui pulsanti e sui campi (fanno il loro lavoro) e non quando sopra c'è una finestra o la schermata del titolo.
+document.addEventListener('click',e=>{
+  if($('dialog').hidden||!$('modal').hidden||!e.target.isConnected)return; // isConnected: un pulsante appena tolto dalla finestra
+  if(e.target.closest('button,a,input,select,textarea,label,#modal,#title'))return;
+  advance();
+});
+// Compito 4: i pulsanti in alto funzionano anche durante un dialogo.
+// sopraDialogo(fn) mette da parte il dialogo aperto, esegue fn (per esempio l'Aiuto, che apre un altro dialogo)
+// e quando quel dialogo finisce riprende il primo dalla riga dov'era, con il suo seguito (cb).
+let sospesi=[];
+function sopraDialogo(fn){
+  if($('dialog').hidden)return fn();
+  clearInterval(typing);typing=null;
+  sospesi.push({who:$('dWho').textContent,dq:[full,...dq],cb:dcb});dq=[];dcb=null;$('dialog').hidden=true;
+  fn();if($('dialog').hidden)riprendiDialogo();
+}
+function riprendiDialogo(){
+  const s=sospesi.pop();if(!s)return;
+  $('dWho').textContent=s.who;dq=s.dq;dcb=s.cb;full=dq.shift();$('dText').textContent=full;$('dialog').hidden=false;held=null;
+}
+// Cambiando stanza (per esempio con «Vai alla stanza» dalla Mappa durante un dialogo) i dialoghi aperti si chiudono,
+// ma il loro seguito si fa lo stesso: un dialogo può dare un sigillo o aprire la porta quando finisce.
+function chiudiDialoghi(){
+  if($('dialog').hidden&&!sospesi.length)return;
+  const cbs=[dcb,...sospesi.map(s=>s.cb).reverse()].filter(Boolean);
+  clearInterval(typing);typing=null;dq=[];dcb=null;sospesi=[];$('dialog').hidden=true;cbs.forEach(cb=>cb());
+}
 
 function toast(msg){const t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2400)}
 

@@ -53,8 +53,8 @@ function apriImpostazioni(){
 window.apriImpostazioni=apriImpostazioni;
 
 const b=document.createElement('button');b.id='btnImpostazioni';b.type='button';b.textContent='⚙';b.title='Impostazioni';b.setAttribute('aria-label','Impostazioni');
-// come Mappa e Tessere: non si apre sopra un dialogo o un'altra finestra
-b.onclick=()=>{if($('modal').hidden&&$('dialog').hidden)apriImpostazioni()};$('btnHint').before(b);
+// come Mappa e Sigilli: non si apre sopra un'altra finestra, ma sì durante un dialogo, che resta sotto
+b.onclick=()=>{if($('modal').hidden)apriImpostazioni()};$('btnHint').before(b);
 const st=document.createElement('style');st.textContent=`
 .im-voce{border:2px solid var(--line);padding:10px 12px;display:grid;gap:8px;margin:10px 0}
 .im-voce label,.im-titolo{font-family:var(--display);font-size:18px;color:var(--brass)}
