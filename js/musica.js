@@ -7,6 +7,8 @@
 // voce = timbro della melodia (VOCI); densita = quante note ha la melodia (0-1); alto = ottave sopra la radice;
 // eco = quantità di eco (0-1); vol = volume del brano, per pareggiare le stanze; pad = accordi lunghi; basso = timbro del basso (VOCI) o null; ritmo = percussioni (RITMI) o null.
 // Una stanza può avere il suo brano in STANZE.<id>.musica, con lo stesso formato: vince su questa tabella.
+// Facoltativo: giro più lungo di 4 battute (il brano dura giro.length battute) e melodia scritta a mano,
+// melodia = [[passo, grado, durata in passi], …] al posto di quella generata (i passi vanno da 0 a giro.length×16).
 const MUSICHE={
   ingresso:  {bpm:72, radice:60,scala:[0,2,4,5,7,9,11],giro:[0,3,4,0],voce:'piano',densita:.3,alto:1,eco:.35,pad:1,basso:'morbido',ritmo:null,vol:.85},
   uscita:    {bpm:96, radice:62,scala:[0,2,4,5,7,9,11],giro:[0,3,4,4],voce:'liuto',densita:.5,alto:1,eco:.3,pad:1,basso:'morbido',ritmo:'arpeggio',vol:.9},
@@ -23,7 +25,18 @@ const MUSICHE={
   grotta:    {bpm:60, radice:57,scala:[0,3,5,7,10],giro:[0,0,3,2],voce:'goccia',densita:.15,alto:2,eco:.7,pad:0,basso:'cupo',ritmo:'gocce',vol:0.65},
   anguane:   {bpm:70, radice:64,scala:[0,2,3,6,7,8,11],giro:[0,5,3,4],voce:'flauto',densita:.35,alto:1,eco:.55,pad:1,basso:null,ritmo:null,vibrato:1,vol:1},
   meneghello:{bpm:76, radice:60,scala:[0,2,4,5,7,9,11],giro:[0,5,3,4],voce:'piano',densita:.35,alto:1,eco:.3,pad:0,basso:'morbido',ritmo:null,vol:0.78},
-  recoaro:   {bpm:108,radice:65,scala:[0,2,4,5,7,9,11],giro:[0,3,4,0],voce:'goccia',densita:.45,alto:1,eco:.3,pad:0,basso:'morbido',ritmo:'bolle',vol:1}
+  recoaro:   {bpm:108,radice:65,scala:[0,2,4,5,7,9,11],giro:[0,3,4,0],voce:'goccia',densita:.45,alto:1,eco:.3,pad:0,basso:'morbido',ritmo:'bolle',vol:1},
+  // Titoli di coda (js/sale/titoli.js): il personaggio esce verso l'alba. Re maggiore, 8 battute (I V vi IV I IV V I),
+  // melodia scritta a mano che sale verso la fine e si ferma sulla tonica; pianoforte, accordi lunghi e arpeggio.
+  titoli:    {bpm:80, radice:62,scala:[0,2,4,5,7,9,11],giro:[0,4,5,3,0,3,4,0],voce:'piano',alto:1,eco:.35,pad:1,basso:'morbido',ritmo:'arpeggio',vol:.78,
+    melodia:[[0,4,4],[4,2,2],[6,4,2],[8,7,6],[14,6,2],          // re:  la fa# la re' (do#)
+             [16,4,6],[22,5,2],[24,6,4],[28,4,4],               // la:  la si do# la
+             [32,5,4],[36,4,2],[38,5,2],[40,7,4],[44,8,4],      // si-: si la si re' mi'
+             [48,9,6],[54,8,2],[56,7,4],[60,5,4],               // sol: fa#' mi' re' si
+             [64,4,4],[68,2,2],[70,4,2],[72,7,6],[78,9,2],      // re:  la fa# la re' fa#'
+             [80,10,6],[86,9,2],[88,8,4],[92,7,4],              // sol: sol' fa#' mi' re'
+             [96,8,4],[100,7,2],[102,8,2],[104,9,4],[108,6,4],  // la:  mi' re' mi' fa#' do#'
+             [112,7,12]]}                                       // re:  re' lunga
 };
 // Timbri: onda, inviluppo (a = attacco, d = decadimento, s = sostegno 0-1, r = rilascio, in secondi), volume,
 // filtro passa-basso facoltativo, ottava = seconda onda un'ottava sopra (volume relativo).
@@ -61,10 +74,13 @@ function semeCasuale(testo){let h=2166136261;for(const c of testo)h=Math.imul(h^
 const nota=(b,grado,ottave=0)=>{const n=b.scala.length,g=((grado%n)+n)%n;return b.radice+b.scala[g]+12*(ottave+Math.floor(grado/n))};
 // 64 passi (4 battute da 16): melodia {midi, durata in passi} o null, e il numero casuale del passo per le percussioni.
 const SPARTITI={};
+const lunghezza=b=>b.giro.length*16;   // passi del brano: 16 per battuta
 function spartito(id,b){
   if(SPARTITI[id])return SPARTITI[id];
-  const rnd=semeCasuale(id),passi=[];let grado=b.giro[0];
-  for(let s=0;s<64;s++){
+  const rnd=semeCasuale(id),passi=[],L=lunghezza(b);let grado=b.giro[0];
+  if(b.melodia){for(let s=0;s<L;s++)passi.push({mel:null,r:rnd()});
+    b.melodia.forEach(([s,g,d])=>{passi[s].mel=nota(b,g,b.alto);passi[s].dur=d});return SPARTITI[id]=passi}
+  for(let s=0;s<L;s++){
     const base=b.giro[Math.floor(s/16)],peso=s%4===0?1.6:s%2===0?1:.35;
     let mel=null;
     if(rnd()<b.densita*peso){
@@ -75,7 +91,7 @@ function spartito(id,b){
     }
     passi.push({mel,r:rnd()});
   }
-  passi.forEach((p,i)=>{if(p.mel===null)return;let d=1;while(d<4&&i+d<64&&passi[i+d].mel===null)d++;p.dur=d});
+  passi.forEach((p,i)=>{if(p.mel===null)return;let d=1;while(d<4&&i+d<L&&passi[i+d].mel===null)d++;p.dur=d});
   return SPARTITI[id]=passi;
 }
 
@@ -118,7 +134,7 @@ function programmaPasso(ac,out,id,s,t){
 }
 // Programma n passi del brano a partire da t0: per le prove e per le anteprime.
 function programmaBrano(ac,out,id,t0,n){const b=branoDi(id),passo=60/b.bpm/4,g=ac.createGain();g.gain.value=b.vol||1;g.connect(out);
-  for(let s=0;s<n;s++)programmaPasso(ac,g,id,s%64,t0+s*passo)}
+  for(let s=0;s<n;s++)programmaPasso(ac,g,id,s%lunghezza(b),t0+s*passo)}
 
 /* ---------- Riproduzione ---------- */
 const MUSICA={on:true,brano:null,ac:null,bus:null,passo:0,prossimo:0};
@@ -149,15 +165,18 @@ function svegliaMusica(){
 document.addEventListener('visibilitychange',()=>{if(!MUSICA.ac)return;document.hidden?MUSICA.ac.suspend():MUSICA.ac.resume()});
 // Volume generale: pieno mentre si gioca, più basso con un dialogo o una finestra aperta (per leggere in pace),
 // zero se la musica è spenta, prima di «Entra nel museo» e a partita finita.
-function volumeMusica(){if(!MUSICA.on||!S.started||S.done)return 0;return ($('dialog').hidden&&$('modal').hidden?.5:.22)*(MUSICA.volume??1)}  // MUSICA.volume: slider di js/impostazioni.js
+// Durante i titoli di coda (#titoli, js/sale/titoli.js) la partita è finita ma suona il brano dei titoli.
+const titoliAperti=()=>!!document.getElementById('titoli');
+function volumeMusica(){if(MUSICA.on&&titoliAperti())return .5*(MUSICA.volume??1);if(!MUSICA.on||!S.started||S.done)return 0;return ($('dialog').hidden&&$('modal').hidden?.5:.22)*(MUSICA.volume??1)}  // MUSICA.volume: slider di js/impostazioni.js
 // Ogni 50 ms programma i passi dei prossimi 0,2 s.
 setInterval(()=>{
   const ac=MUSICA.ac;if(!ac||!MUSICA.bus||ac.state!=='running')return;
+  if(titoliAperti()&&MUSICA.brano!=='titoli')suonaStanza('titoli');
   const vol=volumeMusica();
   MUSICA.uscita.gain.setTargetAtTime(vol,ac.currentTime,.2);
   if(!vol){MUSICA.prossimo=ac.currentTime+.1;return}
   const passo=60/branoDi(MUSICA.brano).bpm/4;
   if(MUSICA.prossimo<ac.currentTime)MUSICA.prossimo=ac.currentTime+.05;
-  while(MUSICA.prossimo<ac.currentTime+.2){programmaPasso(ac,MUSICA.bus,MUSICA.brano,MUSICA.passo,MUSICA.prossimo);MUSICA.passo=(MUSICA.passo+1)%64;MUSICA.prossimo+=passo}
+  while(MUSICA.prossimo<ac.currentTime+.2){programmaPasso(ac,MUSICA.bus,MUSICA.brano,MUSICA.passo,MUSICA.prossimo);MUSICA.passo=(MUSICA.passo+1)%lunghezza(branoDi(MUSICA.brano));MUSICA.prossimo+=passo}
 },50);
 // Accendere e spegnere la musica: nel menu ⚙ (js/impostazioni.js), con MUSICA.on e la chiave fuoriOrario.musica.
