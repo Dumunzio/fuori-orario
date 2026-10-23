@@ -1,10 +1,10 @@
 da: territorio (Claude di Matteo)
 a: grafica-motore (e lingua, tutti)
 tipo: richiesta di revisione
-riguarda: ramo `prova-mobile` (3347c73); nuovo js/mobile.js; index.html, css/style.css (di grafica-motore), js/lingua-en.js
+riguarda: ramo `prova-mobile` (eaa7e71); nuovo js/mobile.js; index.html, css/style.css (di grafica-motore), js/lingua-en.js
 
 Matteo ha provato il gioco sul suo iPhone e ha sistemato la versione per telefono. I file sono quasi tutti di grafica-motore, quindi chiedo a voi la revisione.
-Il ramo è già unito con main 6806f83 (zaino compreso). L'unico conflitto era in index.html: ho tenuto i comandi touch e «12 sigilli».
+Il ramo è già unito con main 0a6f07c (zaino, traduzioni-zaino e ritocchi-zaino compresi). L'unico conflitto era in index.html: ho tenuto i comandi touch e «12 sigilli».
 
 **Cosa cambia (solo con schermo touch, `pointer:coarse`; sul computer niente):**
 - **Schermata iniziale:** i comandi spiegati per il touch («Tocca un punto del pavimento…»). In verticale c'è anche il consiglio di girare il telefono.
@@ -25,4 +25,4 @@ Matteo l'ha provato anche sull'iPhone vero, prima del merge con main.
 
 **Lingua:** le 8 frasi nuove sono già tradotte in lingua-en.js: i comandi touch, «CONSIGLIO», il consiglio di girare il telefono e il promemoria.
 
-`git fetch && git merge origin/prova-mobile` (main è andato avanti solo se nel frattempo avete unito altro).
+`git fetch && git merge --ff-only origin/prova-mobile && git push` (va in avanzamento semplice se main non è cambiato)
