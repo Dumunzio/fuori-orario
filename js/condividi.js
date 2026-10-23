@@ -32,7 +32,7 @@ function casellaMuseo(g,x,y,titolo){
   parole.forEach(p=>{const prova=riga?riga+' '+p:p;if(g.measureText(prova).width>CASELLA-20&&riga){righe.push(riga);riga=p}else riga=prova});righe.push(riga);
   righe.slice(0,2).forEach((l,i)=>g.fillText(l,cx,y+148+i*22));
 }
-function disegna(sale,conFoto){
+function disegna(sale,conFoto,museo=Object.keys(SEALS).map(k=>({museo:SEALS[k].title}))){
   const c=document.createElement('canvas');c.width=LARGO;c.height=ALTO;const g=c.getContext('2d');
   g.fillStyle='#15111f';g.fillRect(0,0,LARGO,ALTO);
   // cornice d'ottone e puntini di polvere, come nel gioco
@@ -45,8 +45,9 @@ function disegna(sale,conFoto){
   g.font=fontTela(36);g.fillStyle='#a99cc4';g.fillText(`Tutti i ${NTOT()} sigilli della storia dell'Alto Vicentino`,LARGO/2,506);
   // i 12 sigilli: prima quello della villa, poi le 11 sale, in 3 righe da 4
   const x0=(LARGO-(COL-1)*PASSO-CASELLA)/2,y0=560;
-  const tutte=[...Object.keys(SEALS).map(k=>({museo:SEALS[k].title})),...sale];
-  tutte.forEach((t,i)=>{const x=x0+(i%COL)*PASSO,y=y0+Math.floor(i/COL)*PASSO;t.museo?casellaMuseo(g,x,y,t.museo):casellaSala(g,x,y,t,conFoto)});
+  // la villa con la sua foto come le sale; senza foto resta il rombo d'ottone
+  const tutte=[...museo,...sale];
+  tutte.forEach((t,i)=>{const x=x0+(i%COL)*PASSO,y=y0+Math.floor(i/COL)*PASSO;t.museo&&!(conFoto&&t.img)?casellaMuseo(g,x,y,t.museo):casellaSala(g,x,y,t,conFoto)});
   g.textAlign='center';g.fillStyle='#f0e6cf';g.font=fontTela(42);g.fillText('Ci provi anche tu?',LARGO/2,1210);
   g.fillStyle='#a99cc4';g.font=fontTela(24);
   g.fillText(conFoto?'Foto da Wikimedia Commons: autori e licenze nel gioco':'Storia vera, fonti aperte: Wikidata, Wikipedia, Wikimedia Commons',LARGO/2,1262);
@@ -56,8 +57,12 @@ function disegna(sale,conFoto){
 async function apriImmagineFinale(){
   const box=$('slImmagine');if(!box)return;box.innerHTML='<p class="eyebrow">Preparo l\'immagine…</p>';
   const sale=typeof caricaTessereImmagini==='function'?await caricaTessereImmagini():[];
+  // i sigilli del museo con la loro foto (la villa: fotoSigilloMuseo, js/sale/registro.js)
+  const museo=await Promise.all(Object.keys(SEALS).map(k=>new Promise(fatto=>{
+    const t={museo:SEALS[k].title,titolo:SEALS[k].title,colore:'#b8892f'},f=typeof fotoSigilloMuseo==='function'&&fotoSigilloMuseo(k);
+    if(!f)return fatto(t);const img=new Image();img.onload=()=>fatto({...t,img});img.onerror=()=>fatto(t);img.src=f.file})));
   let url,conFoto=true;
-  try{url=disegna(sale,true).toDataURL('image/png')}catch(e){conFoto=false;url=disegna(sale,false).toDataURL('image/png')}
+  try{url=disegna(sale,true,museo).toDataURL('image/png')}catch(e){conFoto=false;url=disegna(sale,false,museo).toDataURL('image/png')}
   box.innerHTML=`<img src="${url}" alt="Immagine della partita: tempo e ${NTOT()} sigilli" style="width:100%;max-width:360px;display:block;margin:8px auto;border:2px solid var(--line)">
     <div class="row"><a class="primary" id="slScarica" href="${url}" download="fuori-orario.png" style="text-decoration:none;padding:6px 12px;border:2px solid var(--line);background:var(--brass);color:#1a1424;font-family:var(--display);text-transform:uppercase;letter-spacing:.06em">Scarica l'immagine</a>
     <button type="button" id="slCondividi" hidden>Condividi</button></div>

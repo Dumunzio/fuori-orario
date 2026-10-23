@@ -312,12 +312,26 @@ function mostraTessera(id,nuova){
 }
 // Dove si trovano le sale: con la pianta partono dall'ingresso, senza dal varco del museo.
 const doveSale=()=>MODO_PIANTA?'Le trovi nei rami del museo che partono dall\'ingresso.':'Le trovi passando dal varco sulla parete destra del museo.';
-// I sigilli del museo nella collezione: senza foto, con il colore dell'ottone; si leggono dal diario.
+// I sigilli del museo nella collezione, con il colore dell'ottone. Quello della villa ha la foto di Villa Godi
+// che c'è già nei luoghi veri (LUOGHI_REALI di js/territorio.js, con autore e licenza) e si apre come quelli delle sale.
+const LUOGO_SIGILLO={facade:'Q2084394'};
+const fotoSigilloMuseo=k=>{const l=typeof LUOGHI_REALI!=='undefined'&&LUOGHI_REALI.find(l=>l.id===LUOGO_SIGILLO[k]);return l&&l.foto||null};
 const sigilliMuseo=()=>Object.keys(SEALS).map(k=>S.seals[k]
-  ?`<div class="sl-t sl-museo" style="--c:#b8892f"><b>◆</b><span>${SEALS[k].title}</span></div>`
+  ?(f=>`<button type="button" class="sl-t sl-museo" data-sigillo="${k}" style="--c:#b8892f">${f?`<img src="${f.file}" alt="">`:'<b>◆</b>'}<span>${SEALS[k].title}</span></button>`)(fotoSigilloMuseo(k))
   :`<div class="sl-t sl-chiusa" style="--c:#b8892f"><b>?</b><span>${DOVE_SIGILLO[k]||'Museo'}</span></div>`).join('');
 // Dove si trova un sigillo del museo ancora da prendere (come DOVE di enigmi.js, ma breve).
 const DOVE_SIGILLO={facade:'Sala delle Ville'};
+// La scheda di un sigillo del museo: come mostraTessera, con il testo di SEALS e la fonte del rompicapo.
+function mostraSigilloMuseo(k){
+  const s=SEALS[k],f=fotoSigilloMuseo(k);
+  openModal(`<div class="eyebrow">Sigillo · ${DOVE_SIGILLO[k]||'Museo'}</div>
+    <h2>${s.title}</h2>
+    ${f?`<figure class="sl-foto"><img src="${f.file}" alt="${f.alt}"><figcaption>${fotoCredito(f)}</figcaption></figure>`:''}
+    <p>${s.text}</p>
+    ${typeof fonteHtml==='function'?fonteHtml(k):''}
+    <div class="row end"><button type="button" id="slColl">Tutti i sigilli</button>${closeBtn}</div>`);
+  $('slColl').onclick=apriCollezione;
+}
 function apriCollezione(){
   openModal(`<div class="eyebrow">Sigilli · ${sigilliPresi()} su ${sigilliTotali()}</div><h2>I tuoi sigilli</h2>
     <p>Ogni stanza con un rompicapo nasconde un sigillo: uno nella Sala delle Ville e uno in ogni sala del territorio. ${doveSale()} Per uscire servono tutti e ${sigilliTotali()}.</p>
@@ -326,6 +340,7 @@ function apriCollezione(){
       :`<div class="sl-t sl-chiusa" style="--c:${s.colore}"><b>?</b><span>${s.nome}</span></div>`).join('')}</div>
     <div class="row end">${closeBtn}</div>`);
   $('card').querySelectorAll('.sl-t[data-id]').forEach(b=>b.onclick=()=>mostraTessera(b.dataset.id,false));
+  $('card').querySelectorAll('.sl-t[data-sigillo]').forEach(b=>b.onclick=()=>mostraSigilloMuseo(b.dataset.sigillo));
 }
 // Elenco delle sale, con il colore del loro arco e un pulsante per entrare.
 function apriGuida(){
@@ -368,11 +383,14 @@ function aiutoSala(){
   return true;
 }
 // Html con i sigilli delle sale, per la schermata finale (win), dopo quelli del museo.
+// Tutti i sigilli presi in un'unica griglia, come nella collezione: prima quelli del museo (la villa, con la sua foto), poi le sale.
 function riepilogoTessere(){
-  const prese=SALE.filter(s=>tessereS()[s.id]);
-  return `<p class="eyebrow">Sigilli delle sale del territorio · ${prese.length} su ${SALE.length}</p>`+(prese.length
-    ?`<div class="sl-collezione">${prese.map(s=>`<div class="sl-t" style="--c:${s.colore}"><img src="${s.tessera.foto.file}" alt=""><span>${s.tessera.titolo}</span></div>`).join('')}</div>`
-    :`<p>Nessun sigillo delle sale, questa volta. ${doveSale()}</p>`);
+  const museo=Object.keys(SEALS).filter(k=>S.seals[k]).map(k=>{const f=fotoSigilloMuseo(k);
+    return `<div class="sl-t sl-museo" style="--c:#b8892f">${f?`<img src="${f.file}" alt="">`:'<b>◆</b>'}<span>${SEALS[k].title}</span></div>`});
+  const sale=SALE.filter(s=>tessereS()[s.id]).map(s=>`<div class="sl-t" style="--c:${s.colore}"><img src="${s.tessera.foto.file}" alt=""><span>${s.tessera.titolo}</span></div>`);
+  return `<p class="eyebrow">I tuoi sigilli · ${sigilliPresi()} su ${sigilliTotali()}</p>`+(museo.length+sale.length
+    ?`<div class="sl-collezione">${[...museo,...sale].join('')}</div>`
+    :`<p>Nessun sigillo, questa volta. ${doveSale()}</p>`);
 }
 
 /* ---------- Rompicapi: finestra comune ---------- */
@@ -401,7 +419,7 @@ function mescola(a,seme=7){a=a.slice();for(let i=a.length-1;i>0;i--){seme=(seme*
   const st=document.createElement('style');st.textContent=`
 #btnTessere{white-space:nowrap}
 .sl-foto{margin:0;display:grid;gap:4px}
-.sl-foto img{width:100%;max-height:280px;object-fit:cover;border:2px solid var(--line);image-rendering:auto}
+.sl-foto img{max-width:100%;max-height:420px;width:auto;height:auto;justify-self:center;object-fit:contain;border:2px solid var(--line);image-rendering:auto} /* intera, senza tagli */
 .sl-foto figcaption{font-size:15px;color:var(--muted)}
 .sl-collezione{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
 .sl-t{position:relative;aspect-ratio:3/4;padding:0;border:3px solid var(--c);background:#120e1c;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;text-transform:none;letter-spacing:0;box-shadow:3px 3px 0 #000}
@@ -438,8 +456,8 @@ function mescola(a,seme=7){a=a.slice();for(let i=a.length-1;i>0;i--){seme=(seme*
 .sl-nuova{animation:slLampo 1.2s ease-out both}
 @keyframes slEntra{from{transform:scale(.82) rotate(-2deg);filter:brightness(1.8) saturate(.4);opacity:0}to{transform:none;filter:none;opacity:1}}
 @keyframes slLampo{0%{box-shadow:0 0 0 0 rgba(224,176,79,.9)}100%{box-shadow:0 0 0 14px rgba(224,176,79,0)}}
-.sl-t[data-id]{transition:transform .15s}
-.sl-t[data-id]:hover,.sl-t[data-id]:focus-visible{transform:translateY(-3px)}
-@media (prefers-reduced-motion:reduce){.sl-nuova,.sl-nuova img{animation:none}.sl-t[data-id]{transition:none}}
+.sl-t[data-id],.sl-t[data-sigillo]{transition:transform .15s}
+.sl-t[data-id]:hover,.sl-t[data-id]:focus-visible,.sl-t[data-sigillo]:hover,.sl-t[data-sigillo]:focus-visible{transform:translateY(-3px)}
+@media (prefers-reduced-motion:reduce){.sl-nuova,.sl-nuova img{animation:none}.sl-t[data-id],.sl-t[data-sigillo]{transition:none}}
 `;document.head.appendChild(st);
 }

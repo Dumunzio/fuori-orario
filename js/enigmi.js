@@ -125,8 +125,8 @@ function win(){
   S.done=true;const tm=fmt(S.elapsed);
   openModal(`<div class="eyebrow">Uscita · ${tm}</div><h2>Sei fuori dal museo</h2>
     <p>In ${tm} hai attraversato un secolo di storia dell'Alto Vicentino. Ecco cosa ti porti a casa:</p>
-    <div class="journal">${Object.keys(SEALS).map(k=>`<article class="seal"><span class="tag">Sigillo</span><h3>${SEALS[k].title}</h3><p>${SEALS[k].text}</p></article>`).join('')}</div>
-    ${typeof riepilogoTessere==='function'?riepilogoTessere():''}
+    ${typeof riepilogoTessere==='function'?riepilogoTessere() // tutti i sigilli in una griglia, villa compresa (js/sale/registro.js)
+      :`<div class="journal">${Object.keys(SEALS).map(k=>`<article class="seal"><span class="tag">Sigillo</span><h3>${SEALS[k].title}</h3><p>${SEALS[k].text}</p></article>`).join('')}</div>`}
     <p class="eyebrow">Fonti per la versione completa</p>
     <ul class="src"><li>Wikidata: luoghi, persone e beni culturali collegati tra loro</li><li>Europeana: foto e oggetti per le teche</li><li>Catalogo generale dei beni culturali (MiC)</li><li>Rete Museale Alto Vicentino ed Ecomuseo della Grande Guerra</li></ul>
     <div id="slImmagine"></div>
