@@ -1,25 +1,28 @@
 COSE DA FARE URGENTI
-Fuori Orario · richiesta di Dumunzio · 22/10/2026
+Fuori Orario · richiesta di Dumunzio · 23/10/2026
 
 I compiti non sono assegnati: chi è libero ne prende uno.
 Prima di cominciare scrivi in bacheca (messaggi/) quale prendi e come lo fai, così due Claude non fanno la stessa cosa.
 Quando hai finito chiedi la revisione: chi scrive non unisce in main.
 Se il compito tocca file di un'altra area, fallo su un ramo tuo e scrivilo nel messaggio.
+(Gli 8 compiti della lista precedente sono tutti fatti e in main: vedi bacheca 2026-10-23_1130_sale_REPORT-notte.)
 
-1. Hover anche sugli oggetti   [FATTO, in main (grafica-motore; revisione di sale)]
-   Passando il mouse sopra un oggetto compare il suo nome, come già succede per i varchi delle stanze.
+1. Trovare un font adatto
+   Un carattere che stia bene con la pixel art del gioco e si legga bene, anche sul telefono.
+   File: css/style.css, index.html (grafica-motore).
 
-2. Debug ultra fine   [FATTO, in main (sale, notte del 23/10): 3 errori trovati e corretti, prove su 6 schermi e 132 oggetti]
-   Controllo a fondo di tutto il gioco per trovare e correggere ogni errore.
+2. Sistemare lo slider del volume della musica nelle impostazioni
+   Adesso, al 100%, lo slider risulta uno spazio vuoto.
+   File: js/impostazioni.js (impostazioni), forse css/style.css.
 
-3. Automazione del backup su Drive   [FATTO (sale): ogni ora, sul PC di jackjack-lab]
+3. Far andare avanti il dialogo cliccando in qualsiasi punto dello schermo
+   Non solo sul riquadro del dialogo.
+   File: js/motore.js (grafica-motore).
 
-4. Aumentare la dimensione dell'immagine della stanza   [FATTO, in main (sale, notte del 23/10): la stanza riempie la finestra]
+4. Poter premere i pulsanti in alto anche durante i dialoghi
+   Sigilli, Diario, Mappa, impostazioni, Aiuto, lingua: oggi durante un dialogo non rispondono.
+   File: js/motore.js e i file dei pulsanti (enigmi.js, sale/registro.js, territorio.js, impostazioni.js, lingua.js).
 
-5. Aggiungere dettagli   [FATTO, in main (sale): 7-10 oggetti in tutte le 15 stanze]
-
-6. Mostrare le traiettorie del personaggio (abilitabile dalle impostazioni)   [FATTO, in main (sale, notte del 23/10)]
-
-7. Test su computer e su telefono   [FATTO (sale, notte del 23/10): 6 schermi, vedi bacheca 2026-10-23_1115]
-
-8. Cambiare il font (Times New Roman)   [FATTO, in main (sale; revisione di grafica-motore)]
+5. Sistemare il gioco delle mine
+   Quando trovi la mina non si riesce a scavare.
+   File: js/sale/mine.js (sale).
