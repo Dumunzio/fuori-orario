@@ -37,6 +37,7 @@ function apriImpostazioni(){
           <div class="im-conferma" id="imConferma" hidden><p>Sei sicuro? La partita non si potrà recuperare.</p>
             <div class="row"><button type="button" id="imSi" class="primary">Sì, cancella</button><button type="button" id="imNo">No, torna indietro</button></div></div>`
         :'<p class="im-nota">Non c\'è nessuna partita da cancellare.</p>'}</div>
+    ${typeof voceTrucchi==='function'?voceTrucchi():''}
     <div class="row end">${closeBtn}</div>`);
   $('imMusica').onclick=()=>{
     MUSICA.on=!MUSICA.on;try{localStorage.setItem('fuoriOrario.musica',MUSICA.on?'1':'0')}catch(e){}
@@ -54,6 +55,8 @@ function apriImpostazioni(){
     $('imNo').onclick=()=>{$('imConferma').hidden=true;$('imCancella').hidden=false;$('imCancella').focus()};
     $('imSi').onclick=()=>{if(typeof cancellaSalvataggio==='function')cancellaSalvataggio();location.reload()};
   }
+  // trucchi per le prove: prendere i sigilli senza i rompicapi (js/sale/trucchi.js, area sale)
+  if(typeof agganciaTrucchi==='function')agganciaTrucchi();
 }
 window.apriImpostazioni=apriImpostazioni;
 
