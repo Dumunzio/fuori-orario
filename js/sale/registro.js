@@ -383,11 +383,14 @@ function aiutoSala(){
   return true;
 }
 // Html con i sigilli delle sale, per la schermata finale (win), dopo quelli del museo.
+// Tutti i sigilli presi in un'unica griglia, come nella collezione: prima quelli del museo (la villa, con la sua foto), poi le sale.
 function riepilogoTessere(){
-  const prese=SALE.filter(s=>tessereS()[s.id]);
-  return `<p class="eyebrow">Sigilli delle sale del territorio · ${prese.length} su ${SALE.length}</p>`+(prese.length
-    ?`<div class="sl-collezione">${prese.map(s=>`<div class="sl-t" style="--c:${s.colore}"><img src="${s.tessera.foto.file}" alt=""><span>${s.tessera.titolo}</span></div>`).join('')}</div>`
-    :`<p>Nessun sigillo delle sale, questa volta. ${doveSale()}</p>`);
+  const museo=Object.keys(SEALS).filter(k=>S.seals[k]).map(k=>{const f=fotoSigilloMuseo(k);
+    return `<div class="sl-t sl-museo" style="--c:#b8892f">${f?`<img src="${f.file}" alt="">`:'<b>◆</b>'}<span>${SEALS[k].title}</span></div>`});
+  const sale=SALE.filter(s=>tessereS()[s.id]).map(s=>`<div class="sl-t" style="--c:${s.colore}"><img src="${s.tessera.foto.file}" alt=""><span>${s.tessera.titolo}</span></div>`);
+  return `<p class="eyebrow">I tuoi sigilli · ${sigilliPresi()} su ${sigilliTotali()}</p>`+(museo.length+sale.length
+    ?`<div class="sl-collezione">${[...museo,...sale].join('')}</div>`
+    :`<p>Nessun sigillo, questa volta. ${doveSale()}</p>`);
 }
 
 /* ---------- Rompicapi: finestra comune ---------- */
