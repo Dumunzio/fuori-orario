@@ -58,6 +58,11 @@
   const scalino='polygon(0 3px,3px 3px,3px 0,calc(100% - 3px) 0,calc(100% - 3px) 3px,100% 3px,100% calc(100% - 3px),calc(100% - 3px) calc(100% - 3px),calc(100% - 3px) 100%,3px 100%,3px calc(100% - 3px),0 calc(100% - 3px))';
   const st=document.createElement('style');st.textContent=`
 @media (pointer:coarse){
+  /* tenendo premuto un tasto il telefono non deve selezionare il testo né aprire il menu: si sceglie solo nei campi da scrivere */
+  body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+  input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+  #pad,#pad *,#cv{touch-action:none}
+  button{touch-action:manipulation}
   /* croce direzionale: un pezzo solo, girata come la stanza; ogni freccia punta dove cammini */
   #pad .dpad{gap:0;filter:drop-shadow(3px 3px 0 #000)}
   #pad .dpad button{opacity:1;padding:0;border:0;box-shadow:inset 0 0 0 2px #15111f,inset -3px -3px 0 #1a1429,inset 3px 3px 0 #4b3f6e;background:#2b2244;clip-path:none}
@@ -101,6 +106,9 @@
   .hud .btnLingua::before{display:none}
 }`;
   document.head.appendChild(st);
+  // niente menu «copia / cerca» tenendo premuto sui tasti, sulla stanza e sulla barra (fuori dai campi da scrivere)
+  document.addEventListener('contextmenu',e=>{if(touch.matches&&!e.target.closest('input,textarea,[contenteditable]'))e.preventDefault()});
+  document.addEventListener('selectstart',e=>{if(touch.matches&&!e.target.closest?.('input,textarea,[contenteditable]'))e.preventDefault()});
   // premuto: su alcuni telefoni :active non scatta sui tasti tenuti giù
   document.querySelectorAll('#pad button').forEach(b=>{
     b.addEventListener('pointerdown',()=>b.classList.add('premuto'));
