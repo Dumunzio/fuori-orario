@@ -140,6 +140,8 @@ function win(){
   function fallback(){$('msg').textContent=txt;$('msg').className='msg';const r=document.createRange();r.selectNodeContents($('msg'));getSelection().removeAllRanges();getSelection().addRange(r)}
   // si vince all'ingresso, davanti alla porta: per ricominciare si rientra nell'ingresso da capo, con i suoi oggetti
   $('again').onclick=()=>{closeModal();fresh();entraStanza(PIANTA.inizio);hud();S.started=true;intro()};
+  // «Chiudi»: chiusa la finestra si torna alla pagina iniziale (js/condividi.js, area sale)
+  if(typeof fineVersoTitolo==='function')fineVersoTitolo();
 }
 
 /* ---------- Diario ---------- */

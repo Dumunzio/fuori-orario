@@ -297,7 +297,9 @@ const tessereImmagini=()=>SALE.filter(s=>tessereS()[s.id]).map(s=>({id:s.id,nome
 // Una foto che non si carica ha img null: la schermata disegna al suo posto il colore della sala.
 // Nota: aperto da file locale, il canvas con le foto non si può esportare (toBlob); via http(s) sì.
 const caricaTessereImmagini=()=>Promise.all(tessereImmagini().map(t=>new Promise(fatto=>{
-  const img=new Image();img.onload=()=>fatto({...t,img});img.onerror=()=>fatto({...t,img:null});img.src=t.foto.file})));
+  const img=new Image();img.onload=()=>fatto({...t,img});img.onerror=()=>fatto({...t,img:null});
+  // la miniatura scritta nel codice (js/sale/miniature.js) si può esportare anche da file locale; altrimenti la foto intera
+  img.src=typeof MINIATURE!=='undefined'&&MINIATURE[t.id]||t.foto.file})));
 function mostraTessera(id,nuova){
   const s=SALA[id],T=s.tessera;
   openModal(`<div class="eyebrow">${nuova?'Nuovo sigillo · ':'Sigillo · '}${s.nome}</div>
