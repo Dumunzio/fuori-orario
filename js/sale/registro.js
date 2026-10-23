@@ -384,8 +384,7 @@ function aiutoSala(){
   say(s.nome,tessereS()[s.id]?['Hai già il sigillo di questa sala.',MODO_PIANTA?'Le porte accese portano alle stanze che hai già finito: segui le altre.':'Torna all\'atrio per le altre.']:[s.aiuti[0],'Nella finestra del rompicapo il pulsante Aiuto ti dà altri indizi.']);
   return true;
 }
-// Html con i sigilli delle sale, per la schermata finale (win), dopo quelli del museo.
-// Tutti i sigilli presi in un'unica griglia, come nella collezione: prima quelli del museo (la villa, con la sua foto), poi le sale.
+// Per la schermata finale (win): tutti i sigilli presi in un'unica griglia, come nella collezione: prima quelli del museo (la villa, con la sua foto), poi le sale.
 function riepilogoTessere(){
   const museo=Object.keys(SEALS).filter(k=>S.seals[k]).map(k=>{const f=fotoSigilloMuseo(k);
     return `<div class="sl-t sl-museo" style="--c:#b8892f">${f?`<img src="${f.file}" alt="">`:'<b>◆</b>'}<span>${SEALS[k].title}</span></div>`});
