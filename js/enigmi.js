@@ -3,11 +3,11 @@
 // Quanti sigilli servono, e come si scrive un numero piccolo in lettere.
 const NSEALS=()=>Object.keys(SEALS).length;
 const lettere=n=>['zero','uno','due','tre','quattro','cinque','sei'][n]??String(n);
-// Tutti i sigilli del gioco, presi e da prendere: quelli del museo più uno per ogni sala a tema (js/sale/registro.js).
+// Tutti i sigilli del gioco, presi e da prendere: quello della villa più uno per ogni sala a tema (js/sale/registro.js).
 const NTOT=()=>typeof sigilliTotali==='function'?sigilliTotali():NSEALS();
 const NPRESI=()=>typeof sigilliPresi==='function'?sigilliPresi():sealCount();
 // Dove si trova ogni rompicapo, per gli aiuti del custode.
-const DOVE={loom:'Il telaio, nella sala del Lanificio.',chest:'La cassetta del Genio, nella sala della Grande Guerra.',archive:'L\'armadio dell\'archivio.',facade:'Il plastico di Villa Godi, nella Sala delle Ville: ci si arriva dal varco tra il Lanificio e l\'Archivio.'};
+const DOVE={facade:'Il plastico di Villa Godi, nella Sala delle Ville: ci si arriva dall\'ingresso.'};
 function note(id,title,where,text,seal){if(S.journal.some(j=>j.id===id))return false;S.journal.push({id,title,where,text,seal:!!seal});return true}
 function readPlaque(k){const p=PLAQUES[k];say('Cartellino · '+p.title,p.lines,()=>{if(note(k,p.title,p.where,p.lines.join(' ')))toast('Annotato nel diario')})}
 
@@ -19,71 +19,7 @@ function solved(id,msg){
 function grant(id){
   S.seals[id]=true;const s=SEALS[id];note('seal-'+id,s.title,'Sigillo',s.text,true);hud();
   const n=NPRESI();
-  say(s.title,[s.text,n<NTOT()?`Sigilli: ${n} su ${NTOT()}.`:'Hai tutti i sigilli. La porta d\'uscita è nella sala dopo il museo, oltre il varco con il cartello verde.']);
-}
-
-function openLoom(){
-  if(S.seals.loom)return say('Telaio Jacquard',['Il telaio è aperto. Sul cartone perforato restano i fori del disegno.']);
-  const letters='URJADQAC'.split('');let pick=[];
-  openModal(`<div class="eyebrow">Rompicapo · Sala del Lanificio</div><h2>Il telaio a schede</h2>
-    <p class="clue">Questo telaio legge schede di cartone perforate, un'invenzione di Joseph-Marie Jacquard, di Lione, presentata nel 1801. Alessandro Rossi dedicò all'inventore il giardino accanto alla sua fabbrica di Schio, disegnato da Antonio Caregaro Negrin.</p>
-    <p>Ricomponi il cognome dell'inventore con le lettere incise sulle schede.</p>
-    <div class="slots" id="slots">${'<div class="slot"></div>'.repeat(8)}</div>
-    <div class="row keys" id="keys">${letters.map((l,i)=>`<button type="button" data-i="${i}">${l}</button>`).join('')}</div>
-    <div class="msg" id="msg">&nbsp;</div>
-    <div class="row end"><button type="button" id="bk">Cancella</button>${closeBtn}</div>`);
-  const draw=()=>{[...$('slots').children].forEach((s,i)=>s.textContent=pick[i]!=null?letters[pick[i]]:'');
-    [...$('keys').children].forEach(b=>b.disabled=pick.includes(+b.dataset.i))};
-  const check=()=>{if(pick.length<8)return;const w=pick.map(i=>letters[i]).join('');
-    if(w==='JACQUARD'){solved('loom','Il telaio scatta. Dietro le schede perforate c\'è un sigillo di ottone.');$('keys').remove()}
-    else{bad($('slots'),'Le schede si inceppano. Rileggi il cartellino: di chi porta il nome il giardino?');pick=[];draw()}};
-  $('keys').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;pick.push(+b.dataset.i);draw();check()});
-  $('bk').onclick=()=>{pick.pop();draw()};
-  modalKey=e=>{const L=e.key.toUpperCase();if(e.key==='Backspace'){pick.pop();draw()}
-    else{const i=letters.findIndex((l,j)=>l===L&&!pick.includes(j));if(i>=0){pick.push(i);draw();check()}}};
-}
-
-function openChest(){
-  if(S.seals.chest)return say('Cassetta del Genio',['La cassetta è aperta e vuota.']);
-  let code='';
-  openModal(`<div class="eyebrow">Rompicapo · Sala della Grande Guerra</div><h2>Cassetta del Genio</h2>
-    <p class="clue">Un biglietto dentro il coperchio: «Prime due cifre: le gallerie della strada del Pasubio. Ultime due: gli anni passati tra la costruzione della Fabbrica Alta e l'inizio dei lavori sul Pasubio.»</p>
-    <div class="display" id="disp">____</div>
-    <div class="keypad" id="kp">${[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" data-n="${n}">${n}</button>`).join('')}<button type="button" data-n="del" aria-label="Cancella">⌫</button><button type="button" data-n="0">0</button><button type="button" data-n="ok" class="primary">OK</button></div>
-    <div class="msg" id="msg">&nbsp;</div>
-    <div class="row end">${closeBtn}</div>`);
-  const draw=()=>$('disp').textContent=(code+'____').slice(0,4);
-  const press=n=>{if(n==='del')code=code.slice(0,-1);else if(n==='ok'){
-      if(code==='5255'){solved('chest','Clic. Il lucchetto si apre: sotto una mappa del Pasubio c\'è il secondo sigillo.');$('kp').remove();return}
-      bad($('disp'),code.length<4?'Servono quattro cifre.':'Il lucchetto non cede. Ti servono due cartellini, uno per sala.');code=''}
-    else if(code.length<4)code+=n;draw()};
-  $('kp').addEventListener('click',e=>{const b=e.target.closest('button');if(b)press(b.dataset.n)});
-  modalKey=e=>{if(/^\d$/.test(e.key))press(e.key);else if(e.key==='Backspace')press('del');else if(e.key==='Enter'){e.preventDefault();press('ok')}};
-}
-
-function openTimeline(){
-  if(S.seals.archive)return say('Armadio dell\'archivio',['Le quattro schede sono in ordine. Il cassetto resta aperto.']);
-  const cards=[
-    {t:'A Schio si costruisce la Fabbrica Alta',y:1862},
-    {t:'Jacquard presenta il telaio a schede perforate',y:1801},
-    {t:'I minatori scavano la Strada delle 52 Gallerie',y:1917},
-    {t:'Francesco Rossi avvia l\'attività laniera a Schio',y:1817}];
-  let order=[];
-  openModal(`<div class="eyebrow">Rompicapo · Archivio</div><h2>Le schede in disordine</h2>
-    <p class="clue">Il cassetto si apre solo se le schede tornano in ordine, dalla più antica alla più recente. Gli anni non sono scritti qui: li trovi sui cartellini delle sale.</p>
-    <div class="placed" id="placed">${'<div></div>'.repeat(4)}</div>
-    <div class="tl" id="tl">${cards.map((c,i)=>`<button type="button" data-i="${i}">${c.t}</button>`).join('')}</div>
-    <div class="msg" id="msg">&nbsp;</div>
-    <div class="row end"><button type="button" id="rs">Ricomincia</button>${closeBtn}</div>`);
-  const draw=(reveal)=>{[...$('placed').children].forEach((d,k)=>{const c=cards[order[k]];
-      d.className=c?'f':'';d.innerHTML=c?`<span class="n">${k+1}</span><span>${c.t}</span>${reveal?`<span class="yr">${c.y}</span>`:''}`:`<span class="n">${k+1}</span>`});
-    [...$('tl').children].forEach(b=>b.disabled=order.includes(+b.dataset.i))};
-  draw();
-  $('tl').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;order.push(+b.dataset.i);draw();
-    if(order.length===4){const ok=order.every((i,k)=>k===0||cards[order[k-1]].y<cards[i].y);
-      if(ok){draw(true);$('tl').remove();solved('archive','Il cassetto scorre. Tra le schede c\'è il terzo sigillo.')}
-      else{bad($('placed'),'L\'ordine non torna. Controlla gli anni nei cartellini e riprova.');order=[];setTimeout(()=>draw(),350)}}});
-  $('rs').onclick=()=>{order=[];draw()};
+  say(s.title,[s.text,n<NTOT()?`Sigilli: ${n} su ${NTOT()}.`:'Hai tutti i sigilli. La porta d\'uscita è nell\'ingresso, sotto il cartello verde.']);
 }
 
 // Facciata di Villa Godi: l'ala destra va specchiata dalla sinistra, e la loggia del piano nobile ha tre arcate (cartellino godi).
@@ -127,7 +63,7 @@ function openFacade(){
 // Se ci sono le sale a tema (js/sale/registro.js), la porta conta anche i loro sigilli:
 // bloccoUscita() restituisce le righe da dire se ne manca qualcuno, altrimenti null.
 const tessereMancanti=()=>typeof bloccoUscita==='function'&&bloccoUscita();
-const regolaTessere=()=>typeof bloccoUscita==='function'?' Li trovi nel museo, nella villa e nelle sale del territorio: i varchi colorati di questo ingresso portano ai loro rami.':'';
+const regolaTessere=()=>typeof bloccoUscita==='function'?' Li trovi nella Sala delle Ville e nelle sale del territorio: i varchi colorati di questo ingresso portano ai loro rami.':'';
 /* ---------- Il custode ---------- */
 // Il custode non ripete sempre la stessa frase: per ogni occasione ha più varianti e le usa a turno.
 const _turniCustode={};
@@ -143,20 +79,20 @@ function prossimaSala(){
 // Una riga che dice dove andare per la prossima sala, o null.
 const rigaProssimaSala=()=>{const p=prossimaSala();return p?`La più vicina che ti manca è la ${p.sala.nome}. Dall'ingresso: ${p.strada}.`:null};
 function talkKeeper(){
-  const n=NPRESI(),tot=NTOT(),manca=tot-n,museoFatto=Object.keys(SEALS).every(k=>S.seals[k]);
+  const n=NPRESI(),tot=NTOT(),manca=tot-n,villaFatta=Object.keys(SEALS).every(k=>S.seals[k]);
   if(n>=tot)return say('Custode',[aTurno('fine',[
-    'Tutti i sigilli! Non ci credevo. La porta d\'uscita è nella sala dopo il museo: vai, prima che cambi idea.',
-    'Hai tutti i sigilli. La porta ti aspetta, nella sala dopo il museo. Io chiudo le luci.'])]);
+    'Tutti i sigilli! Non ci credevo. La porta d\'uscita è qui, sotto il cartello verde: vai, prima che cambi idea.',
+    'Hai tutti i sigilli. La porta ti aspetta, qui all\'ingresso. Io chiudo le luci.'])]);
   let righe;
   if(n===0)righe=[aTurno('zero',[
-    'Ancora nessun sigillo? Niente paura, il primo è sempre il più lento. Il museo è qui a destra: comincia dai cartellini.',
+    'Ancora nessun sigillo? Niente paura, il primo è sempre il più lento. I varchi colorati portano alle sale: comincia dai cartellini.',
     'Niente sigilli, per ora. Un consiglio da vecchio custode: leggi tutto, anche i cartellini che sembrano noiosi.',
-    'Sei ancora a zero. Prova il telaio, nel museo: è il rompicapo più gentile.'])];
+    'Sei ancora a zero. Prova la Sala delle Ville, qui a destra: è il rompicapo più gentile.'])];
   else if(manca<=2)righe=[aTurno('quasi',[
     manca===1?'Ti manca un solo sigillo. Uno! Non mollare adesso.':`Ne hai ${n}. Te ne mancano solo ${manca}, ci sei quasi.`,
     manca===1?'Ancora un sigillo e sei fuori. Sento già la porta che cigola.':'Ancora due sigilli e sei fuori. Dai che è tardi anche per me.'])];
-  else if(museoFatto)righe=[aTurno('sale',[
-    `Il museo e la villa li hai finiti. Ora tocca alle sale del territorio: ti mancano ${manca} sigilli.`,
+  else if(villaFatta)righe=[aTurno('sale',[
+    `La Sala delle Ville l'hai finita. Ora tocca alle sale del territorio: ti mancano ${manca} sigilli.`,
     `Hai ${n} sigilli su ${tot}. Gli altri sono nelle sale, dietro i varchi colorati dell'ingresso.`]),
     rigaProssimaSala()].filter(Boolean);
   else righe=[aTurno('meta',[
@@ -170,7 +106,7 @@ function hint(){
   if(!S.started||S.done)return;
   if(typeof aiutoSala==='function'&&aiutoSala())return; // dentro una sala a tema: il suo aiuto (js/sale/registro.js)
   const id=Object.keys(SEALS).find(k=>!S.seals[k]);
-  if(!id){const b=tessereMancanti();return say('Custode',b?['I sigilli del museo e della villa li hai tutti.',rigaProssimaSala()||b[b.length-1]]:['Hai tutto. Vai alla porta d\'uscita.'])}
+  if(!id){const b=tessereMancanti();return say('Custode',b?['Il sigillo della villa ce l\'hai già.',rigaProssimaSala()||b[b.length-1]]:['Hai tutto. Vai alla porta d\'uscita.'])}
   const lv=S.hint[id];S.hint[id]=Math.min(lv+1,HINTS[id].length-1);
   say('Custode',[aTurno('aiuto',['Ti do una dritta.','Un indizio, ma non dire a nessuno che te l\'ho dato io.','Vediamo un po\'…','Io farei così.']),DOVE[id],HINTS[id][lv]]);
 }
@@ -200,7 +136,7 @@ function win(){
   const it=`Ho risolto FUORI ORARIO in ${tm}: ${lettere(NTOT())} sigilli nascosti nella storia dell'Alto Vicentino. Ci provi?`,txt=typeof tr==='function'?tr(it):it;
   $('share').onclick=()=>{navigator.clipboard?.writeText(txt).then(()=>{$('msg').textContent='Copiato negli appunti.';$('msg').className='msg good'}).catch(fallback)||fallback()};
   function fallback(){$('msg').textContent=txt;$('msg').className='msg';const r=document.createRange();r.selectNodeContents($('msg'));getSelection().removeAllRanges();getSelection().addRange(r)}
-  // si vince nell'uscita: per ricominciare si torna davvero all'ingresso, con la sua stanza e i suoi oggetti
+  // si vince all'ingresso, davanti alla porta: per ricominciare si rientra nell'ingresso da capo, con i suoi oggetti
   $('again').onclick=()=>{closeModal();fresh();entraStanza(PIANTA.inizio);hud();S.started=true;intro()};
 }
 
@@ -219,5 +155,5 @@ function intro(){say('Custode',[
   'Ehi! E tu da dove sbuchi? Il museo ha chiuso alle sei, pensavo di essere rimasto solo io.',
   `Brutta notizia: la porta d'uscita è sigillata. Si apre solo con i sigilli nascosti nelle sale, e ne servono ${lettere(NTOT())}.${regolaTessere()}`,
   'Ogni sigillo è chiuso da un rompicapo. Le risposte? Scritte sui cartellini. Chi legge la storia di questa valle, esce.',
-  'Il museo è qui a destra. Sul leggio davanti a te c\'è la pianta: ti dice dove sei e quali sale hai già finito.',
+  'La porta è qui, sotto il cartello verde. Sul leggio davanti a te c\'è la pianta: ti dice dove sei e quali sale hai già finito.',
   'Io resto qui all\'ingresso. Se ti blocchi, vieni a trovarmi o premi Aiuto.'])}
