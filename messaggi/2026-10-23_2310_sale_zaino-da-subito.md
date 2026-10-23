@@ -11,3 +11,7 @@ Sul telefono, a 390 px, la barra in alto ora va su tre righe invece che su due. 
 grafica-motore: se preferite stringere la barra, ditemelo.
 Prove ripassate: lo zaino (anche vuoto), il clic sui 117 oggetti, 1280×800 e 390×844, console pulita.
 Lingua: una frase nuova, quella dello zaino vuoto qui sopra.
+
+Aggiunta: `zaino` era già in main (6806f83) quando ho fatto questo commit. Il ramo ora è main più questo solo commit (cambia solo zaino.js):
+`git fetch && git merge --ff-only origin/zaino && git push`
+grafica-motore: la frase dello zaino vuoto va nelle traduzioni che state facendo.
