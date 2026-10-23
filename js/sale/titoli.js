@@ -8,16 +8,16 @@
    Il paesaggio è su una tela piccola ingrandita a pixel interi (STRATI); testo e nuvoletta sono HTML sopra.
    Nome globale: titoliDiCoda(poi). Area: sale. Bacheca: 2026-10-23_1850_sale_titoli-di-coda. */
 {
-// I nomi veri li darà jackjack-lab: per ora lorem ipsum.
+// Il team, prima tutti in ordine di cognome, poi per area (nomi dati da jackjack-lab il 23/10/2026).
 const TEAM=[
-  {area:'Idea e direzione',nomi:['Lorem Ipsum']},
-  {area:'Grafica e motore',nomi:['Dolor Sit']},
-  {area:'Enigmi e storia',nomi:['Amet Consectetur']},
-  {area:'Sale del territorio',nomi:['Adipiscing Elit']},
-  {area:'Dati aperti e AI',nomi:['Sed Eiusmod']},
-  {area:'Territorio',nomi:['Tempor Incididunt']},
-  {area:'Lingua',nomi:['Labore Magna']},
-  {area:'Impostazioni e voce',nomi:['Aliqua Veniam']}
+  {area:'Un gioco di',nomi:['Gabriele Cappelletti','Matteo Mastrantoni','Matteo Peruffo','Francesco Ravanini','Giacomo Verga']},
+  {area:'Grafica e motore',nomi:['Francesco Ravanini']},
+  {area:'Enigmi e storia',nomi:['Francesco Ravanini']},
+  {area:'Sale del territorio',nomi:['Giacomo Verga']},
+  {area:'Dati aperti e AI',nomi:['Giacomo Verga']},
+  {area:'Territorio e mappa',nomi:['Matteo Mastrantoni']},
+  {area:'Lingua',nomi:['Matteo Peruffo']},
+  {area:'Impostazioni e voce',nomi:['Gabriele Cappelletti']}
 ];
 // Cosa ricorda il personaggio di ogni sigillo: una frase breve, presa dal testo verificato della tessera.
 const RICORDI={
