@@ -289,7 +289,7 @@ const LINGUA_EN={
 "Sotto il Dente Italiano una galleria nemica avanza nella roccia. Tocca una casella per ascoltare: il numero dice quanti passi mancano alla testa della galleria, contando solo in orizzontale e in verticale. Hai {} ascolti, poi scava la contromina nel punto giusto.":"Under the Dente Italiano an enemy tunnel is advancing through the rock. Tap a square to listen: the number tells you how many steps away the head of the tunnel is, counting only horizontally and vertically. You have {} listens, then dig the countermine in the right spot.",
 "Ascolti rimasti: {}":"Listens left: {}",
 "Scava qui: tocca la casella":"Dig here: tap the square",
-"Il picchiettio è proprio qui sotto.":"The tapping is right under here.",
+"Il picchiettio è proprio qui sotto: scava qui.":"The tapping is right under here: dig here.",
 "Colpi vicini, la roccia trema.":"Close knocks, the rock shakes.",
 "Colpi lontani, appena udibili.":"Distant knocks, barely audible.",
 "Basta ascoltare: ora scegli dove scavare.":"No more listening: now choose where to dig.",
@@ -1066,5 +1066,8 @@ const LINGUA_EN={
 "La villa è finita. La prossima sala che ti manca è la {}: dall'ingresso, {}.":"The villa is done. The next room you're missing is the {}: from the entrance hall, {}.",
 "Hai già tutti i sigilli. La porta d'uscita ti aspetta qui all'ingresso, sotto il cartello verde.":"You already have all the seals. The exit door is waiting for you here in the entrance hall, under the green sign.",
 "Li hai tutti e {}. La porta d'uscita ti aspetta qui all'ingresso.":"You have all {}. The exit door is waiting for you here in the entrance hall.",
-"La porta d'uscita è qui all'ingresso, sulla parete destra, sotto il cartello verde. Si apre solo con tutti i {} sigilli.":"The exit door is here in the entrance hall, on the right wall, under the green sign. It only opens with all {} seals."
+"La porta d'uscita è qui all'ingresso, sulla parete destra, sotto il cartello verde. Si apre solo con tutti i {} sigilli.":"The exit door is here in the entrance hall, on the right wall, under the green sign. It only opens with all {} seals.",
+"Carattere":"Font",
+"Il carattere di tutti i testi del gioco.":"The font for all the text in the game.",
+"Pixel morbido":"Soft pixel"
 };
