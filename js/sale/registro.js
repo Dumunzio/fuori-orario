@@ -344,7 +344,7 @@ function hudTessere(){const b=$('btnTessere'),n=sigilliPresi()+'/'+sigilliTotali
   if(b&&(n!==_tessereMostrate||!b.textContent)){_tessereMostrate=n;b.textContent=`Sigilli ${n}`}}
 {
   const b=document.createElement('button');b.id='btnTessere';b.type='button';b.title='I tuoi sigilli';
-  b.onclick=()=>{if(S.started&&$('modal').hidden&&$('dialog').hidden)apriCollezione()};
+  b.onclick=()=>{if(S.started&&$('modal').hidden)apriCollezione()}; // anche durante un dialogo, che resta sotto
   $('btnJournal').before(b);
   // Il conteggio si aggiorna da solo: così resta giusto anche dopo "Gioca ancora" o una ricarica.
   setInterval(hudTessere,400);setTimeout(hudTessere,0);

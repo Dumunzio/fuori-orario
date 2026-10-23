@@ -15,6 +15,13 @@
   --body:"Times New Roman",Times,"Liberation Serif",Tinos,serif;
   color-scheme:dark;
 }
+/* Gli altri due caratteri, da scegliere nelle impostazioni (data-font su <html>, vedi index.html).
+   «Pixel» è com'era prima di Times: Pixelify Sans per titoli e pulsanti, Jersey 10 per il testo, cifre da Jersey 15.
+   «Pixel morbido» è Pixelify Sans per tutto. */
+html[data-font="pixel"]{--display:"Jersey 15","Pixelify Sans","Courier New",monospace;--body:"Jersey 15","Jersey 10","Courier New",monospace}
+html[data-font="pixel"] body{font-size:22px;line-height:1.25;letter-spacing:.01em}
+html[data-font="morbido"]{--display:"Pixelify Sans","Courier New",monospace;--body:"Pixelify Sans","Courier New",monospace}
+html[data-font="morbido"] body{font-size:18px;line-height:1.3}
 [hidden]{display:none!important}
 html,body{height:100%}
 body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body);font-size:19px;line-height:1.3;overflow:hidden;box-sizing:border-box;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}

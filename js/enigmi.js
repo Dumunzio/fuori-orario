@@ -148,7 +148,8 @@ $('btnJournal').onclick=()=>{
     :'<p>Ancora niente. Leggi i cartellini nelle sale: quello che scopri finisce qui.</p>'}
     <div class="row end">${closeBtn}</div>`);
 };
-$('btnHint').onclick=()=>{if(blocked())return;hint()};
+// durante un dialogo l'aiuto si apre sopra e poi il dialogo riprende (sopraDialogo, js/motore.js)
+$('btnHint').onclick=()=>{if(!S.started||S.done||!$('modal').hidden)return;sopraDialogo(hint)};
 
 /* ---------- Avvio ---------- */
 function intro(){say('Custode',[
