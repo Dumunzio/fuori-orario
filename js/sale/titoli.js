@@ -29,12 +29,13 @@ const RICORDI={
   citta:'A Valdagno Marzotto fece costruire case, scuole e uno stadio per la città.',
   castello:'Il castello di Thiene sta a metà tra la fortezza e la villa.',
   ferrarin:'Arturo Ferrarin, nato a Thiene, volò da Roma a Tokyo nel 1920.',
-  grotta:'A Priabona le rocce sono piene di animali di un mare di 35 milioni di anni fa.',
+  grotta:'A Priabona le rocce sono piene di animali di un mare di 38-34 milioni di anni fa.',
   anguane:'Le anguane, dice la tradizione, proteggono fonti e ruscelli.',
   meneghello:'Malo è il paese di Luigi Meneghello e di «Libera nos a Malo».',
   recoaro:'Le acque di Recoaro sono note dal 1689.'
 };
 const VELOCITA=38,VELOCE=5;   // pixel al secondo del testo; quante volte più veloce tenendo premuto
+const SCHERMO_LARGO=900,NUVOLA=220;   // da quale larghezza il testo sta a destra della nuvoletta; larghezza della nuvoletta
 const fermo=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
 
@@ -137,11 +138,16 @@ function titoliDiCoda(poi){
   const tela=$('tiTela'),g=tela.getContext('2d'),scorri=$('tiScorri'),tx=$('tiTesto'),pens=$('tiPensiero');
   if(statico)scorri.classList.add('ti-fermo');
   let W=320,H=180,k=3,fine=false,ultimo=performance.now(),off=0,veloce=false,mondo=0,raf=0;
-  const misura=()=>{k=Math.max(2,Math.round(innerHeight/190));W=Math.ceil(innerWidth/k);H=Math.ceil(innerHeight/k);tela.width=W;tela.height=H;tela.style.width=W*k+'px';tela.style.height=H*k+'px'};
-  misura();addEventListener('resize',misura);
   const px=()=>Math.round(W*.24),py=()=>Math.round(H*.8)-28;
-  // la nuvoletta sta sopra la testa del personaggio, in pixel dello schermo
-  const mettiPensiero=()=>{pens.style.left=(px()*k+8)+'px';pens.style.bottom=(innerHeight-py()*k+10)+'px'};
+  // Né la nuvoletta né il personaggio devono coprire il testo (i crediti delle foto vanno mostrati):
+  // sugli schermi larghi la colonna del testo sta a destra della nuvoletta; su quelli stretti la nuvoletta sta in alto nel cielo,
+  // dove il testo arriva quando è già stato letto, e il testo ha un velo scuro davanti al personaggio.
+  const misura=()=>{k=Math.max(2,Math.round(innerHeight/190));W=Math.ceil(innerWidth/k);H=Math.ceil(innerHeight/k);tela.width=W;tela.height=H;tela.style.width=W*k+'px';tela.style.height=H*k+'px';
+    const largo=!statico&&innerWidth>=SCHERMO_LARGO;el.classList.toggle('ti-largo',largo);
+    const sx=px()*k+8+NUVOLA+40;tx.style.marginLeft=largo?sx+'px':'';tx.style.width=largo?Math.min(560,innerWidth-sx-32)+'px':''};
+  misura();addEventListener('resize',misura);
+  // la nuvoletta sta sopra la testa del personaggio, in pixel dello schermo (sugli schermi stretti la mette il CSS)
+  const mettiPensiero=()=>{pens.style.left=el.classList.contains('ti-largo')?(px()*k+8)+'px':'';pens.style.bottom=el.classList.contains('ti-largo')?(innerHeight-py()*k+10)+'px':''};
   const totale=()=>tx.offsetHeight+scorri.clientHeight;
   // un ricordo per sigillo, a distanza uguale lungo i titoli; ognuno resta per il 70% del suo spazio
   const ricordo=p=>{if(!ordine.length)return -1;const i=Math.floor(p*(ordine.length+1))-1,dentro=p*(ordine.length+1)%1;return i>=0&&i<ordine.length&&dentro<.7?i:-1};
@@ -193,6 +199,13 @@ const st=document.createElement('style');st.textContent=`
 .ti-bolle{position:absolute;left:-2px;bottom:-26px}
 .ti-bolle i{position:absolute;display:block;background:var(--panel,#241c33);border:2px solid var(--brass)}
 .ti-bolle i:first-child{width:10px;height:10px;left:4px;top:0}.ti-bolle i:last-child{width:6px;height:6px;left:-4px;top:14px}
+/* schermi stretti: nuvoletta in alto, foto e frase affiancate; velo scuro dietro il testo, davanti al personaggio */
+#titoli:not(.ti-largo) #tiPensiero{left:50%;top:12px;width:min(360px,calc(100vw - 32px));display:flex;gap:10px;align-items:center;transform:translate(-50%,-6px)}
+#titoli:not(.ti-largo) #tiPensiero.ti-su{transform:translate(-50%,0)}
+#titoli:not(.ti-largo) #tiPensiero img{width:42%;max-height:84px;flex:none}
+#titoli:not(.ti-largo) #tiPensiero p{margin:0}
+#titoli:not(.ti-largo) .ti-bolle{display:none}
+#titoli:not(.ti-largo) #tiScorri:not(.ti-fermo) #tiTesto{background:rgba(10,8,18,.6);box-shadow:0 0 0 8px rgba(10,8,18,.6)}
 .ti-pulsanti{position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:16px;display:flex;gap:12px;align-items:center;z-index:3}
 .ti-aiuto{font-size:14px;color:#a99cc4;text-shadow:1px 1px 0 #000}
 @media (max-width:520px){.ti-aiuto{display:none}}`;
