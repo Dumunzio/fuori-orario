@@ -545,7 +545,12 @@ function hud(){
 
 // La tela ha la misura del riquadro della stanza (VISTA) e si ingrandisce fino a riempire la finestra.
 // Ingrandimento intero se toglie poco spazio (pixel tutti uguali), altrimenti quello che riempie di più.
+// Sugli schermi grandi scritte, pulsanti e finestre crescono con la finestra (richiesta di Dumunzio):
+// 1 fino a 1280×800, la misura su cui è disegnata l'interfaccia, poi in proporzione fino a 2. Lo usa css/style.css (--zoom).
+function zoomInterfaccia(){const z=Math.max(1,Math.min(2,innerWidth/1280,innerHeight/800));
+  document.documentElement.style.setProperty('--zoom',(Math.floor(z*20)/20).toString())}
 function fit(){
+  zoomInterfaccia();
   const st=$('stage'),w=st.clientWidth,h=st.clientHeight,v=VISTA;
   if(cv.width!==v.w||cv.height!==v.h){cv.width=v.w;cv.height=v.h}
   let s=Math.min(w/v.w,h/v.h);if(s>=2&&Math.floor(s)/s>.92)s=Math.floor(s);
