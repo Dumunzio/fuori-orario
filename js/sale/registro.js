@@ -317,10 +317,10 @@ const sigilliMuseo=()=>Object.keys(SEALS).map(k=>S.seals[k]
   ?`<div class="sl-t sl-museo" style="--c:#b8892f"><b>◆</b><span>${SEALS[k].title}</span></div>`
   :`<div class="sl-t sl-chiusa" style="--c:#b8892f"><b>?</b><span>${DOVE_SIGILLO[k]||'Museo'}</span></div>`).join('');
 // Dove si trova un sigillo del museo ancora da prendere (come DOVE di enigmi.js, ma breve).
-const DOVE_SIGILLO={loom:'Museo · Lanificio',chest:'Museo · Grande Guerra',archive:'Museo · Archivio',facade:'Sala delle Ville'};
+const DOVE_SIGILLO={facade:'Sala delle Ville'};
 function apriCollezione(){
   openModal(`<div class="eyebrow">Sigilli · ${sigilliPresi()} su ${sigilliTotali()}</div><h2>I tuoi sigilli</h2>
-    <p>Ogni stanza con un rompicapo nasconde un sigillo: ${Object.keys(SEALS).length} nel museo e nella villa, uno in ogni sala del territorio. ${doveSale()} Per uscire servono tutti e ${sigilliTotali()}.</p>
+    <p>Ogni stanza con un rompicapo nasconde un sigillo: uno nella Sala delle Ville e uno in ogni sala del territorio. ${doveSale()} Per uscire servono tutti e ${sigilliTotali()}.</p>
     <div class="sl-collezione">${sigilliMuseo()}${SALE.map(s=>tessereS()[s.id]
       ?`<button type="button" class="sl-t" data-id="${s.id}" style="--c:${s.colore}"><img src="${s.tessera.foto.file}" alt=""><span>${s.tessera.titolo}</span></button>`
       :`<div class="sl-t sl-chiusa" style="--c:${s.colore}"><b>?</b><span>${s.nome}</span></div>`).join('')}</div>
@@ -344,7 +344,7 @@ function hudTessere(){const b=$('btnTessere'),n=sigilliPresi()+'/'+sigilliTotali
   if(b&&(n!==_tessereMostrate||!b.textContent)){_tessereMostrate=n;b.textContent=`Sigilli ${n}`}}
 {
   const b=document.createElement('button');b.id='btnTessere';b.type='button';b.title='I tuoi sigilli';
-  b.onclick=()=>{if(S.started&&$('modal').hidden&&$('dialog').hidden)apriCollezione()};
+  b.onclick=()=>{if(S.started&&$('modal').hidden)apriCollezione()}; // anche durante un dialogo, che resta sotto
   $('btnJournal').before(b);
   // Il conteggio si aggiorna da solo: così resta giusto anche dopo "Gioca ancora" o una ricarica.
   setInterval(hudTessere,400);setTimeout(hudTessere,0);
@@ -356,7 +356,7 @@ function hudTessere(){const b=$('btnTessere'),n=sigilliPresi()+'/'+sigilliTotali
 function bloccoUscita(){
   const tot=sigilliTotali(),n=sigilliPresi();if(n>=tot)return null;
   const museo=Object.keys(SEALS).filter(k=>!S.seals[k]).length,sale=SALE.filter(s=>!tessereS()[s.id]);
-  const mancano=[museo===1?'1 sigillo nel museo o nella villa':museo?`${museo} sigilli nel museo e nella villa`:'',
+  const mancano=[museo?'il sigillo della Sala delle Ville':'',
     sale.length<=3?sale.map(s=>s.nome).join(', '):`${sale.length} sale del territorio`].filter(Boolean).join(' e ');
   return [`È chiusa. Sulla serratura ci sono ${tot} incavi a forma di sigillo: ne hai ${n}.`,`Ti mancano: ${mancano}.`];
 }

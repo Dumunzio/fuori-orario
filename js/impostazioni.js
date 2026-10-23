@@ -22,7 +22,7 @@ function apriImpostazioni(){
     <div class="im-voce"><span class="im-titolo">Musica</span>
       <div class="row"><button type="button" id="imMusica" aria-pressed="${musicaAccesa()}">${musicaAccesa()?'Musica: accesa':'Musica: spenta'}</button></div>
       <label for="imVolume">Volume della musica</label>
-      <div class="im-riga"><input type="range" id="imVolume" min="0" max="100" step="5" value="${v}"><output id="imValore" for="imVolume">${v}%</output></div>
+      <div class="im-riga"><input type="range" id="imVolume" min="0" max="100" step="5" value="${v}" style="--v:${v/100}"><output id="imValore" for="imVolume">${v}%</output></div>
       <p class="im-nota" id="imNota"${v===0?'':' hidden'}>A volume 0 la musica è spenta.</p></div>
     <div class="im-voce"><span class="im-titolo">Carattere</span>
       <p class="im-nota">Il carattere di tutti i testi del gioco.</p>
@@ -48,7 +48,7 @@ function apriImpostazioni(){
   $('imCarattere').onclick=e=>{const b=e.target.closest('[data-font]');if(!b)return;scegliCarattere(b.dataset.font,true);
     $('imCarattere').querySelectorAll('[data-font]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))};
   const r=$('imVolume');
-  r.oninput=()=>{const n=+r.value;$('imValore').textContent=n+'%';$('imNota').hidden=n!==0;scriviVolume(n);applicaVolume(n)};
+  r.oninput=()=>{const n=+r.value;r.style.setProperty('--v',n/100);$('imValore').textContent=n+'%';$('imNota').hidden=n!==0;scriviVolume(n);applicaVolume(n)};
   if($('imCancella')){
     $('imCancella').onclick=()=>{$('imCancella').hidden=true;$('imConferma').hidden=false;$('imNo').focus()};
     $('imNo').onclick=()=>{$('imConferma').hidden=true;$('imCancella').hidden=false;$('imCancella').focus()};
@@ -58,14 +58,24 @@ function apriImpostazioni(){
 window.apriImpostazioni=apriImpostazioni;
 
 const b=document.createElement('button');b.id='btnImpostazioni';b.type='button';b.textContent='⚙';b.title='Impostazioni';b.setAttribute('aria-label','Impostazioni');
-// come Mappa e Tessere: non si apre sopra un dialogo o un'altra finestra
-b.onclick=()=>{if($('modal').hidden&&$('dialog').hidden)apriImpostazioni()};$('btnHint').before(b);
+// come Mappa e Sigilli: non si apre sopra un'altra finestra, ma sì durante un dialogo, che resta sotto
+b.onclick=()=>{if($('modal').hidden)apriImpostazioni()};$('btnHint').before(b);
 const st=document.createElement('style');st.textContent=`
 .im-voce{border:2px solid var(--line);padding:10px 12px;display:grid;gap:8px;margin:10px 0}
 .im-voce label,.im-titolo{font-family:var(--display);font-size:18px;color:var(--brass)}
 .im-riga{display:flex;gap:12px;align-items:center}
-.im-riga input{flex:1;accent-color:var(--brass)}
-.im-riga output{min-width:4ch;text-align:right}
+.im-riga output{flex:none;width:5ch;text-align:right}
+/* Slider del volume disegnato da noi, in pixel art: con lo stile del browser il pallino non arrivava in fondo
+   e al 100% restava un pezzo di binario vuoto a destra. --v (da 0 a 1) è il valore: la parte in ottone
+   arriva fino al centro del pallino (largo 12px), che va da bordo a bordo. */
+.im-riga input{flex:1;min-width:0;margin:0;padding:0;border:0;height:20px;background:none;cursor:pointer;-webkit-appearance:none;appearance:none}
+.im-riga input::-webkit-slider-runnable-track{height:10px;border:2px solid var(--line);
+  background:linear-gradient(90deg,var(--brass) calc(6px + (100% - 12px) * var(--v)),var(--night) 0)}
+.im-riga input::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:18px;margin-top:-6px;background:var(--ink);border:2px solid #000;border-radius:0}
+.im-riga input::-moz-range-track{height:6px;border:2px solid var(--line);background:var(--night)}
+.im-riga input::-moz-range-progress{height:6px;background:var(--brass)}
+.im-riga input::-moz-range-thumb{width:8px;height:14px;background:var(--ink);border:2px solid #000;border-radius:0}
+.im-riga input:focus-visible{outline:2px solid var(--brass);outline-offset:4px}
 .im-nota{margin:0;font-size:16px;color:var(--muted)}
 .im-conferma p{margin:0 0 8px}
 #imCarattere button[aria-pressed="true"]{border-color:var(--brass);color:var(--brass)}`;

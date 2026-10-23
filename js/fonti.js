@@ -170,14 +170,14 @@ const DOMANDE_GIOCO=[
   {id:'chi',re:/\b(chi sei|come ti chiami|who are you|your name)\b/,risposta:()=>'Sono il custode del museo. Di giorno controllo i biglietti, di notte i ritardatari come te. E conosco a memoria ogni cartellino.'},
   {id:'dove',re:/\b(dove|where)\b.*\b(sigill|seal|prossim|next)|\bprossim\w* (sigill|sala)|\bcosa (mi )?manca\b|what.*missing/,risposta:()=>{
     const museo=Object.keys(SEALS).filter(k=>!S.seals[k]);
-    if(museo.length)return museo.length===1?`Ti manca un sigillo tra museo e villa. ${DOVE[museo[0]]}`:`Tra museo e villa ti mancano ${museo.length} sigilli. Comincia da qui: ${DOVE[museo[0]]}`;
+    if(museo.length)return `Ti manca il sigillo della Sala delle Ville. ${DOVE[museo[0]]}`;
     const p=typeof prossimaSala==='function'&&prossimaSala();
-    if(p&&p.sala)return `Il museo è finito. La prossima sala che ti manca è la ${nomePianta(p.sala)}: dall'ingresso, ${p.strada}.`;
-    return 'Hai già tutti i sigilli. La porta d\'uscita ti aspetta, nella sala dopo il museo.'}},
+    if(p&&p.sala)return `La villa è finita. La prossima sala che ti manca è la ${nomePianta(p.sala)}: dall'ingresso, ${p.strada}.`;
+    return 'Hai già tutti i sigilli. La porta d\'uscita ti aspetta qui all\'ingresso, sotto il cartello verde.'}},
   {id:'mancano',re:/\b(quant[ie]|how many)\b.*\b(sigill|seal)|\bsigill\w* (mi )?manc|\bmanc\w*\b.*\bsigill/,risposta:()=>{
     const n=NPRESI(),t=NTOT(),m=t-n;
-    return m<=0?`Li hai tutti e ${t}. La porta d'uscita ti aspetta, nella sala dopo il museo.`:m===1?`Hai ${n} sigilli su ${t}: te ne manca uno solo.`:n===1?`Hai 1 sigillo su ${t}: te ne mancano ${m}.`:n===0?`Non hai ancora nessun sigillo: te ne servono ${t}.`:`Hai ${n} sigilli su ${t}: te ne mancano ${m}.`}},
-  {id:'uscita',re:/\b(uscire|uscita|esco|esci|exit|get out|leave)\b/,risposta:()=>`La porta d'uscita è nella sala dopo il museo: dall'ingresso vai nel museo e prendi il varco con il cartello verde. Si apre solo con tutti i ${NTOT()} sigilli.`},
+    return m<=0?`Li hai tutti e ${t}. La porta d'uscita ti aspetta qui all'ingresso.`:m===1?`Hai ${n} sigilli su ${t}: te ne manca uno solo.`:n===1?`Hai 1 sigillo su ${t}: te ne mancano ${m}.`:n===0?`Non hai ancora nessun sigillo: te ne servono ${t}.`:`Hai ${n} sigilli su ${t}: te ne mancano ${m}.`}},
+  {id:'uscita',re:/\b(uscire|uscita|esco|esci|exit|get out|leave)\b/,risposta:()=>`La porta d'uscita è qui all'ingresso, sulla parete destra, sotto il cartello verde. Si apre solo con tutti i ${NTOT()} sigilli.`},
   {id:'pianta',re:/\b(pianta|piantina|floor plan)\b/,risposta:()=>'La pianta è sul leggio qui all\'ingresso. Toccala: vedi tutte le stanze, quelle già finite in oro e dove ti trovi.'},
   {id:'salva',re:/\b(salva\w*|salvat\w*|save\w*)\b/,risposta:()=>typeof caricaPartita==='function'
     ?'Sì: la partita si salva da sola ogni volta che scopri qualcosa di nuovo o cambi stanza. Quando torni, premi «Continua la partita».'

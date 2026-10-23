@@ -5,7 +5,7 @@ const PIANTA={
   inizio:'ingresso',
   // Coppie di stanze collegate da un varco, senza corridoi: rami a catena, ognuno con un tema.
   collegamenti:[
-    ['ingresso','museo'],['museo','uscita'],['ingresso','villa'],
+    ['ingresso','villa'],
     ['ingresso','tessitore'],['tessitore','citta'],                                   // lana e industria
     ['ingresso','castello'],['castello','meneghello'],                                // storia e lettere
     ['ingresso','forti'],['forti','mine'],['mine','cimone'],['forti','ferrarin'],      // Grande Guerra
@@ -13,7 +13,7 @@ const PIANTA={
   ],
   // Posizione di ogni stanza nel disegno (x e y da 0 a 100, y verso il basso) e il suo ramo; sinistra = nome a sinistra del punto.
   posti:{
-    ingresso:{x:49,y:84,ramo:'museo'},museo:{x:61,y:71,ramo:'museo'},uscita:{x:71,y:55,ramo:'museo'},villa:{x:53,y:57,ramo:'museo'},
+    ingresso:{x:49,y:84,ramo:'museo'},villa:{x:53,y:57,ramo:'museo'},
     tessitore:{x:34,y:51,ramo:'lana'},citta:{x:26,y:55,ramo:'lana',sinistra:1},
     castello:{x:46,y:46,ramo:'storia'},meneghello:{x:43,y:41,ramo:'storia'},
     forti:{x:36,y:36,ramo:'guerra'},mine:{x:28,y:27,ramo:'guerra'},cimone:{x:24,y:22,ramo:'guerra',sinistra:1},ferrarin:{x:31,y:21,ramo:'guerra'},
@@ -21,18 +21,17 @@ const PIANTA={
   },
   rami:{museo:'Il museo',lana:'Lana e industria',storia:'Storia e lettere',guerra:'La Grande Guerra',acque:'Le acque della montagna'},
   // Dove ogni stanza ha la porta verso ciascun vicino: {lato:'L' (parete sinistra) | 'R' (parete destra), t: casella}.
-  // Ogni area compila le sue stanze: qui ingresso, museo, villa e uscita; le 11 sale le aggiunge js/sale/registro.js.
+  // Ogni area compila le sue stanze: qui ingresso e villa; le 11 sale le aggiunge js/sale/registro.js.
+  // La porta d'uscita non è un varco: sta nell'ingresso, parete destra casella 8 (STANZE.ingresso.porta in motore.js).
   porte:{
-    ingresso:{forti:{lato:'L',t:2},tessitore:{lato:'L',t:5},castello:{lato:'R',t:2},villa:{lato:'R',t:5},museo:{lato:'R',t:8}},
-    museo:{ingresso:{lato:'L',t:4},uscita:{lato:'R',t:10}},
-    villa:{ingresso:{lato:'L',t:6}},
-    uscita:{museo:{lato:'L',t:3}}
+    ingresso:{forti:{lato:'L',t:2},tessitore:{lato:'L',t:5},castello:{lato:'R',t:2},villa:{lato:'R',t:5}},
+    villa:{ingresso:{lato:'L',t:6}}
   },
   // Le stanze collegate a id, nell'ordine dei collegamenti.
   vicini(id){return this.collegamenti.filter(c=>c.includes(id)).map(c=>c[0]===id?c[1]:c[0])}
 };
 // Nomi delle stanze del museo; le sale a tema hanno il loro in SALA[id].nome.
-const NOMI_PIANTA={ingresso:'Ingresso',museo:'Museo del Territorio',villa:'Sala delle Ville',uscita:'Uscita'};
+const NOMI_PIANTA={ingresso:'Ingresso',villa:'Sala delle Ville'};
 const nomePianta=id=>NOMI_PIANTA[id]||(typeof SALA!=='undefined'&&SALA[id]&&SALA[id].nome)||id;
 // Casella del pavimento davanti a una porta.
 const davantiPorta=(lato,t)=>lato==='R'?[t,0]:[0,t];
@@ -105,7 +104,7 @@ function apriPianta(){
     <div class="pianta-rami">${Object.entries(PIANTA.rami).map(([r,nome])=>`<div><b>${nome}</b> ${ids.filter(id=>P_[id].ramo===r).map(id=>`<span class="${completata(id)?'fatta':''}">${completata(id)?'✓ ':''}${nomePianta(id)}</span>`).join(' · ')}</div>`).join('')}</div>
     <div class="row end">${closeBtn}</div>`);
   const mostra=id=>{const c=completata(id),s=SIGILLI_STANZA[id];
-    $('pDettaglio').textContent=`${nomePianta(id)} · ${PIANTA.rami[P_[id].ramo]}. `+(c?'Completata.':s?`Sigilli: ${s.filter(k=>S.seals[k]).length} su ${s.length}.`:id==='uscita'?'Qui c\'è la porta d\'uscita.':'Sigillo ancora da trovare.')};
+    $('pDettaglio').textContent=`${nomePianta(id)} · ${PIANTA.rami[P_[id].ramo]}. `+(id==='ingresso'?'Qui ci sono il custode e la porta d\'uscita.':c?'Completata.':s?`Sigilli: ${s.filter(k=>S.seals[k]).length} su ${s.length}.`:'Sigillo ancora da trovare.')};
   $('card').querySelectorAll('[data-stanza]').forEach(el=>{el.onclick=()=>mostra(el.dataset.stanza);el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();mostra(el.dataset.stanza)}}});
   // sul telefono la pianta è più larga dello schermo: si apre centrata sulla stanza dove sei
   const sc=$('card').querySelector('.pianta-scorri'),q=sc&&sc.querySelector('rect.qui');
@@ -113,13 +112,12 @@ function apriPianta(){
   $('card').scrollTop=0;  // il fuoco va su «Chiudi», in fondo: la finestra si apre comunque dall'inizio
 }
 
-// Sigilli che si trovano in ogni stanza del museo.
-const SIGILLI_STANZA={museo:['loom','chest','archive'],villa:['facade']};
+// Sigilli che si trovano nelle stanze del museo (le sale a tema hanno il loro, in SALA[id].tessera).
+const SIGILLI_STANZA={villa:['facade']};
 // Una stanza è completata quando ha dato tutti i suoi sigilli, o la sua tessera (sale a tema).
-// L'ingresso lo è sempre, l'uscita quando la partita è finita.
+// L'ingresso lo è sempre.
 function completata(id){
   if(id==='ingresso')return true;
-  if(id==='uscita')return !!S.done;
   if(SIGILLI_STANZA[id])return SIGILLI_STANZA[id].every(k=>S.seals[k]);
   return typeof tessereS==='function'&&!!tessereS()[id];
 }

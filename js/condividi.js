@@ -1,10 +1,10 @@
-/* L'immagine da condividere a fine partita: tempo, i 15 sigilli (le foto vere dei luoghi delle sale) e il titolo,
+/* L'immagine da condividere a fine partita: tempo, i 12 sigilli (le foto vere dei luoghi delle sale) e il titolo,
    su una tela 1080×1350 (formato verticale dei social). Si scarica o si condivide con il menu del telefono.
    Le foto vengono da Wikimedia Commons (tessereImmagini/caricaTessereImmagini, js/sale/registro.js):
    aperto da file locale il browser non lascia esportare una tela con le foto, quindi in quel caso l'immagine
    si rifà senza foto, con il colore e il nome di ogni sala. La chiama win() in enigmi.js. Area: sale. */
 {
-const LARGO=1080,ALTO=1350,COL=5,CASELLA=184,PASSO=196;
+const LARGO=1080,ALTO=1350,COL=4,CASELLA=184,PASSO=196;
 const fontTela=(px,peso='')=>`${peso} ${px}px ${getComputedStyle(document.body).getPropertyValue('--display').trim()||'serif'}`;
 
 // Una casella: la foto della sala (ritagliata per riempire), oppure il colore della sala; sotto il nome.
@@ -42,8 +42,8 @@ function disegna(sale,conFoto){
   g.font=fontTela(128,'bold');g.fillStyle='#000';g.fillText('FUORI ORARIO',LARGO/2+10,268);g.fillStyle='#c2493c';g.fillText('FUORI ORARIO',LARGO/2+5,263);g.fillStyle='#e0b04f';g.fillText('FUORI ORARIO',LARGO/2,258);
   g.fillStyle='#f0e6cf';g.font=fontTela(44);g.fillText('Fuga dal museo dopo la chiusura',LARGO/2,344);
   g.font=fontTela(92,'bold');g.fillStyle='#e0b04f';g.fillText(fmt(S.elapsed),LARGO/2,452);
-  g.font=fontTela(36);g.fillStyle='#a99cc4';g.fillText('Tutti i 15 sigilli della storia dell\'Alto Vicentino',LARGO/2,506);
-  // i 15 sigilli: prima i 4 del museo, poi le 11 sale, in 3 righe da 5
+  g.font=fontTela(36);g.fillStyle='#a99cc4';g.fillText(`Tutti i ${NTOT()} sigilli della storia dell'Alto Vicentino`,LARGO/2,506);
+  // i 12 sigilli: prima quello della villa, poi le 11 sale, in 3 righe da 4
   const x0=(LARGO-(COL-1)*PASSO-CASELLA)/2,y0=560;
   const tutte=[...Object.keys(SEALS).map(k=>({museo:SEALS[k].title})),...sale];
   tutte.forEach((t,i)=>{const x=x0+(i%COL)*PASSO,y=y0+Math.floor(i/COL)*PASSO;t.museo?casellaMuseo(g,x,y,t.museo):casellaSala(g,x,y,t,conFoto)});
@@ -58,7 +58,7 @@ async function apriImmagineFinale(){
   const sale=typeof caricaTessereImmagini==='function'?await caricaTessereImmagini():[];
   let url,conFoto=true;
   try{url=disegna(sale,true).toDataURL('image/png')}catch(e){conFoto=false;url=disegna(sale,false).toDataURL('image/png')}
-  box.innerHTML=`<img src="${url}" alt="Immagine della partita: tempo e 15 sigilli" style="width:100%;max-width:360px;display:block;margin:8px auto;border:2px solid var(--line)">
+  box.innerHTML=`<img src="${url}" alt="Immagine della partita: tempo e ${NTOT()} sigilli" style="width:100%;max-width:360px;display:block;margin:8px auto;border:2px solid var(--line)">
     <div class="row"><a class="primary" id="slScarica" href="${url}" download="fuori-orario.png" style="text-decoration:none;padding:6px 12px;border:2px solid var(--line);background:var(--brass);color:#1a1424;font-family:var(--display);text-transform:uppercase;letter-spacing:.06em">Scarica l'immagine</a>
     <button type="button" id="slCondividi" hidden>Condividi</button></div>
     ${conFoto?'':'<p class="eyebrow">Aperto da file locale il browser non lascia mettere le foto nell\'immagine: online ci sono.</p>'}`;
