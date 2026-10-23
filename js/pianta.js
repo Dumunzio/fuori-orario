@@ -79,8 +79,8 @@ function apriPianta(){
   const vw=colonne*CW+M*2,vh=righe*RH+M*2+6; // in basso lo spazio per «sei qui» sotto l'ingresso
   const cx=id=>M+col[id]*CW+CW/2,cy=id=>vh-M-6-riga[id]*RH-RH/2+4;
   const breve=id=>nomePianta(id).replace(/^Sala (delle |dei |del |della |dello |dell')/,'').replace(' del Territorio','');
-  // nomi lunghi su due righe
-  const righeNome=id=>{const s=breve(id),i=s.indexOf(' ');return s.length<=9||i<0?[s]:[s.slice(0,i),s.slice(i+1)]};
+  // nomi lunghi su due righe; prima si traduce il nome intero (lingua.js), poi si divide: «Città Sociale» → «Social / City»
+  const righeNome=id=>{const s=typeof tr==='function'?tr(breve(id)):breve(id),i=s.indexOf(' ');return s.length<=9||i<0?[s]:[s.slice(0,i),s.slice(i+1)]};
   const bordo=id=>typeof SALA!=='undefined'&&SALA[id]?SALA[id].colore:COLORI_RAMI[P_[id].ramo];
   // zone dei rami (non il museo, che ha stanze sparse): un rettangolo tenue dietro le stanze dello stesso ramo, col nome
   const zone=Object.keys(PIANTA.rami).filter(r=>r!=='museo').map(r=>{const st=ids.filter(id=>P_[id].ramo===r);if(!st.length)return '';
